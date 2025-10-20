@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Disc Golf Season Tracker</title>
+    <title>ParSaveables Season 2025</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -15,9 +15,16 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0a0e27;
+            background-image: 
+                linear-gradient(135deg, rgba(10, 14, 39, 0.95) 0%, rgba(20, 25, 50, 0.95) 100%),
+                url('https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=1920');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
             min-height: 100vh;
             padding: 20px;
+            color: #e0e0e0;
         }
         
         .container {
@@ -27,65 +34,101 @@
         
         header {
             text-align: center;
-            color: white;
+            color: #ffd700;
             margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .logo-container {
+            display: inline-block;
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            filter: drop-shadow(0 4px 8px rgba(255, 215, 0, 0.4));
         }
         
         header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.3);
+            font-weight: 700;
+            letter-spacing: 2px;
         }
         
         .refresh-btn {
-            background: white;
-            color: #667eea;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #0a0e27;
             border: none;
             padding: 10px 20px;
-            border-radius: 20px;
+            border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
             margin-top: 10px;
-            transition: transform 0.2s;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
         }
         
         .refresh-btn:hover {
-            transform: scale(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
         }
         
-        /* Chat Section - Top */
+        /* Compact Chat Section */
         .chat-section {
-            background: white;
+            background: rgba(20, 25, 50, 0.8);
+            backdrop-filter: blur(10px);
             border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
+            padding: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
         }
         
-        .chat-header {
-            color: #667eea;
+        .quick-questions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
             margin-bottom: 15px;
-            font-size: 1.5em;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
+        }
+        
+        .quick-question-btn {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: #ffd700;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        
+        .quick-question-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: translateY(-2px);
         }
         
         .chat-box {
-            height: 300px;
+            height: 150px;
             overflow-y: auto;
-            border: 2px solid #e0e0e0;
+            border: 1px solid rgba(255, 215, 0, 0.2);
             border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            background: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(10, 14, 39, 0.6);
         }
         
         .message {
-            margin-bottom: 15px;
-            padding: 10px 15px;
-            border-radius: 10px;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
             max-width: 80%;
             animation: fadeIn 0.3s;
+            font-size: 0.9em;
         }
         
         @keyframes fadeIn {
@@ -94,51 +137,62 @@
         }
         
         .user-message {
-            background: #667eea;
-            color: white;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #0a0e27;
             margin-left: auto;
             text-align: right;
+            font-weight: 500;
         }
         
         .bot-message {
-            background: white;
-            border: 1px solid #e0e0e0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            color: #e0e0e0;
+            white-space: pre-wrap;
         }
         
         .chat-input-container {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
         
         #chatInput {
             flex: 1;
-            padding: 12px;
-            border: 2px solid #667eea;
-            border-radius: 10px;
-            font-size: 1em;
+            padding: 10px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            font-size: 0.9em;
+            background: rgba(10, 14, 39, 0.6);
+            color: #e0e0e0;
+        }
+        
+        #chatInput::placeholder {
+            color: rgba(224, 224, 224, 0.5);
         }
         
         #sendBtn {
-            background: #667eea;
-            color: white;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #0a0e27;
             border: none;
-            padding: 12px 30px;
-            border-radius: 10px;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            transition: background 0.3s;
+            transition: all 0.3s;
         }
         
         #sendBtn:hover {
-            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
         }
         
         #sendBtn:disabled {
-            background: #ccc;
+            background: #555;
             cursor: not-allowed;
+            transform: none;
         }
         
-        /* Dashboard Layout - 3 Rows */
+        /* Dashboard Layout - Mobile Responsive */
         .row {
             margin-bottom: 20px;
         }
@@ -150,7 +204,7 @@
         
         .row-2 {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
         }
         
@@ -160,48 +214,68 @@
         }
         
         .card {
-            background: white;
+            background: rgba(20, 25, 50, 0.8);
+            backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 215, 0, 0.2);
         }
         
         .card h2 {
-            color: #667eea;
+            color: #ffd700;
             margin-bottom: 15px;
             font-size: 1.3em;
-            border-bottom: 2px solid #667eea;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
             padding-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
         }
         
         .scrollable-table {
             max-height: 450px;
             overflow-y: auto;
+            overflow-x: auto;
             border-radius: 8px;
+        }
+        
+        .scrollable-table::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        .scrollable-table::-webkit-scrollbar-track {
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 4px;
+        }
+        
+        .scrollable-table::-webkit-scrollbar-thumb {
+            background: rgba(255, 215, 0, 0.3);
+            border-radius: 4px;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 500px;
         }
         
         th, td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
         }
         
         th {
-            background: #f5f5f5;
+            background: rgba(255, 215, 0, 0.1);
             font-weight: 600;
-            color: #667eea;
+            color: #ffd700;
             position: sticky;
             top: 0;
             z-index: 10;
         }
         
         tr:hover {
-            background: #f9f9f9;
+            background: rgba(255, 215, 0, 0.05);
         }
         
         .rank-badge {
@@ -212,13 +286,25 @@
             text-align: center;
             border-radius: 50%;
             font-weight: bold;
-            color: white;
         }
         
-        .rank-1 { background: gold; color: #333; }
-        .rank-2 { background: silver; color: #333; }
-        .rank-3 { background: #cd7f32; color: white; }
-        .rank-other { background: #667eea; }
+        .rank-1 { 
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #0a0e27;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        .rank-2 { 
+            background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+            color: #0a0e27;
+        }
+        .rank-3 { 
+            background: linear-gradient(135deg, #cd7f32 0%, #e39a5a 100%);
+            color: white;
+        }
+        .rank-other { 
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+        }
         
         .bar-container {
             display: flex;
@@ -230,6 +316,7 @@
         .player-name {
             min-width: 120px;
             font-weight: 600;
+            color: #ffd700;
         }
         
         .bars {
@@ -250,15 +337,16 @@
             border-radius: 3px;
         }
         
-        .bar-ace { background: #e74c3c; }
-        .bar-eagle { background: #f39c12; }
-        .bar-birdie { background: #27ae60; }
+        .bar-ace { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); }
+        .bar-eagle { background: linear-gradient(135deg, #f39c12 0%, #d68910 100%); }
+        .bar-birdie { background: linear-gradient(135deg, #27ae60 0%, #229954 100%); }
         
         .legend {
             display: flex;
             gap: 15px;
             margin-bottom: 15px;
             font-size: 0.9em;
+            flex-wrap: wrap;
         }
         
         .legend-item {
@@ -275,13 +363,71 @@
         
         .loading {
             text-align: center;
-            color: #667eea;
+            color: #ffd700;
             padding: 20px;
         }
         
+        /* Mobile Responsiveness */
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            header h1 {
+                font-size: 1.8em;
+            }
+            
+            .logo {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .quick-questions {
+                grid-template-columns: 1fr;
+            }
+            
             .row-2 {
                 grid-template-columns: 1fr;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .card h2 {
+                font-size: 1.1em;
+            }
+            
+            table {
+                font-size: 0.85em;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+            
+            .player-name {
+                min-width: 80px;
+                font-size: 0.85em;
+            }
+            
+            .chat-box {
+                height: 120px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.5em;
+            }
+            
+            .refresh-btn {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+            
+            table {
+                font-size: 0.75em;
             }
         }
     </style>
@@ -289,25 +435,49 @@
 <body>
     <div class="container">
         <header>
-            <h1>🥏 Disc Golf Season Tracker</h1>
-            <p>Track your season stats and ask questions!</p>
+            <div class="logo-container">
+                <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Disc Golf Basket -->
+                    <ellipse cx="50" cy="70" rx="25" ry="8" fill="#444" opacity="0.6"/>
+                    <rect x="48" y="30" width="4" height="40" fill="#666"/>
+                    <circle cx="50" cy="30" r="2" fill="#888"/>
+                    <!-- Chains -->
+                    <line x1="35" y1="35" x2="35" y2="65" stroke="#888" stroke-width="1"/>
+                    <line x1="42" y1="32" x2="42" y2="65" stroke="#888" stroke-width="1"/>
+                    <line x1="50" y1="30" x2="50" y2="65" stroke="#888" stroke-width="1"/>
+                    <line x1="58" y1="32" x2="58" y2="65" stroke="#888" stroke-width="1"/>
+                    <line x1="65" y1="35" x2="65" y2="65" stroke="#888" stroke-width="1"/>
+                    <!-- Crown (tilted) -->
+                    <g transform="translate(50, 15) rotate(15) translate(-50, -15)">
+                        <path d="M 35 20 L 40 10 L 45 20 L 50 8 L 55 20 L 60 10 L 65 20 L 65 28 L 35 28 Z" 
+                              fill="#ffd700" stroke="#b8860b" stroke-width="1.5"/>
+                        <circle cx="40" cy="10" r="2" fill="#ff6b6b"/>
+                        <circle cx="50" cy="8" r="2.5" fill="#ff6b6b"/>
+                        <circle cx="60" cy="10" r="2" fill="#ff6b6b"/>
+                    </g>
+                </svg>
+            </div>
+            <h1>⛓️ ParSaveables Season 2025 ⛓️</h1>
             <button class="refresh-btn" onclick="loadAllData()">🔄 Refresh Data</button>
         </header>
 
-        <!-- Chatbot Section - Top -->
+        <!-- Compact Chatbot Section -->
         <div class="chat-section">
-            <h2 class="chat-header">💬 Ask About Stats</h2>
-            <div class="chat-box" id="chatBox">
-                <div class="message bot-message">
-                    Hi! Ask me anything about your disc golf season stats. Try:
-                    <ul style="margin-top: 10px; margin-left: 20px;">
-                        <li>"Who is winning the season?"</li>
-                        <li>"What's my average score?"</li>
-                        <li>"Show me player stats for David"</li>
-                        <li>"Best round at Zilker?"</li>
-                    </ul>
-                </div>
+            <div class="quick-questions">
+                <button class="quick-question-btn" onclick="askQuestion('What is my current ranking?')">
+                    👑 My Ranking
+                </button>
+                <button class="quick-question-btn" onclick="askQuestion('Who has improved the most this season?')">
+                    📈 Most Improved
+                </button>
+                <button class="quick-question-btn" onclick="askQuestion('What is the average score difference between top 3 players?')">
+                    🎯 Top 3 Gap
+                </button>
+                <button class="quick-question-btn" onclick="askQuestion('Which player is most consistent?')">
+                    🎪 Most Consistent
+                </button>
             </div>
+            <div class="chat-box" id="chatBox"></div>
             <div class="chat-input-container">
                 <input type="text" id="chatInput" placeholder="Ask a question..." onkeypress="handleKeyPress(event)">
                 <button id="sendBtn" onclick="sendMessage()">Send</button>
@@ -324,7 +494,7 @@
             </div>
         </div>
 
-        <!-- Row 2: Ace/Eagle/Birdie Leaders & Courses Played -->
+        <!-- Row 2: Aces/Eagles/Birdies & Courses -->
         <div class="row row-2">
             <div class="card">
                 <h2>🎯 Aces/Eagles/Birdies</h2>
@@ -355,7 +525,7 @@
             </div>
         </div>
 
-        <!-- Row 3: Weekly Points Trend -->
+        <!-- Row 3: Monthly Points Trend -->
         <div class="row row-3">
             <div class="card">
                 <h2>📈 Monthly Points Trend</h2>
@@ -372,12 +542,10 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjb3ZldmJ0Y2RzZ3picmllaWluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MzA3OTEsImV4cCI6MjA3NjIwNjc5MX0.etzrLL8yw4n_NUdYnr_bdcrKphW67dYln8CjR54NSLA';  // Long string starting with 'eyJ...'
         const N8N_CHATBOT_URL = 'https://parsaveables-seasons.onrender.com/webhook/chatbot';  // e.g., 'http://localhost:5678/webhook/chatbot'
 
-        // Initialize Supabase client
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let monthlyTrendChart;
 
-        // Load all dashboard data
         async function loadAllData() {
             await Promise.all([
                 loadLeaderboard(),
@@ -387,7 +555,6 @@
             ]);
         }
 
-        // 1. Load Season Leaderboard
         async function loadLeaderboard() {
             const { data, error } = await supabase
                 .from('player_rounds')
@@ -400,7 +567,6 @@
                 return;
             }
 
-            // Aggregate by player
             const playerStats = {};
             data.forEach(round => {
                 if (!playerStats[round.player_name]) {
@@ -417,12 +583,10 @@
                 if (round.rank <= 3) playerStats[round.player_name].top3 += 1;
             });
 
-            // Convert to array and sort by points
             const leaderboard = Object.entries(playerStats)
                 .map(([name, stats]) => ({ name, ...stats }))
                 .sort((a, b) => b.points - a.points);
 
-            // Generate HTML
             let html = `<table>
                 <thead>
                     <tr>
@@ -451,7 +615,6 @@
             document.getElementById('leaderboard').innerHTML = html;
         }
 
-        // 2. Load Ace/Eagle/Birdie Leaders
         async function loadBirdieLeaders() {
             const { data, error } = await supabase
                 .from('player_rounds')
@@ -463,7 +626,6 @@
                 return;
             }
 
-            // Aggregate by player
             const playerStats = {};
             data.forEach(round => {
                 if (!playerStats[round.player_name]) {
@@ -474,7 +636,6 @@
                 playerStats[round.player_name].birdies += round.birdies || 0;
             });
 
-            // Sort by total (aces + eagles + birdies)
             const sorted = Object.entries(playerStats)
                 .map(([name, stats]) => ({
                     name,
@@ -483,38 +644,38 @@
                 }))
                 .sort((a, b) => b.total - a.total);
 
-            // Find max for scaling the overall bar width
             const maxTotal = Math.max(...sorted.map(p => p.total), 1);
 
-            // Generate HTML with horizontal bars
             let html = '<div style="padding: 10px;">';
             sorted.forEach(player => {
-                // Scale the entire bar width based on total compared to max
-                const totalWidth = (player.total / maxTotal) * 100;
+                const containerWidth = (player.total / maxTotal) * 100;
                 
-                // Calculate pixel widths for each segment proportionally
-                const acePercent = player.total > 0 ? (player.aces / player.total) * 100 : 0;
-                const eaglePercent = player.total > 0 ? (player.eagles / player.total) * 100 : 0;
-                const birdiePercent = player.total > 0 ? (player.birdies / player.total) * 100 : 0;
-
                 html += `
                     <div class="bar-container">
                         <div class="player-name">${player.name}</div>
-                        <div class="bars" style="width: ${totalWidth}%; display: flex;">
-                            ${player.aces > 0 ? `<div class="bar bar-ace" style="width: ${acePercent}%;">${player.aces}</div>` : ''}
-                            ${player.eagles > 0 ? `<div class="bar bar-eagle" style="width: ${eaglePercent}%;">${player.eagles}</div>` : ''}
-                            ${player.birdies > 0 ? `<div class="bar bar-birdie" style="width: ${birdiePercent}%;">${player.birdies}</div>` : ''}
+                        <div style="display: flex; align-items: center; flex: 1;">
+                            <div class="bars" style="width: ${containerWidth}%; max-width: 100%; display: flex; gap: 0;">`;
+                
+                if (player.aces > 0) {
+                    html += `<div class="bar bar-ace" style="width: ${(player.aces / player.total) * 100}%; min-width: 30px;">${player.aces}</div>`;
+                }
+                if (player.eagles > 0) {
+                    html += `<div class="bar bar-eagle" style="width: ${(player.eagles / player.total) * 100}%; min-width: 30px;">${player.eagles}</div>`;
+                }
+                if (player.birdies > 0) {
+                    html += `<div class="bar bar-birdie" style="width: ${(player.birdies / player.total) * 100}%; min-width: 30px;">${player.birdies}</div>`;
+                }
+                
+                html += `</div>
+                            <span style="margin-left: 10px; color: #ffd700; font-size: 0.9em; white-space: nowrap;">${player.total}</span>
                         </div>
-                        <span style="margin-left: 10px; color: #666; font-size: 0.9em;">${player.total}</span>
                     </div>`;
             });
             html += '</div>';
             document.getElementById('birdieLeaders').innerHTML = html;
         }
 
-        // 3. Load Courses Table - Average Score by Course Tiers
         async function loadCoursesTable() {
-            // Get all rounds with course multiplier
             const { data: rounds, error: roundsError } = await supabase
                 .from('rounds')
                 .select('id, course_name, course_multiplier');
@@ -525,7 +686,6 @@
                 return;
             }
 
-            // Get player rounds to calculate average points
             const { data: playerRounds, error: prError } = await supabase
                 .from('player_rounds')
                 .select('round_id, player_name, final_total');
@@ -535,13 +695,11 @@
                 return;
             }
 
-            // Map round_id to course tier
             const roundMap = {};
             rounds.forEach(r => {
                 roundMap[r.id] = r.course_multiplier || 1.0;
             });
 
-            // Build data structure: playerStats[playerName][tier] = {total, count}
             const playerStats = {};
             playerRounds.forEach(pr => {
                 const tier = roundMap[pr.round_id];
@@ -557,10 +715,8 @@
                 playerStats[pr.player_name][tier].count += 1;
             });
 
-            // Get all unique tiers and sort
             const allTiers = [...new Set(Object.values(roundMap))].sort((a, b) => b - a);
 
-            // Generate HTML table
             let html = `<table>
                 <thead>
                     <tr>
@@ -574,7 +730,6 @@
                 </thead>
                 <tbody>`;
             
-            // Sort players alphabetically
             const sortedPlayers = Object.keys(playerStats).sort();
             
             sortedPlayers.forEach(player => {
@@ -587,7 +742,7 @@
                         const avg = stats.total / stats.count;
                         html += `<td>${avg.toFixed(1)}</td>`;
                     } else {
-                        html += `<td style="color: #ccc;">-</td>`;
+                        html += `<td style="color: #555;">-</td>`;
                     }
                 });
                 
@@ -598,7 +753,6 @@
             document.getElementById('coursesTable').innerHTML = html;
         }
 
-        // 4. Load Monthly Points Trend
         async function loadMonthlyTrend() {
             const { data: rounds, error: roundsError } = await supabase
                 .from('rounds')
@@ -619,20 +773,17 @@
                 return;
             }
 
-            // Map rounds to dates
             const roundDateMap = {};
             rounds.forEach(r => {
                 roundDateMap[r.id] = r.date;
             });
 
-            // Organize by player and month
             const playerMonthlyData = {};
             playerRounds.forEach(pr => {
                 const date = roundDateMap[pr.round_id];
                 if (!date) return;
 
-                // Extract year-month
-                const month = date.substring(0, 7); // Assumes format YYYY-MM-DD
+                const month = date.substring(0, 7);
 
                 if (!playerMonthlyData[pr.player_name]) {
                     playerMonthlyData[pr.player_name] = {};
@@ -643,19 +794,18 @@
                 playerMonthlyData[pr.player_name][month] += pr.final_total || 0;
             });
 
-            // Get all unique months sorted
             const allMonths = [...new Set(Object.values(roundDateMap).map(d => d.substring(0, 7)))].sort();
 
-            // Generate datasets for each player
-            const colors = ['#667eea', '#e74c3c', '#27ae60', '#f39c12', '#3498db', '#9b59b6', '#1abc9c', '#e67e22'];
+            const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#95e1d3', '#f38181', '#aa96da', '#fcbad3', '#a8d8ea'];
             const datasets = Object.entries(playerMonthlyData).map(([player, months], index) => {
                 return {
                     label: player,
                     data: allMonths.map(month => months[month] || 0),
                     borderColor: colors[index % colors.length],
-                    backgroundColor: colors[index % colors.length] + '20',
+                    backgroundColor: colors[index % colors.length] + '40',
                     tension: 0.3,
-                    fill: false
+                    fill: false,
+                    borderWidth: 2
                 };
             });
 
@@ -673,6 +823,12 @@
                     plugins: {
                         legend: {
                             position: 'top',
+                            labels: {
+                                color: '#ffd700',
+                                font: {
+                                    size: 12
+                                }
+                            }
                         }
                     },
                     scales: {
@@ -680,13 +836,27 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Points'
+                                text: 'Points',
+                                color: '#ffd700'
+                            },
+                            ticks: {
+                                color: '#e0e0e0'
+                            },
+                            grid: {
+                                color: 'rgba(255, 215, 0, 0.1)'
                             }
                         },
                         x: {
                             title: {
                                 display: true,
-                                text: 'Month'
+                                text: 'Month',
+                                color: '#ffd700'
+                            },
+                            ticks: {
+                                color: '#e0e0e0'
+                            },
+                            grid: {
+                                color: 'rgba(255, 215, 0, 0.1)'
                             }
                         }
                     }
@@ -703,17 +873,20 @@
             }
         }
 
+        function askQuestion(question) {
+            document.getElementById('chatInput').value = question;
+            sendMessage();
+        }
+
         async function sendMessage() {
             const input = document.getElementById('chatInput');
             const question = input.value.trim();
             
             if (!question) return;
 
-            // Add user message
             addMessage(question, 'user');
             input.value = '';
 
-            // Disable send button
             const sendBtn = document.getElementById('sendBtn');
             sendBtn.disabled = true;
             sendBtn.textContent = 'Thinking...';
