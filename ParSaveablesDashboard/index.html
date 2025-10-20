@@ -1,23 +1,4 @@
-// ============================================
-        // CHAT FUNCTIONALITY
-        // ============================================
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const question = input.value.trim();
-            
-            if (!question) return;
-
-            // Expand chat box when first message is sent
-            const chatBox = document.getElementById('chatBox');
-            const chatSection = document.getElementById('chatSection');
-            chatBox.classList.add('visible');
-            chatSection<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -96,7 +77,6 @@
             box-shadow: 0 6px 20px rgba(100, 255, 218, 0.5);
         }
         
-        /* Compact Chat Section - Single Line by Default */
         .chat-section {
             background: rgba(17, 34, 64, 0.85);
             backdrop-filter: blur(10px);
@@ -200,7 +180,6 @@
             transform: none;
         }
         
-        /* Dashboard Layout - Mobile Responsive */
         .row {
             margin-bottom: 20px;
         }
@@ -375,7 +354,6 @@
             padding: 20px;
         }
         
-        /* Mobile Responsiveness */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -441,17 +419,14 @@
         <header>
             <div class="logo-container">
                 <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Disc Golf Basket -->
                     <ellipse cx="50" cy="70" rx="25" ry="8" fill="#444" opacity="0.6"/>
                     <rect x="48" y="30" width="4" height="40" fill="#666"/>
                     <circle cx="50" cy="30" r="2" fill="#888"/>
-                    <!-- Chains -->
                     <line x1="35" y1="35" x2="35" y2="65" stroke="#888" stroke-width="1"/>
                     <line x1="42" y1="32" x2="42" y2="65" stroke="#888" stroke-width="1"/>
                     <line x1="50" y1="30" x2="50" y2="65" stroke="#888" stroke-width="1"/>
                     <line x1="58" y1="32" x2="58" y2="65" stroke="#888" stroke-width="1"/>
                     <line x1="65" y1="35" x2="65" y2="65" stroke="#888" stroke-width="1"/>
-                    <!-- Crown (tilted) -->
                     <g transform="translate(50, 15) rotate(15) translate(-50, -15)">
                         <path d="M 35 20 L 40 10 L 45 20 L 50 8 L 55 20 L 60 10 L 65 20 L 65 28 L 35 28 Z" 
                               fill="#64ffda" stroke="#00a896" stroke-width="1.5"/>
@@ -465,7 +440,6 @@
             <button class="refresh-btn" onclick="loadAllData()">🔄 Refresh Data</button>
         </header>
 
-        <!-- Compact Chatbot Section - Single Line -->
         <div class="chat-section" id="chatSection">
             <div class="chat-box" id="chatBox"></div>
             <div class="chat-input-container">
@@ -474,7 +448,6 @@
             </div>
         </div>
 
-        <!-- Row 1: Season Leaderboard -->
         <div class="row row-1">
             <div class="card">
                 <h2>🏆 Season Leaderboard</h2>
@@ -484,7 +457,6 @@
             </div>
         </div>
 
-        <!-- Row 2: Aces/Eagles/Birdies & Courses -->
         <div class="row row-2">
             <div class="card">
                 <h2>🎯 Aces/Eagles/Birdies</h2>
@@ -515,7 +487,6 @@
             </div>
         </div>
 
-        <!-- Row 3: Monthly Points Trend -->
         <div class="row row-3">
             <div class="card">
                 <h2>📈 Monthly Points Trend</h2>
@@ -525,15 +496,11 @@
     </div>
 
     <script>
-        // ============================================
-        // CONFIGURATION - UPDATE THESE VALUES!
-        // ============================================
         const SUPABASE_URL = 'https://bcovevbtcdsgzbrieiin.supabase.co';  // e.g., 'https://xxxxx.supabase.co'
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjb3ZldmJ0Y2RzZ3picmllaWluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MzA3OTEsImV4cCI6MjA3NjIwNjc5MX0.etzrLL8yw4n_NUdYnr_bdcrKphW67dYln8CjR54NSLA';  // Long string starting with 'eyJ...'
         const N8N_CHATBOT_URL = 'https://parsaveables-seasons.onrender.com/webhook/chatbot';  // e.g., 'http://localhost:5678/webhook/chatbot'
 
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         let monthlyTrendChart;
 
         async function loadAllData() {
@@ -560,12 +527,7 @@
             const playerStats = {};
             data.forEach(round => {
                 if (!playerStats[round.player_name]) {
-                    playerStats[round.player_name] = {
-                        points: 0,
-                        rounds: 0,
-                        wins: 0,
-                        top3: 0
-                    };
+                    playerStats[round.player_name] = { points: 0, rounds: 0, wins: 0, top3: 0 };
                 }
                 playerStats[round.player_name].points += round.final_total || 0;
                 playerStats[round.player_name].rounds += 1;
@@ -577,18 +539,7 @@
                 .map(([name, stats]) => ({ name, ...stats }))
                 .sort((a, b) => b.points - a.points);
 
-            let html = `<table>
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Player</th>
-                        <th>Rounds</th>
-                        <th>Points</th>
-                        <th>Wins</th>
-                        <th>Top 3</th>
-                    </tr>
-                </thead>
-                <tbody>`;
+            let html = `<table><thead><tr><th>Rank</th><th>Player</th><th>Rounds</th><th>Points</th><th>Wins</th><th>Top 3</th></tr></thead><tbody>`;
             
             leaderboard.forEach((player, index) => {
                 const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-other';
@@ -612,7 +563,6 @@
 
             if (error) {
                 document.getElementById('birdieLeaders').innerHTML = 'Error loading data';
-                console.error('Birdie leaders error:', error);
                 return;
             }
 
@@ -627,11 +577,7 @@
             });
 
             const sorted = Object.entries(playerStats)
-                .map(([name, stats]) => ({
-                    name,
-                    ...stats,
-                    total: stats.aces + stats.eagles + stats.birdies
-                }))
+                .map(([name, stats]) => ({ name, ...stats, total: stats.aces + stats.eagles + stats.birdies }))
                 .sort((a, b) => b.total - a.total);
 
             const maxTotal = Math.max(...sorted.map(p => p.total), 1);
@@ -639,237 +585,109 @@
             let html = '<div style="padding: 10px;">';
             sorted.forEach(player => {
                 const containerWidth = (player.total / maxTotal) * 100;
-                
-                html += `
-                    <div class="bar-container">
-                        <div class="player-name">${player.name}</div>
-                        <div style="display: flex; align-items: center; flex: 1;">
-                            <div class="bars" style="width: ${containerWidth}%; max-width: 100%; display: flex; gap: 0;">`;
-                
-                if (player.aces > 0) {
-                    html += `<div class="bar bar-ace" style="width: ${(player.aces / player.total) * 100}%; min-width: 30px;">${player.aces}</div>`;
-                }
-                if (player.eagles > 0) {
-                    html += `<div class="bar bar-eagle" style="width: ${(player.eagles / player.total) * 100}%; min-width: 30px;">${player.eagles}</div>`;
-                }
-                if (player.birdies > 0) {
-                    html += `<div class="bar bar-birdie" style="width: ${(player.birdies / player.total) * 100}%; min-width: 30px;">${player.birdies}</div>`;
-                }
-                
-                html += `</div>
-                            <span style="margin-left: 10px; color: #64ffda; font-size: 0.9em; white-space: nowrap;">${player.total}</span>
-                        </div>
-                    </div>`;
+                html += `<div class="bar-container"><div class="player-name">${player.name}</div><div style="display: flex; align-items: center; flex: 1;"><div class="bars" style="width: ${containerWidth}%; max-width: 100%; display: flex; gap: 0;">`;
+                if (player.aces > 0) html += `<div class="bar bar-ace" style="width: ${(player.aces / player.total) * 100}%; min-width: 30px;">${player.aces}</div>`;
+                if (player.eagles > 0) html += `<div class="bar bar-eagle" style="width: ${(player.eagles / player.total) * 100}%; min-width: 30px;">${player.eagles}</div>`;
+                if (player.birdies > 0) html += `<div class="bar bar-birdie" style="width: ${(player.birdies / player.total) * 100}%; min-width: 30px;">${player.birdies}</div>`;
+                html += `</div><span style="margin-left: 10px; color: #64ffda; font-size: 0.9em; white-space: nowrap;">${player.total}</span></div></div>`;
             });
             html += '</div>';
             document.getElementById('birdieLeaders').innerHTML = html;
         }
 
         async function loadCoursesTable() {
-            const { data: rounds, error: roundsError } = await supabase
-                .from('rounds')
-                .select('id, course_name, course_multiplier');
-
-            if (roundsError) {
-                document.getElementById('coursesTable').innerHTML = 'Error loading data';
-                console.error('Courses error:', roundsError);
-                return;
-            }
-
-            const { data: playerRounds, error: prError } = await supabase
-                .from('player_rounds')
-                .select('round_id, player_name, final_total');
-
-            if (prError) {
-                document.getElementById('coursesTable').innerHTML = 'Error loading data';
-                return;
-            }
+            const { data: rounds } = await supabase.from('rounds').select('id, course_name, course_multiplier');
+            const { data: playerRounds } = await supabase.from('player_rounds').select('round_id, player_name, final_total');
+            
+            if (!rounds || !playerRounds) return;
 
             const roundMap = {};
-            rounds.forEach(r => {
-                roundMap[r.id] = r.course_multiplier || 1.0;
-            });
+            rounds.forEach(r => { roundMap[r.id] = r.course_multiplier || 1.0; });
 
             const playerStats = {};
             playerRounds.forEach(pr => {
                 const tier = roundMap[pr.round_id];
                 if (!tier) return;
-
-                if (!playerStats[pr.player_name]) {
-                    playerStats[pr.player_name] = {};
-                }
-                if (!playerStats[pr.player_name][tier]) {
-                    playerStats[pr.player_name][tier] = { total: 0, count: 0 };
-                }
+                if (!playerStats[pr.player_name]) playerStats[pr.player_name] = {};
+                if (!playerStats[pr.player_name][tier]) playerStats[pr.player_name][tier] = { total: 0, count: 0 };
                 playerStats[pr.player_name][tier].total += pr.final_total || 0;
                 playerStats[pr.player_name][tier].count += 1;
             });
 
             const allTiers = [...new Set(Object.values(roundMap))].sort((a, b) => b - a);
-
-            let html = `<table>
-                <thead>
-                    <tr>
-                        <th>Player</th>`;
+            let html = `<table><thead><tr><th>Player</th>`;
+            allTiers.forEach(tier => { html += `<th>${tier.toFixed(2)}x</th>`; });
+            html += `</tr></thead><tbody>`;
             
-            allTiers.forEach(tier => {
-                html += `<th>${tier.toFixed(2)}x</th>`;
-            });
-            
-            html += `</tr>
-                </thead>
-                <tbody>`;
-            
-            const sortedPlayers = Object.keys(playerStats).sort();
-            
-            sortedPlayers.forEach(player => {
-                html += `<tr>
-                    <td><strong>${player}</strong></td>`;
-                
+            Object.keys(playerStats).sort().forEach(player => {
+                html += `<tr><td><strong>${player}</strong></td>`;
                 allTiers.forEach(tier => {
                     const stats = playerStats[player][tier];
-                    if (stats) {
-                        const avg = stats.total / stats.count;
-                        html += `<td>${avg.toFixed(1)}</td>`;
-                    } else {
-                        html += `<td style="color: #555;">-</td>`;
-                    }
+                    html += stats ? `<td>${(stats.total / stats.count).toFixed(1)}</td>` : `<td style="color: #555;">-</td>`;
                 });
-                
                 html += `</tr>`;
             });
-            
             html += '</tbody></table>';
             document.getElementById('coursesTable').innerHTML = html;
         }
 
         async function loadMonthlyTrend() {
-            const { data: rounds, error: roundsError } = await supabase
-                .from('rounds')
-                .select('id, date')
-                .order('date', { ascending: true });
-
-            if (roundsError) {
-                console.error('Monthly trend error:', roundsError);
-                return;
-            }
-
-            const { data: playerRounds, error: prError } = await supabase
-                .from('player_rounds')
-                .select('round_id, player_name, final_total');
-
-            if (prError) {
-                console.error('Player rounds error:', prError);
-                return;
-            }
+            const { data: rounds } = await supabase.from('rounds').select('id, date').order('date', { ascending: true });
+            const { data: playerRounds } = await supabase.from('player_rounds').select('round_id, player_name, final_total');
+            
+            if (!rounds || !playerRounds) return;
 
             const roundDateMap = {};
-            rounds.forEach(r => {
-                roundDateMap[r.id] = r.date;
-            });
+            rounds.forEach(r => { roundDateMap[r.id] = r.date; });
 
             const playerMonthlyData = {};
             playerRounds.forEach(pr => {
                 const date = roundDateMap[pr.round_id];
                 if (!date) return;
-
                 const month = date.substring(0, 7);
-
-                if (!playerMonthlyData[pr.player_name]) {
-                    playerMonthlyData[pr.player_name] = {};
-                }
-                if (!playerMonthlyData[pr.player_name][month]) {
-                    playerMonthlyData[pr.player_name][month] = 0;
-                }
+                if (!playerMonthlyData[pr.player_name]) playerMonthlyData[pr.player_name] = {};
+                if (!playerMonthlyData[pr.player_name][month]) playerMonthlyData[pr.player_name][month] = 0;
                 playerMonthlyData[pr.player_name][month] += pr.final_total || 0;
             });
 
             const allMonths = [...new Set(Object.values(roundDateMap).map(d => d.substring(0, 7)))].sort();
-
             const colors = ['#64ffda', '#ff6b6b', '#4ecdc4', '#95e1d3', '#f38181', '#aa96da', '#fcbad3', '#a8d8ea'];
-            const datasets = Object.entries(playerMonthlyData).map(([player, months], index) => {
-                return {
-                    label: player,
-                    data: allMonths.map(month => months[month] || 0),
-                    borderColor: colors[index % colors.length],
-                    backgroundColor: colors[index % colors.length] + '40',
-                    tension: 0.3,
-                    fill: false,
-                    borderWidth: 2
-                };
-            });
+            const datasets = Object.entries(playerMonthlyData).map(([player, months], index) => ({
+                label: player,
+                data: allMonths.map(month => months[month] || 0),
+                borderColor: colors[index % colors.length],
+                backgroundColor: colors[index % colors.length] + '40',
+                tension: 0.3,
+                fill: false,
+                borderWidth: 2
+            }));
 
             const ctx = document.getElementById('monthlyTrendChart');
             if (monthlyTrendChart) monthlyTrendChart.destroy();
             monthlyTrendChart = new Chart(ctx, {
                 type: 'line',
-                data: {
-                    labels: allMonths,
-                    datasets: datasets
-                },
+                data: { labels: allMonths, datasets: datasets },
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                color: '#64ffda',
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        }
-                    },
+                    plugins: { legend: { position: 'top', labels: { color: '#64ffda', font: { size: 12 } } } },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Points',
-                                color: '#64ffda'
-                            },
-                            ticks: {
-                                color: '#e6f1ff'
-                            },
-                            grid: {
-                                color: 'rgba(100, 255, 218, 0.1)'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Month',
-                                color: '#64ffda'
-                            },
-                            ticks: {
-                                color: '#e6f1ff'
-                            },
-                            grid: {
-                                color: 'rgba(100, 255, 218, 0.1)'
-                            }
-                        }
+                        y: { beginAtZero: true, title: { display: true, text: 'Points', color: '#64ffda' }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } },
+                        x: { title: { display: true, text: 'Month', color: '#64ffda' }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } }
                     }
                 }
             });
         }
 
-        // ============================================
-        // CHAT FUNCTIONALITY
-        // ============================================
         function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
+            if (event.key === 'Enter') sendMessage();
         }
 
         async function sendMessage() {
             const input = document.getElementById('chatInput');
             const question = input.value.trim();
-            
             if (!question) return;
 
-            // Expand chat box when first message is sent
             const chatBox = document.getElementById('chatBox');
             const chatSection = document.getElementById('chatSection');
             chatBox.classList.add('visible');
@@ -888,12 +706,11 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ question })
                 });
-
                 const data = await response.json();
                 addMessage(data.answer || 'Sorry, I could not process that question.', 'bot');
             } catch (error) {
                 console.error('Chat error:', error);
-                addMessage('Error: Could not connect to chatbot. Make sure n8n is running and the webhook URL is correct.', 'bot');
+                addMessage('Error: Could not connect to chatbot.', 'bot');
             }
 
             sendBtn.disabled = false;
@@ -910,58 +727,7 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // ============================================
-        // INITIALIZE
-        // ============================================
         loadAllData();
-        
-        // Auto-refresh every 5 minutes
-        setInterval(loadAllData, 300000);
-    </script>
-</body>
-</html>.classList.add('expanded');
-
-            addMessage(question, 'user');
-            input.value = '';
-
-            const sendBtn = document.getElementById('sendBtn');
-            sendBtn.disabled = true;
-            sendBtn.textContent = 'Thinking...';
-
-            try {
-                const response = await fetch(N8N_CHATBOT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question })
-                });
-
-                const data = await response.json();
-                addMessage(data.answer || 'Sorry, I could not process that question.', 'bot');
-            } catch (error) {
-                console.error('Chat error:', error);
-                addMessage('Error: Could not connect to chatbot. Make sure n8n is running and the webhook URL is correct.', 'bot');
-            }
-
-            sendBtn.disabled = false;
-            sendBtn.textContent = 'Send';
-        }
-
-        function addMessage(text, type) {
-            const chatBox = document.getElementById('chatBox');
-            const message = document.createElement('div');
-            message.className = `message ${type}-message`;
-            message.style.whiteSpace = 'pre-wrap';
-            message.textContent = text;
-            chatBox.appendChild(message);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        // ============================================
-        // INITIALIZE
-        // ============================================
-        loadAllData();
-        
-        // Auto-refresh every 5 minutes
         setInterval(loadAllData, 300000);
     </script>
 </body>
