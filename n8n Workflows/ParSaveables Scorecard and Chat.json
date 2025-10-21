@@ -1,0 +1,990 @@
+{
+  "name": "ParSaveables Scorecard and Chat",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        0,
+        192
+      ],
+      "id": "50176696-2857-401b-9a30-c529def3d838",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the ranked player data from previous node\nconst roundData = $input.all()[0].json;\n\n// ===== COURSE DIFFICULTY TIERS =====\n// You can modify these tiers and courses as needed\nconst courseTiers = {\n  \"tier1\": {\n    multiplier: 1.0,\n    courses: [\"Wells Branch\", \"Lil G\", \"Armadillo Mini\"]\n  },\n  \"tier2\": {\n    multiplier: 1.5,\n    courses: [\"Zilker Park\", \"Live Oak\", \"Bartholomew Park\", \"Live Oak Brewing DGC\"]\n  },\n  \"tier3\": {\n    multiplier: 2.0,\n    courses: [\"Northtown Park\", \"Searight Park\", \"MetCenter\", \"Old Settler's\", \"Cat Hollow\", \"Circle C\", \"Williamson County\"]\n  },\n  \"tier4\": {\n    multiplier: 2.5,\n    courses: [\"East Metro\", \"Sprinkle Valley\", \"Roy G Guerrero\", \"Bible Ridge\", \"Flying Armadillo\", \"Harvey Penick\"]\n  }\n};\n\n// ===== RANK POINTS SYSTEM =====\nconst rankPoints = {\n  1: 10,\n  2: 7,\n  3: 5\n};\nconst defaultRankPoints = 2; // Everyone else who played\n\n// ===== PERFORMANCE BONUSES =====\nconst performancePoints = {\n  birdie: 1,\n  eagle: 3,\n  ace: 5\n};\n\n// ===== FIND COURSE MULTIPLIER =====\nfunction getCourseMultiplier(courseName) {\n  for (const tier in courseTiers) {\n    const tierData = courseTiers[tier];\n    // Check if course name matches (case-insensitive partial match)\n    const matchedCourse = tierData.courses.find(course => \n      courseName.toLowerCase().includes(course.toLowerCase()) ||\n      course.toLowerCase().includes(courseName.toLowerCase())\n    );\n    if (matchedCourse) {\n      return tierData.multiplier;\n    }\n  }\n  // Default to Tier 1 if course not found\n  console.log(`Warning: Course \"${courseName}\" not found in tiers. Using 1x multiplier.`);\n  return 1.0;\n}\n\n// ===== CALCULATE TIE-ADJUSTED RANK POINTS =====\nfunction calculateRankPoints(players) {\n  const rankPointsMap = {};\n  \n  let i = 0;\n  while (i < players.length) {\n    const currentRank = players[i].rank;\n    \n    // Find all players with this rank (ties)\n    let tiedPlayers = 1;\n    let j = i + 1;\n    while (j < players.length && players[j].rank === currentRank) {\n      tiedPlayers++;\n      j++;\n    }\n    \n    // Calculate average points for tied players\n    let totalPoints = 0;\n    for (let k = 0; k < tiedPlayers; k++) {\n      const rank = currentRank + k;\n      totalPoints += rankPoints[rank] || defaultRankPoints;\n    }\n    const avgPoints = totalPoints / tiedPlayers;\n    \n    // Assign average points to all tied players\n    for (let k = i; k < j; k++) {\n      rankPointsMap[k] = avgPoints;\n    }\n    \n    i = j;\n  }\n  \n  return rankPointsMap;\n}\n\n// ===== CALCULATE POINTS FOR EACH PLAYER =====\nconst courseMultiplier = getCourseMultiplier(roundData.courseName);\nconst rankPointsMap = calculateRankPoints(roundData.players);\n\nroundData.players.forEach((player, index) => {\n  // Base rank points (with tie averaging)\n  const baseRankPoints = rankPointsMap[index] || defaultRankPoints;\n  \n  // Performance bonuses\n  const birdiePoints = player.birdies * performancePoints.birdie;\n  const eaglePoints = player.eagles * performancePoints.eagle;\n  const acePoints = player.aces * performancePoints.ace;\n  \n  // Total before multiplier\n  const rawPoints = baseRankPoints + birdiePoints + eaglePoints + acePoints;\n  \n  // Apply course difficulty multiplier\n  const finalPoints = rawPoints * courseMultiplier;\n  \n  // Add point breakdown to player data\n  player.points = {\n    rankPoints: baseRankPoints,\n    birdiePoints: birdiePoints,\n    eaglePoints: eaglePoints,\n    acePoints: acePoints,\n    rawTotal: rawPoints,\n    courseMultiplier: courseMultiplier,\n    finalTotal: finalPoints\n  };\n});\n\n// Return complete round data with points\nreturn [{\n  json: {\n    roundInfo: {\n      courseName: roundData.courseName,\n      layoutName: roundData.layoutName,\n      date: roundData.date,\n      time: roundData.time,\n      location: roundData.location,\n      temperature: roundData.temperature,\n      wind: roundData.wind,\n      courseMultiplier: Number(courseMultiplier) // Force it to be a number\n    },\n    holes: roundData.holes,\n    players: roundData.players\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "21579dad-2c3d-487e-bb2e-58d3872691e2",
+      "name": "Calculate Points"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the response from Anthropic\nconst anthropicResponse = $input.all()[0].json;\n\n// Extract the text content\nconst textContent = anthropicResponse.content[0].text;\n\n// Remove markdown code blocks if present\nlet cleanJson = textContent.trim();\nif (cleanJson.startsWith('```json')) {\n  cleanJson = cleanJson.replace(/```json\\n?/g, '').replace(/```\\n?/g, '');\n}\n\n// Parse the JSON\nconst parsedData = JSON.parse(cleanJson);\n\n// Verify and recalculate player stats based on actual par values\nconst holes = parsedData.holes;\n\nparsedData.players.forEach(player => {\n  let birdies = 0, eagles = 0, aces = 0, pars = 0, bogeys = 0, doubleBogeys = 0;\n  \n  player.holeByHole.forEach((score, index) => {\n    const par = holes[index].par;\n    const diff = score - par;\n    \n    if (score === 1) {\n      aces++;\n    } else if (diff <= -2) {\n      eagles++;\n    } else if (diff === -1) {\n      birdies++;\n    } else if (diff === 0) {\n      pars++;\n    } else if (diff === 1) {\n      bogeys++;\n    } else if (diff >= 2) {\n      doubleBogeys++;\n    }\n  });\n  \n  // Update the player's stats with verified counts\n  player.birdies = birdies;\n  player.eagles = eagles;\n  player.aces = aces;\n  player.pars = pars;\n  player.bogeys = bogeys;\n  player.doubleBogeys = doubleBogeys;\n});\n\n// Helper function to find the first birdie hole\nfunction getFirstBirdieHole(player, holes) {\n  for (let i = 0; i < player.holeByHole.length; i++) {\n    const score = player.holeByHole[i];\n    const par = holes[i].par;\n    if (score === par - 1 && score > 1) { // Birdie (not ace)\n      return i + 1; // Return hole number (1-indexed)\n    }\n  }\n  return 999; // No birdie found\n}\n\n// Apply tie-breaker logic and sort players\nconst players = parsedData.players;\n\nplayers.sort((a, b) => {\n  // Primary: Total score (lower is better, e.g., -6 beats -4)\n  if (a.totalScore !== b.totalScore) {\n    return a.totalScore - b.totalScore;\n  }\n  \n  // Tie-breaker 1: More birdies wins\n  if (a.birdies !== b.birdies) {\n    return b.birdies - a.birdies;\n  }\n  \n  // Tie-breaker 2: More pars wins\n  if (a.pars !== b.pars) {\n    return b.pars - a.pars;\n  }\n  \n  // Tie-breaker 3: Earlier first birdie wins\n  const aFirstBirdie = getFirstBirdieHole(a, holes);\n  const bFirstBirdie = getFirstBirdieHole(b, holes);\n  \n  if (aFirstBirdie !== bFirstBirdie) {\n    return aFirstBirdie - bFirstBirdie;\n  }\n  \n  // Tie-breaker 4: If all equal, they're tied\n  return 0;\n});\n\n// Assign ranks with proper tie handling\nlet currentRank = 1;\nfor (let i = 0; i < players.length; i++) {\n  if (i > 0) {\n    const prev = players[i - 1];\n    const curr = players[i];\n    \n    // Check if tied with previous player\n    const isTied = \n      prev.totalScore === curr.totalScore &&\n      prev.birdies === curr.birdies &&\n      prev.pars === curr.pars &&\n      getFirstBirdieHole(prev, holes) === getFirstBirdieHole(curr, holes);\n    \n    if (!isTied) {\n      currentRank = i + 1;\n    }\n  }\n  \n  players[i].rank = currentRank;\n}\n\n// Return the complete structured data\nreturn [{\n  json: {\n    courseName: parsedData.courseName,\n    layoutName: parsedData.layoutName,\n    date: parsedData.date,\n    time: parsedData.time,\n    location: parsedData.location,\n    temperature: parsedData.temperature,\n    wind: parsedData.wind,\n    holes: parsedData.holes,\n    players: players\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "d0dc5fc6-5528-4e2f-9924-1ecaa752479e",
+      "name": "Clean and Rank Players"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-5-20250929\",\n  \"max_tokens\": 4096,\n  \"temperature\": 0.3,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"Extract ALL data from this UDisc disc golf scorecard screenshot and return it as valid JSON.\\n\\nThe scorecard layout shows (top to bottom, left to right):\\n- Course name\\n- Course layout\\n- Hole numbers (1-18)\\n- Distance for each hole (in feet)\\n- Par for each hole\\n- Player names (may be truncated with '...')\\n- Each player's score for each hole (18 scores per player)\\n- Total strokes and score relative to par for each player\\n- Date, time, location, temperature, wind at bottom\\n\\nScoring definitions (calculate based on par for each hole):\\n- ACE: Score of 1 (hole-in-one)\\n- EAGLE: 2 strokes under par\\n- BIRDIE: 1 stroke under par\\n- PAR: Score equals par\\n- BOGEY: 1 stroke over par\\n- DOUBLE BOGEY+: 2 or more strokes over par\\n\\nRequired JSON structure:\\n{\\n  \\\"courseName\\\": string,\\n  \\\"layoutName\\\": string,\\n  \\\"date\\\": string,\\n  \\\"time\\\": string,\\n  \\\"location\\\": string,\\n  \\\"temperature\\\": string,\\n  \\\"wind\\\": string,\\n  \\\"holes\\\": [\\n    {\\n      \\\"hole\\\": number (1-18),\\n      \\\"distance\\\": number (in feet),\\n      \\\"par\\\": number\\n    }\\n  ],\\n  \\\"players\\\": [\\n    {\\n      \\\"name\\\": string (keep '...' if truncated),\\n      \\\"totalStrokes\\\": number,\\n      \\\"totalScore\\\": number (relative to par, e.g., -6, +3),\\n      \\\"holeByHole\\\": [18 numbers],\\n      \\\"birdies\\\": number,\\n      \\\"eagles\\\": number,\\n      \\\"aces\\\": number,\\n      \\\"pars\\\": number,\\n      \\\"bogeys\\\": number,\\n      \\\"doubleBogeys\\\": number\\n    }\\n  ]\\n}\\n\\nFor each player, count their birdies/eagles/aces/pars/bogeys by comparing their score on each hole to that hole's par value.\\n\\nReturn ONLY valid JSON with no markdown code blocks or explanations.\"\n        },\n        {\n          \"type\": \"image\",\n          \"source\": {\n            \"type\": \"url\",\n            \"url\": \"{{ $json.body.attachments[0].url }}\"\n          }\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "41fc67c3-1db1-403c-936a-5c1063305c65",
+      "name": "Extract Scorecard Data (Claude)",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Jw2X4BQgM3RZ9kLO",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "daa8d95f-2c76-4641-9fd7-decb2541f5e1",
+              "leftValue": "={{$json[\"body\"][\"attachments\"][0][\"type\"]}}",
+              "rightValue": "image",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        96
+      ],
+      "id": "eb5f28e8-4130-484d-ab3c-ef57e88b2df7",
+      "name": "Check if Image"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "groupme-scorecard-incoming",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -448,
+        96
+      ],
+      "id": "62806ef9-43b7-43a2-92ed-52d4d2880c31",
+      "name": "Receive Scorecard",
+      "webhookId": "5497ebc3-4887-4f3a-9327-82d62b59b137"
+    },
+    {
+      "parameters": {
+        "tableId": "rounds",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "date",
+              "fieldValue": "={{ $json.roundInfo.date }}"
+            },
+            {
+              "fieldId": "time",
+              "fieldValue": "={{ $json.roundInfo.time }}"
+            },
+            {
+              "fieldId": "course_name",
+              "fieldValue": "={{ $json.roundInfo.courseName }}"
+            },
+            {
+              "fieldId": "layout_name",
+              "fieldValue": "={{ $json.roundInfo.layoutName }}"
+            },
+            {
+              "fieldId": "location",
+              "fieldValue": "={{ $json.roundInfo.location }}"
+            },
+            {
+              "fieldId": "temperature",
+              "fieldValue": "={{ $json.roundInfo.temperature }}"
+            },
+            {
+              "fieldId": "wind",
+              "fieldValue": "={{ $json.roundInfo.wind }}"
+            },
+            {
+              "fieldId": "course_multiplier",
+              "fieldValue": "={{$json.roundInfo.courseMultiplier}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "33b965e0-20fb-4e8e-b360-ab4b4069ff07",
+      "name": "Save Round Info",
+      "credentials": {
+        "supabaseApi": {
+          "id": "i3y1x07UvCf0qcWb",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1baf46ef-c02b-43b0-ba8f-15b01e571105",
+              "name": "round_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "ee80a643-6c8d-4198-8a22-3cdf359a974f",
+              "name": "players",
+              "value": "={{ $('Calculate Points').item.json.players }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        0
+      ],
+      "id": "89db8949-d2ea-465a-814b-202ad22060a7",
+      "name": "Store Round ID"
+    },
+    {
+      "parameters": {
+        "tableId": "player_rounds",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "round_id",
+              "fieldValue": "={{ $('Store Round ID').item.json.round_id }}"
+            },
+            {
+              "fieldId": "player_name",
+              "fieldValue": "={{ $json.name }}"
+            },
+            {
+              "fieldId": "rank",
+              "fieldValue": "={{ $json.rank }}"
+            },
+            {
+              "fieldId": "total_strokes",
+              "fieldValue": "={{ $json.totalStrokes }}"
+            },
+            {
+              "fieldId": "total_score",
+              "fieldValue": "={{ $json.totalScore }}"
+            },
+            {
+              "fieldId": "birdies",
+              "fieldValue": "={{ $json.birdies }}"
+            },
+            {
+              "fieldId": "eagles",
+              "fieldValue": "={{ $json.eagles }}"
+            },
+            {
+              "fieldId": "aces",
+              "fieldValue": "={{ $json.aces }}"
+            },
+            {
+              "fieldId": "pars",
+              "fieldValue": "={{ $json.pars }}"
+            },
+            {
+              "fieldId": "bogeys",
+              "fieldValue": "={{ $json.bogeys }}"
+            },
+            {
+              "fieldId": "double_bogeys",
+              "fieldValue": "={{ $json.doubleBogeys }}"
+            },
+            {
+              "fieldId": "rank_points",
+              "fieldValue": "={{ $json.points.rankPoints }}"
+            },
+            {
+              "fieldId": "birdie_points",
+              "fieldValue": "={{ $json.points.birdiePoints }}"
+            },
+            {
+              "fieldId": "eagle_points",
+              "fieldValue": "={{ $json.points.eaglePoints }}"
+            },
+            {
+              "fieldId": "ace_points",
+              "fieldValue": "={{ $json.points.acePoints }}"
+            },
+            {
+              "fieldId": "raw_total",
+              "fieldValue": "={{ $json.points.rawTotal }}"
+            },
+            {
+              "fieldId": "final_total",
+              "fieldValue": "={{ $json.points.finalTotal }}"
+            },
+            {
+              "fieldId": "hole_by_hole",
+              "fieldValue": "={{ JSON.stringify($json.holeByHole) }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        0
+      ],
+      "id": "337b72c3-02ef-4269-af21-4bea821a9b67",
+      "name": "Save Player Stats",
+      "credentials": {
+        "supabaseApi": {
+          "id": "i3y1x07UvCf0qcWb",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "players",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "2c9953ac-b49c-4b44-9f8e-577d86f4ada1",
+      "name": "Split Players into Rows"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.all()[0].json;\n\n// Parse the players JSON string into an actual array\nconst players = JSON.parse(data.players);\n\n// Return the parsed data\nreturn [{\n  json: {\n    round_id: data.round_id,\n    players: players\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "927f1f31-26e2-4b7e-8336-51af37943b22",
+      "name": "Parse Players Array"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chatbot",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -448,
+        752
+      ],
+      "id": "623fa1ea-452d-4d86-8da7-c2cd1fec64f0",
+      "name": "Receive Chat Question",
+      "webhookId": "9a8f9b3f-1d09-428d-943b-0beac37a080d"
+    },
+    {
+      "parameters": {
+        "jsCode": "const question = $input.all()[0].json.body.question;\n\n// Simple keyword detection to determine query type\nlet queryType = 'general';\nlet searchTerm = '';\n\nconst lowerQuestion = question.toLowerCase();\n\n// Detect query type\nif (lowerQuestion.includes('leaderboard') || lowerQuestion.includes('standings') || lowerQuestion.includes('winning')) {\n  queryType = 'leaderboard';\n} else if (lowerQuestion.includes('stats for') || lowerQuestion.includes('stats on') || lowerQuestion.includes('player')) {\n  queryType = 'player_stats';\n  \n  // Extract player name - look for text after \"for\" or \"on\"\n  let nameMatch = question.match(/(?:for|on)\\s+(.+?)$/i);\n  if (nameMatch && nameMatch[1]) {\n    searchTerm = nameMatch[1].trim();\n  }\n} else if (lowerQuestion.includes('course') || lowerQuestion.includes('at ')) {\n  queryType = 'course_stats';\n} else if (lowerQuestion.includes('round') || lowerQuestion.includes('game') || lowerQuestion.includes('recent')) {\n  queryType = 'recent_rounds';\n}\n\nconsole.log('Question:', question);\nconsole.log('Query Type:', queryType);\nconsole.log('Search Term:', searchTerm);\n\nreturn [{\n  json: {\n    question: question,\n    queryType: queryType,\n    searchTerm: searchTerm\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        752
+      ],
+      "id": "433035a5-50c4-4efe-881e-10b415044850",
+      "name": "Determine Query Type"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.queryType }}",
+                    "rightValue": "leaderboard",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "77cfb6ba-4a4c-4377-ab94-9818ddc2fb10"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "de2dda77-fc57-4121-92d6-68bb81441546",
+                    "leftValue": "={{ $json.queryType }}",
+                    "rightValue": "player_stats",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "0fa5d94d-d124-4ac9-b179-38080cabbe4d",
+                    "leftValue": "={{ $json.queryType }}",
+                    "rightValue": "course_stats",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e41b1e47-af82-4a8e-8f8e-527f21bc0c11",
+                    "leftValue": "={{ $json.queryType }}",
+                    "rightValue": "recent_rounds",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        0,
+        704
+      ],
+      "id": "f41554af-acac-4d3b-a375-149f5915bda8",
+      "name": "Route by Query Type"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "player_rounds",
+        "returnAll": true,
+        "filterType": "none"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        416
+      ],
+      "id": "16b39dee-35c8-492a-b6f2-edf70d31f70e",
+      "name": "Get Leaderboard Data",
+      "credentials": {
+        "supabaseApi": {
+          "id": "i3y1x07UvCf0qcWb",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "player_rounds",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "player_name",
+              "condition": "ilike",
+              "keyValue": "=%{{ $json.searchTerm }}%"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        608
+      ],
+      "id": "991fd827-9c5b-4ce6-afbd-f22af1eb1bab",
+      "name": "Get Player Stats",
+      "credentials": {
+        "supabaseApi": {
+          "id": "i3y1x07UvCf0qcWb",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "rounds",
+        "returnAll": true,
+        "filterType": "none"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        896
+      ],
+      "id": "479bfa38-f7dd-4e23-a8a6-50486db2bc36",
+      "name": "Get Course Stats",
+      "credentials": {
+        "supabaseApi": {
+          "id": "i3y1x07UvCf0qcWb",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "rounds",
+        "limit": 10,
+        "filterType": "none"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        1088
+      ],
+      "id": "1aabc64b-fed6-4693-9b93-306e4824de8e",
+      "name": "Get Recent Rounds",
+      "credentials": {
+        "supabaseApi": {
+          "id": "i3y1x07UvCf0qcWb",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        448,
+        704
+      ],
+      "id": "7f74e3bb-378d-492f-a760-16e2a372a5a1",
+      "name": "Merge All Routes"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the original question\nconst question = $('Determine Query Type').item.json.question;\n\n// Get all the data from Supabase queries\nconst allData = $input.all();\n\n// Combine all query results\nlet combinedData = [];\nallData.forEach(item => {\n  if (item.json && Array.isArray(item.json)) {\n    combinedData = combinedData.concat(item.json);\n  } else if (item.json) {\n    combinedData.push(item.json);\n  }\n});\n\n// Prepare context for Claude\nreturn [{\n  json: {\n    question: question,\n    data: combinedData,\n    dataCount: combinedData.length\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        752
+      ],
+      "id": "762a5bba-2535-4751-a50a-6f7c11d4dcdc",
+      "name": "Prepare Data for Claude"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "={{ $json.model }}"
+            },
+            {
+              "name": "max_tokens",
+              "value": "={{ $json.max_tokens }}"
+            },
+            {
+              "name": "messages",
+              "value": "={{ $json.messages }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        752
+      ],
+      "id": "9db12801-d683-4473-93dc-2212324604c5",
+      "name": "Generate Answer",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Jw2X4BQgM3RZ9kLO",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get Claude's response\nconst claudeResponse = $input.all()[0].json;\n\n// Extract the text from Claude's response\nconst answer = claudeResponse.content[0].text;\n\nreturn [{\n  json: {\n    answer: answer\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        752
+      ],
+      "id": "5177d233-1773-4120-832e-26a0a336e957",
+      "name": "Extract Answer"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"answer\": $json.answer } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, GET, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1568,
+        752
+      ],
+      "id": "33df5013-37a4-475d-8b2d-fa3c9d78d6a4",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const question = $input.item.json.question;\nconst data = $input.item.json.data;\n\nconst requestBody = {\n  model: \"claude-sonnet-4-20250514\",\n  max_tokens: 2000,\n  messages: [\n    {\n      role: \"user\",\n      content: `You are a disc golf season statistics assistant. Answer the user's question based on the data provided.\n\nUser Question: ${question}\n\nAvailable Data:\n${JSON.stringify(data, null, 2)}\n\nFORMATTING INSTRUCTIONS:\n- Keep responses concise and scannable\n- Use bullet points (•) for lists\n- Use numbered lists (1., 2., 3.) when showing rankings\n- Use line breaks to separate sections\n- For player stats, format as: \"Stat Name: Value\"\n- Highlight key numbers and metrics\n- Don't repeat the question in your answer\n- Don't use unnecessary filler words like \"Based on the data...\" or \"According to...\"\n- Get straight to the answer\n\nEXAMPLE FORMATS:\n\nFor leaderboards:\n1. Player Name - XXX points\n2. Player Name - XXX points\n3. Player Name - XXX points\n\nFor player stats:\n**Player Name Stats:**\n- Total Points: XXX\n- Rounds Played: X\n- Average: XX.X\n- Wins: X\n- Top 3 Finishes: X\n\nFor courses:\n**Courses Played:**\n- Course Name (Tier X.X) - Avg XX points\n- Course Name (Tier X.X) - Avg XX points\n\nProvide a clear, well-formatted answer using the patterns above. If the data is empty, say \"No data available for this query.\"`\n    }\n  ]\n};\n\nreturn {\n  json: requestBody\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        752
+      ],
+      "id": "5729cd68-fe25-4f60-b3a4-fc25f860136c",
+      "name": "Build Claude Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Clean and Rank Players": {
+      "main": [
+        [
+          {
+            "node": "Calculate Points",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Scorecard Data (Claude)": {
+      "main": [
+        [
+          {
+            "node": "Clean and Rank Players",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Image": {
+      "main": [
+        [
+          {
+            "node": "Extract Scorecard Data (Claude)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Scorecard": {
+      "main": [
+        [
+          {
+            "node": "Check if Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Points": {
+      "main": [
+        [
+          {
+            "node": "Save Round Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Round Info": {
+      "main": [
+        [
+          {
+            "node": "Store Round ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Round ID": {
+      "main": [
+        [
+          {
+            "node": "Parse Players Array",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Players into Rows": {
+      "main": [
+        [
+          {
+            "node": "Save Player Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Players Array": {
+      "main": [
+        [
+          {
+            "node": "Split Players into Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Chat Question": {
+      "main": [
+        [
+          {
+            "node": "Determine Query Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Determine Query Type": {
+      "main": [
+        [
+          {
+            "node": "Route by Query Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Query Type": {
+      "main": [
+        [
+          {
+            "node": "Get Leaderboard Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Player Stats",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Course Stats",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Recent Rounds",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge All Routes",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Get Leaderboard Data": {
+      "main": [
+        [
+          {
+            "node": "Merge All Routes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Player Stats": {
+      "main": [
+        [
+          {
+            "node": "Merge All Routes",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get Course Stats": {
+      "main": [
+        [
+          {
+            "node": "Merge All Routes",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Get Recent Rounds": {
+      "main": [
+        [
+          {
+            "node": "Merge All Routes",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Merge All Routes": {
+      "main": [
+        [
+          {
+            "node": "Prepare Data for Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Data for Claude": {
+      "main": [
+        [
+          {
+            "node": "Build Claude Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Answer": {
+      "main": [
+        [
+          {
+            "node": "Extract Answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Answer": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Claude Request": {
+      "main": [
+        [
+          {
+            "node": "Generate Answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1,
+    "availableInMCP": false,
+    "errorWorkflow": "oWdBcBiMTC5wwKJE"
+  },
+  "versionId": "44a8157c-42fe-4a3d-9721-17de1157708b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ff978110d07511b571b07f446e27923b856b4d0f922c99965ce226875ac45ce1"
+  },
+  "id": "Sc13wR3lK4kEQKsB",
+  "tags": []
+}
