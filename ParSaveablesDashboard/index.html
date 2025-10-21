@@ -569,12 +569,11 @@
             const selectedSeason = getSelectedSeason();
             if (!selectedSeason) return;
 
-            // Get rounds for selected season (excluding superseded rounds)
+            // Get rounds for selected season
             const { data: rounds, error: roundsError } = await supabase
                 .from('rounds')
                 .select('id')
-                .eq('season', selectedSeason)
-                .is('superseded_by', null);
+                .eq('season', selectedSeason);
 
             if (roundsError) {
                 document.getElementById('leaderboard').innerHTML = 'Error loading data';
@@ -658,12 +657,11 @@
             const selectedSeason = getSelectedSeason();
             if (!selectedSeason) return;
 
-            // Get rounds for selected season (excluding superseded rounds)
+            // Get rounds for selected season
             const { data: rounds, error: roundsError } = await supabase
                 .from('rounds')
                 .select('id')
-                .eq('season', selectedSeason)
-                .is('superseded_by', null);
+                .eq('season', selectedSeason);
 
             if (roundsError) {
                 document.getElementById('birdieLeaders').innerHTML = 'Error loading data';
@@ -726,8 +724,7 @@
             const { data: rounds } = await supabase
                 .from('rounds')
                 .select('id, course_name, course_multiplier')
-                .eq('season', selectedSeason)
-                .is('superseded_by', null);
+                .eq('season', selectedSeason);
 
             if (!rounds || rounds.length === 0) {
                 document.getElementById('coursesTable').innerHTML = '<p style="text-align: center; padding: 20px;">No data for this season</p>';
@@ -793,7 +790,6 @@
                 .from('rounds')
                 .select('id, date')
                 .eq('season', selectedSeason)
-                .is('superseded_by', null)
                 .order('date', { ascending: true });
 
             if (!rounds || rounds.length === 0) return;
