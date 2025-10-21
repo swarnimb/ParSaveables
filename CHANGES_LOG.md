@@ -1,5 +1,150 @@
 # ParSaveables - Changes Log
 
+## 2025-10-21: Course Tiers Table Improvements
+
+### Changes Implemented
+
+#### 1. Always Show All 4 Tiers ✅
+
+**Problem:**
+Course tiers table only showed tiers that had been played. If no one played a Tier 4 course yet, that column wouldn't appear at all.
+
+**Solution:**
+- Always display all 4 tier columns regardless of whether they've been played
+- Show "-" for unplayed tiers
+- Provides consistent table structure and shows full tier system
+
+**Code Changes:**
+```javascript
+// Define all tiers (always show all 4 tiers)
+const allTiers = [
+    { multiplier: 2.5, label: 'Hardest (2.5x)' },
+    { multiplier: 2.0, label: 'Hard (2x)' },
+    { multiplier: 1.5, label: 'Medium (1.5x)' },
+    { multiplier: 1.0, label: 'Easy (1x)' }
+];
+```
+
+#### 2. Improved Column Headers ✅
+
+**Changed From:**
+- `2.50x`, `2.00x`, `1.50x`, `1.00x` (technical multipliers)
+
+**Changed To:**
+- `Hardest (2.5x)`, `Hard (2x)`, `Medium (1.5x)`, `Easy (1x)` (descriptive labels)
+
+**Benefit:**
+- More intuitive for users
+- Clearly indicates difficulty level
+- Still shows multiplier for reference
+
+#### 3. Fixed Column Widths ✅
+
+**Problem:**
+Table would require horizontal scrolling on some screen sizes, headers would wrap to multiple lines.
+
+**Solution:**
+- Set `table-layout: fixed; width: 100%`
+- Player column: 25% width
+- Each tier column: 18.75% width (4 columns × 18.75% = 75%)
+- Total: 100% (no scrolling needed)
+
+**CSS:**
+```css
+table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+th {
+    white-space: nowrap;
+    font-size: 0.85em;
+}
+
+td {
+    font-size: 0.9em;
+}
+```
+
+#### 4. Font Size Adjustments ✅
+
+**Problem:**
+Column headers like "Hardest (2.5x)" were wrapping to two lines.
+
+**Solution:**
+- Reduced header font size to 0.85em
+- Reduced cell font size to 0.9em
+- Added `white-space: nowrap` to prevent line breaks
+- Headers now display on single line
+
+### Files Modified
+
+**Dashboard (index.html):**
+- `loadCoursesTable()` function: Updated tier definition and table generation
+- CSS: Added `white-space: nowrap` and reduced font sizes for headers and cells
+
+### Visual Comparison
+
+**Before:**
+```
+Player | 2.00x | 1.00x
+(only shows played tiers, headers wrap)
+```
+
+**After:**
+```
+Player | Hardest (2.5x) | Hard (2x) | Medium (1.5x) | Easy (1x)
+(all tiers shown, single-line headers, fixed widths)
+```
+
+### Deployment
+
+- **Committed**: 2025-10-21
+- **Pushed to**: GitHub main branch
+- **Auto-deployed**: Vercel (https://par-saveables.vercel.app)
+- **Status**: Live
+
+---
+
+## 2025-10-21: Reverted Duplicate Detection Feature
+
+### Changes Reverted
+
+#### Background
+Attempted to implement duplicate scorecard detection to handle resubmissions, but encountered technical challenges with n8n Code node limitations (`fetch` not available in sandbox).
+
+#### What Was Removed
+
+**Database:**
+- Dropped `superseded_by` column from `rounds` table
+- Dropped `groupme_timestamp` column from `rounds` table
+- Dropped `idx_rounds_duplicate_check` index
+
+**n8n Workflow:**
+- Removed "Check for Duplicates" Code node
+- Removed "Mark Old Round as Superseded" Supabase Update node
+- Removed "Update Old Round with Actual ID" Supabase Update node
+- Removed `groupme_timestamp` and `superseded_by` fields from "Save Round Info" node
+- Restored direct connections: Clean and Rank Players → Calculate Points, Save Round Info → Store Round ID
+
+**Dashboard:**
+- Removed `.is('superseded_by', null)` filters from all round queries
+- `loadLeaderboard()`, `loadBirdieLeaders()`, `loadCoursesTable()`, `loadMonthlyTrend()` all reverted
+
+#### Result
+System fully reverted to state before duplicate detection was attempted. All existing functionality preserved.
+
+#### Reason for Revert
+n8n Code node environment does not support `fetch()` API. Alternative approaches (HTTP Request nodes with complex chaining) added too much complexity for the benefit. Decided to defer duplicate handling for future enhancement.
+
+### Deployment
+
+- **Committed**: 2025-10-21
+- **Pushed to**: GitHub main branch
+- **Status**: Clean revert, system operational
+
+---
+
 ## 2025-10-20: Top 10 Scoring & Registered Players Filter
 
 ### Changes Implemented
