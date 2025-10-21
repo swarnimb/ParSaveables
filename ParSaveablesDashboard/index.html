@@ -502,6 +502,22 @@
         let monthlyTrendChart;
         let availableSeasons = [];
 
+        // Registered players list
+        const REGISTERED_PLAYERS = [
+            'Intern Line Cook',
+            'Jabba the Putt',
+            'Food Zaddy',
+            'Jaguar',
+            'Shogun',
+            'BigBirdie',
+            'Butter Cookie',
+            'Cobra',
+            '🦅',
+            'Fireball',
+            'Ace Brook',
+            'ScarletSpeedster'
+        ];
+
         // Get selected season from dropdown
         function getSelectedSeason() {
             const select = document.getElementById('seasonSelect');
@@ -583,15 +599,35 @@
                 return;
             }
 
-            const playerStats = {};
+            // Filter for registered players only and collect all their rounds
+            const playerRounds = {};
             data.forEach(round => {
-                if (!playerStats[round.player_name]) {
-                    playerStats[round.player_name] = { points: 0, rounds: 0, wins: 0, top3: 0 };
+                // Only count registered players
+                if (!REGISTERED_PLAYERS.includes(round.player_name)) return;
+
+                if (!playerRounds[round.player_name]) {
+                    playerRounds[round.player_name] = [];
                 }
-                playerStats[round.player_name].points += round.final_total || 0;
-                playerStats[round.player_name].rounds += 1;
-                if (round.rank === 1) playerStats[round.player_name].wins += 1;
-                if (round.rank <= 3) playerStats[round.player_name].top3 += 1;
+                playerRounds[round.player_name].push({
+                    points: round.final_total || 0,
+                    rank: round.rank
+                });
+            });
+
+            // Calculate stats using only TOP 10 scores
+            const playerStats = {};
+            Object.entries(playerRounds).forEach(([name, rounds]) => {
+                // Sort rounds by points (descending) and take top 10
+                const sortedRounds = rounds.sort((a, b) => b.points - a.points);
+                const top10Rounds = sortedRounds.slice(0, 10);
+
+                playerStats[name] = {
+                    points: top10Rounds.reduce((sum, r) => sum + r.points, 0),
+                    rounds: rounds.length, // Total rounds played
+                    countedRounds: top10Rounds.length, // Rounds counted (max 10)
+                    wins: rounds.filter(r => r.rank === 1).length,
+                    top3: rounds.filter(r => r.rank <= 3).length
+                };
             });
 
             // SORT BY POINTS (descending)
@@ -599,14 +635,15 @@
                 .map(([name, stats]) => ({ name, ...stats }))
                 .sort((a, b) => b.points - a.points);
 
-            let html = `<table><thead><tr><th>Rank</th><th>Player</th><th>Rounds</th><th>Points</th><th>Wins</th><th>Top 3</th></tr></thead><tbody>`;
-            
+            let html = `<table><thead><tr><th>Rank</th><th>Player</th><th>Played</th><th>Counted</th><th>Points</th><th>Wins</th><th>Top 3</th></tr></thead><tbody>`;
+
             leaderboard.forEach((player, index) => {
                 const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-other';
                 html += `<tr>
                     <td><span class="rank-badge ${rankClass}">${index + 1}</span></td>
                     <td><strong>${player.name}</strong></td>
                     <td>${player.rounds}</td>
+                    <td>${player.countedRounds}</td>
                     <td><strong>${player.points.toFixed(1)}</strong></td>
                     <td>${player.wins}</td>
                     <td>${player.top3}</td>
@@ -649,6 +686,9 @@
 
             const playerStats = {};
             data.forEach(round => {
+                // Only count registered players
+                if (!REGISTERED_PLAYERS.includes(round.player_name)) return;
+
                 if (!playerStats[round.player_name]) {
                     playerStats[round.player_name] = { aces: 0, eagles: 0, birdies: 0 };
                 }
@@ -706,6 +746,9 @@
             const playerTotalPoints = {};
 
             playerRounds.forEach(pr => {
+                // Only count registered players
+                if (!REGISTERED_PLAYERS.includes(pr.player_name)) return;
+
                 const tier = roundMap[pr.round_id];
                 if (!tier) return;
                 if (!playerStats[pr.player_name]) {
@@ -764,6 +807,9 @@
 
             const playerMonthlyData = {};
             playerRounds.forEach(pr => {
+                // Only count registered players
+                if (!REGISTERED_PLAYERS.includes(pr.player_name)) return;
+
                 const date = roundDateMap[pr.round_id];
                 if (!date) return;
                 const month = date.substring(0, 7);
