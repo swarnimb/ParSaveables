@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ParSaveables Season 2025</title>
+    <title>ParSaveables Disc Golf Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -86,6 +86,9 @@
             margin-bottom: 25px;
             border: 1px solid rgba(100, 255, 218, 0.2);
             transition: all 0.3s ease;
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
         }
         
         .chat-section.expanded {
@@ -97,6 +100,7 @@
             overflow: hidden;
             border: 1px solid rgba(100, 255, 218, 0.2);
             border-radius: 10px;
+            flex-grow: 1;
             padding: 0;
             margin-bottom: 0;
             background: rgba(10, 25, 47, 0.6);
@@ -207,6 +211,9 @@
             padding: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(100, 255, 218, 0.2);
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
         }
         
         .card h2 {
@@ -219,10 +226,11 @@
         }
         
         .scrollable-table {
-            max-height: 450px;
+            max-height: 350px;
             overflow-y: auto;
             overflow-x: auto;
             border-radius: 8px;
+            flex-grow: 1;
         }
         
         .scrollable-table::-webkit-scrollbar {
@@ -436,7 +444,13 @@
                     </g>
                 </svg>
             </div>
-            <h1>⛓️ ParSaveables Season 2025 ⛓️</h1>
+            <h1>⛓️ ParSaveables Disc Golf Tracker ⛓️</h1>
+            <div style="margin: 15px 0;">
+                <label for="seasonSelect" style="font-size: 1.1em; margin-right: 10px;">Season:</label>
+                <select id="seasonSelect" onchange="loadAllData()" style="padding: 8px 15px; font-size: 1em; border-radius: 5px; background: white; color: #0a192f; border: 2px solid #64ffda; cursor: pointer;">
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
             <button class="refresh-btn" onclick="loadAllData()">🔄 Refresh Data</button>
         </header>
 
@@ -502,6 +516,45 @@
 
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let monthlyTrendChart;
+        let availableSeasons = [];
+
+        // Get selected season from dropdown
+        function getSelectedSeason() {
+            const select = document.getElementById('seasonSelect');
+            return select.value ? parseInt(select.value) : null;
+        }
+
+        // Load available seasons and populate dropdown
+        async function loadSeasons() {
+            const { data, error } = await supabase
+                .from('rounds')
+                .select('season')
+                .order('season', { ascending: false });
+
+            if (error) {
+                console.error('Error loading seasons:', error);
+                return;
+            }
+
+            // Get unique seasons
+            const seasons = [...new Set(data.map(r => r.season))].filter(s => s != null);
+            availableSeasons = seasons.sort((a, b) => b - a); // Descending order
+
+            // Populate dropdown
+            const select = document.getElementById('seasonSelect');
+            select.innerHTML = '';
+            availableSeasons.forEach(season => {
+                const option = document.createElement('option');
+                option.value = season;
+                option.textContent = season;
+                select.appendChild(option);
+            });
+
+            // Select most recent season by default
+            if (availableSeasons.length > 0) {
+                select.value = availableSeasons[0];
+            }
+        }
 
         async function loadAllData() {
             await Promise.all([
@@ -513,10 +566,32 @@
         }
 
         async function loadLeaderboard() {
+            const selectedSeason = getSelectedSeason();
+            if (!selectedSeason) return;
+
+            // Get rounds for selected season
+            const { data: rounds, error: roundsError } = await supabase
+                .from('rounds')
+                .select('id')
+                .eq('season', selectedSeason);
+
+            if (roundsError) {
+                document.getElementById('leaderboard').innerHTML = 'Error loading data';
+                console.error('Rounds error:', roundsError);
+                return;
+            }
+
+            const roundIds = rounds.map(r => r.id);
+            if (roundIds.length === 0) {
+                document.getElementById('leaderboard').innerHTML = '<p style="text-align: center; padding: 20px;">No data for this season</p>';
+                return;
+            }
+
+            // Get player_rounds for these rounds
             const { data, error } = await supabase
                 .from('player_rounds')
                 .select('player_name, final_total, rank, round_id')
-                .order('final_total', { ascending: false });
+                .in('round_id', roundIds);
 
             if (error) {
                 document.getElementById('leaderboard').innerHTML = 'Error loading data';
@@ -535,6 +610,7 @@
                 if (round.rank <= 3) playerStats[round.player_name].top3 += 1;
             });
 
+            // SORT BY POINTS (descending)
             const leaderboard = Object.entries(playerStats)
                 .map(([name, stats]) => ({ name, ...stats }))
                 .sort((a, b) => b.points - a.points);
@@ -557,9 +633,30 @@
         }
 
         async function loadBirdieLeaders() {
+            const selectedSeason = getSelectedSeason();
+            if (!selectedSeason) return;
+
+            // Get rounds for selected season
+            const { data: rounds, error: roundsError } = await supabase
+                .from('rounds')
+                .select('id')
+                .eq('season', selectedSeason);
+
+            if (roundsError) {
+                document.getElementById('birdieLeaders').innerHTML = 'Error loading data';
+                return;
+            }
+
+            const roundIds = rounds.map(r => r.id);
+            if (roundIds.length === 0) {
+                document.getElementById('birdieLeaders').innerHTML = '<p style="text-align: center; padding: 20px;">No data for this season</p>';
+                return;
+            }
+
             const { data, error } = await supabase
                 .from('player_rounds')
-                .select('player_name, aces, eagles, birdies');
+                .select('player_name, aces, eagles, birdies')
+                .in('round_id', roundIds);
 
             if (error) {
                 document.getElementById('birdieLeaders').innerHTML = 'Error loading data';
@@ -576,6 +673,7 @@
                 playerStats[round.player_name].birdies += round.birdies || 0;
             });
 
+            // SORT BY TOTAL (descending)
             const sorted = Object.entries(playerStats)
                 .map(([name, stats]) => ({ name, ...stats, total: stats.aces + stats.eagles + stats.birdies }))
                 .sort((a, b) => b.total - a.total);
@@ -596,30 +694,56 @@
         }
 
         async function loadCoursesTable() {
-            const { data: rounds } = await supabase.from('rounds').select('id, course_name, course_multiplier');
-            const { data: playerRounds } = await supabase.from('player_rounds').select('round_id, player_name, final_total');
-            
-            if (!rounds || !playerRounds) return;
+            const selectedSeason = getSelectedSeason();
+            if (!selectedSeason) return;
+
+            const { data: rounds } = await supabase
+                .from('rounds')
+                .select('id, course_name, course_multiplier')
+                .eq('season', selectedSeason);
+
+            if (!rounds || rounds.length === 0) {
+                document.getElementById('coursesTable').innerHTML = '<p style="text-align: center; padding: 20px;">No data for this season</p>';
+                return;
+            }
+
+            const roundIds = rounds.map(r => r.id);
+            const { data: playerRounds } = await supabase
+                .from('player_rounds')
+                .select('round_id, player_name, final_total')
+                .in('round_id', roundIds);
+
+            if (!playerRounds) return;
 
             const roundMap = {};
             rounds.forEach(r => { roundMap[r.id] = r.course_multiplier || 1.0; });
 
             const playerStats = {};
+            const playerTotalPoints = {};
+
             playerRounds.forEach(pr => {
                 const tier = roundMap[pr.round_id];
                 if (!tier) return;
-                if (!playerStats[pr.player_name]) playerStats[pr.player_name] = {};
+                if (!playerStats[pr.player_name]) {
+                    playerStats[pr.player_name] = {};
+                    playerTotalPoints[pr.player_name] = 0;
+                }
                 if (!playerStats[pr.player_name][tier]) playerStats[pr.player_name][tier] = { total: 0, count: 0 };
                 playerStats[pr.player_name][tier].total += pr.final_total || 0;
                 playerStats[pr.player_name][tier].count += 1;
+                playerTotalPoints[pr.player_name] += pr.final_total || 0;
             });
 
             const allTiers = [...new Set(Object.values(roundMap))].sort((a, b) => b - a);
             let html = `<table><thead><tr><th>Player</th>`;
             allTiers.forEach(tier => { html += `<th>${tier.toFixed(2)}x</th>`; });
             html += `</tr></thead><tbody>`;
-            
-            Object.keys(playerStats).sort().forEach(player => {
+
+            // SORT BY TOTAL SEASON POINTS (descending)
+            const sortedPlayers = Object.keys(playerStats)
+                .sort((a, b) => playerTotalPoints[b] - playerTotalPoints[a]);
+
+            sortedPlayers.forEach(player => {
                 html += `<tr><td><strong>${player}</strong></td>`;
                 allTiers.forEach(tier => {
                     const stats = playerStats[player][tier];
@@ -632,10 +756,24 @@
         }
 
         async function loadMonthlyTrend() {
-            const { data: rounds } = await supabase.from('rounds').select('id, date').order('date', { ascending: true });
-            const { data: playerRounds } = await supabase.from('player_rounds').select('round_id, player_name, final_total');
-            
-            if (!rounds || !playerRounds) return;
+            const selectedSeason = getSelectedSeason();
+            if (!selectedSeason) return;
+
+            const { data: rounds } = await supabase
+                .from('rounds')
+                .select('id, date')
+                .eq('season', selectedSeason)
+                .order('date', { ascending: true });
+
+            if (!rounds || rounds.length === 0) return;
+
+            const roundIds = rounds.map(r => r.id);
+            const { data: playerRounds } = await supabase
+                .from('player_rounds')
+                .select('round_id, player_name, final_total')
+                .in('round_id', roundIds);
+
+            if (!playerRounds) return;
 
             const roundDateMap = {};
             rounds.forEach(r => { roundDateMap[r.id] = r.date; });
@@ -727,8 +865,14 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        loadAllData();
-        setInterval(loadAllData, 300000);
+        // Initialize: Load seasons first, then load data
+        async function initialize() {
+            await loadSeasons();
+            await loadAllData();
+        }
+
+        initialize();
+        setInterval(loadAllData, 300000); // Auto-refresh every 5 minutes
     </script>
 </body>
 </html>
