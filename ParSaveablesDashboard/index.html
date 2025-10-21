@@ -761,9 +761,16 @@
                 playerTotalPoints[pr.player_name] += pr.final_total || 0;
             });
 
-            const allTiers = [...new Set(Object.values(roundMap))].sort((a, b) => b - a);
-            let html = `<table><thead><tr><th>Player</th>`;
-            allTiers.forEach(tier => { html += `<th>${tier.toFixed(2)}x</th>`; });
+            // Define all tiers (always show all 4 tiers)
+            const allTiers = [
+                { multiplier: 2.5, label: 'Hardest (2.5x)' },
+                { multiplier: 2.0, label: 'Hard (2x)' },
+                { multiplier: 1.5, label: 'Medium (1.5x)' },
+                { multiplier: 1.0, label: 'Easy (1x)' }
+            ];
+
+            let html = `<table style="table-layout: fixed; width: 100%;"><thead><tr><th style="width: 25%;">Player</th>`;
+            allTiers.forEach(tier => { html += `<th style="width: 18.75%;">${tier.label}</th>`; });
             html += `</tr></thead><tbody>`;
 
             // SORT BY TOTAL SEASON POINTS (descending)
@@ -773,7 +780,7 @@
             sortedPlayers.forEach(player => {
                 html += `<tr><td><strong>${player}</strong></td>`;
                 allTiers.forEach(tier => {
-                    const stats = playerStats[player][tier];
+                    const stats = playerStats[player][tier.multiplier];
                     html += stats ? `<td>${(stats.total / stats.count).toFixed(1)}</td>` : `<td style="color: #555;">-</td>`;
                 });
                 html += `</tr>`;
