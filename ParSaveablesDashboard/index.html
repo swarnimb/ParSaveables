@@ -518,11 +518,17 @@
             'BigBirdie',
             'Butter Cookie',
             'Cobra',
-            '🦅',
+            'Bird',
             'Fireball',
             'Ace Brook',
             'ScarletSpeedster'
         ];
+
+        // Display name mapper - converts database names to display names
+        function getDisplayName(dbName) {
+            if (dbName === 'Bird') return '🦅';
+            return dbName;
+        }
 
         // Get selected season from dropdown
         function getSelectedSeason() {
@@ -647,7 +653,7 @@
                 const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-other';
                 html += `<tr>
                     <td><span class="rank-badge ${rankClass}">${index + 1}</span></td>
-                    <td><strong>${player.name}</strong></td>
+                    <td><strong>${getDisplayName(player.name)}</strong></td>
                     <td>${player.rounds}</td>
                     <td>${player.countedRounds}</td>
                     <td><strong>${player.points.toFixed(1)}</strong></td>
@@ -713,7 +719,7 @@
             let html = '<div style="padding: 10px;">';
             sorted.forEach(player => {
                 const containerWidth = (player.total / maxTotal) * 100;
-                html += `<div class="bar-container"><div class="player-name">${player.name}</div><div style="display: flex; align-items: center; flex: 1;"><div class="bars" style="width: ${containerWidth}%; max-width: 100%; display: flex; gap: 0;">`;
+                html += `<div class="bar-container"><div class="player-name">${getDisplayName(player.name)}</div><div style="display: flex; align-items: center; flex: 1;"><div class="bars" style="width: ${containerWidth}%; max-width: 100%; display: flex; gap: 0;">`;
                 if (player.aces > 0) html += `<div class="bar bar-ace" style="width: ${(player.aces / player.total) * 100}%; min-width: 30px;">${player.aces}</div>`;
                 if (player.eagles > 0) html += `<div class="bar bar-eagle" style="width: ${(player.eagles / player.total) * 100}%; min-width: 30px;">${player.eagles}</div>`;
                 if (player.birdies > 0) html += `<div class="bar bar-birdie" style="width: ${(player.birdies / player.total) * 100}%; min-width: 30px;">${player.birdies}</div>`;
@@ -784,7 +790,7 @@
                 .sort((a, b) => playerTotalPoints[b] - playerTotalPoints[a]);
 
             sortedPlayers.forEach(player => {
-                html += `<tr><td><strong>${player}</strong></td>`;
+                html += `<tr><td><strong>${getDisplayName(player)}</strong></td>`;
                 allTiers.forEach(tier => {
                     const stats = playerStats[player][tier.multiplier];
                     html += stats ? `<td>${(stats.total / stats.count).toFixed(1)}</td>` : `<td style="color: #555;">-</td>`;
@@ -834,7 +840,7 @@
             const allMonths = [...new Set(Object.values(roundDateMap).map(d => d.substring(0, 7)))].sort();
             const colors = ['#64ffda', '#ff6b6b', '#4ecdc4', '#95e1d3', '#f38181', '#aa96da', '#fcbad3', '#a8d8ea'];
             const datasets = Object.entries(playerMonthlyData).map(([player, months], index) => ({
-                label: player,
+                label: getDisplayName(player),
                 data: allMonths.map(month => months[month] || 0),
                 borderColor: colors[index % colors.length],
                 backgroundColor: colors[index % colors.length] + '40',
