@@ -7,7 +7,8 @@ A disc golf amateur season score tracking system with an AI-powered chatbot and 
 - **Automated Scorecard Processing**: Upload UDisc scorecard screenshots to GroupMe, automatically extract and calculate scores
 - **AI Chatbot**: Ask questions about player stats, leaderboards, and course performance
 - **Real-time Dashboard**: View season standings, player statistics, and performance trends
-- **Points System**: Course difficulty tiers (1.0x - 2.5x multipliers) and rank-based scoring
+- **Configuration-Driven**: Course tiers and points systems stored in database (no code changes needed)
+- **Multi-Event Support**: Separate scoring for seasons and tournaments
 
 ## Tech Stack
 
@@ -21,15 +22,23 @@ A disc golf amateur season score tracking system with an AI-powered chatbot and 
 
 ```
 ParSaveables/
-├── ParSaveablesDashboard/
-│   └── index.html              # Main dashboard application
-├── n8n Workflows/
-│   └── ParSaveables Scorecard and Chat.json  # n8n workflow export
-├── docs/
+├── database/                   # Database scripts
+│   ├── migrations/             # Schema migrations
+│   ├── seed_data.sql          # Initial configuration
+│   └── import_2025_final.sql  # Historical season data
+├── docs/                       # Documentation
+│   ├── refactoring/           # Refactoring guides
+│   ├── ARCHITECTURE.md        # System architecture
 │   ├── SETUP.md               # Setup instructions
 │   ├── DEPLOYMENT.md          # Deployment guide
-│   └── ARCHITECTURE.md        # System architecture
-└── README.md
+│   └── WORKFLOW_DETAILS.md    # n8n workflow documentation
+├── n8n-workflows/             # n8n workflow nodes
+│   └── nodes/                 # Node code
+│       ├── calculate-points.js       # Enterprise-grade points calculator
+│       └── load-configuration.js     # Database config loader
+├── ParSaveablesDashboard/     # Frontend application
+│   └── index.html             # Main dashboard
+└── README.md                  # This file
 ```
 
 ## Quick Start
@@ -45,10 +54,16 @@ ParSaveables/
 
 ### Configuration
 
-1. **Supabase**: Set up database tables (see `docs/SETUP.md`)
-2. **n8n**: Import workflow from `n8n Workflows/` folder
-3. **Dashboard**: Update Supabase credentials in `ParSaveablesDashboard/index.html` lines 371-373
+1. **Database Setup**:
+   - Run `database/migrations/001_add_config_tables.sql` in Supabase
+   - Run `database/seed_data.sql` to populate courses and points systems
+2. **n8n Workflow**:
+   - Add "Load Configuration" node code from `n8n-workflows/nodes/load-configuration.js`
+   - Replace "Calculate Points" node code from `n8n-workflows/nodes/calculate-points.js`
+3. **Dashboard**: Update Supabase credentials in `ParSaveablesDashboard/index.html`
 4. **Deploy**: Follow `docs/DEPLOYMENT.md`
+
+**New to this project?** See `docs/refactoring/README_REFACTORING.md` for complete setup guide.
 
 ## Usage
 
@@ -70,29 +85,29 @@ Use the chatbot to query stats:
 ## Database Schema
 
 ### Tables
-- `rounds`: Course information, date, weather conditions
+- `events`: Seasons and tournaments with date ranges
+- `points_systems`: Scoring configurations (rank points, performance bonuses)
+- `courses`: Course difficulty tiers and multipliers
+- `rounds`: Round metadata (course, date, weather)
 - `player_rounds`: Individual player scores and statistics
 
 See `docs/SETUP.md` for complete schema.
 
 ## Points System
 
-**Rank Points** (with tie averaging):
-- 1st: 10 points
-- 2nd: 7 points
-- 3rd: 5 points
-- Participation: 2 points
+**Configuration-Driven**: All scoring rules stored in database `points_systems` table.
 
-**Performance Bonuses**:
-- Ace: 5 points
-- Eagle: 3 points
-- Birdie: 1 point
+### Season 2025 (Regular Season)
+- **Rank Points**: 1st=10, 2nd=7, 3rd=5, Participation=2
+- **Performance**: Birdie=1, Eagle=3, Ace=5
+- **Course Multiplier**: Applied based on tier (1.0x - 2.5x)
 
-**Course Difficulty Multipliers**:
-- Tier 1 (1.0x): Wells Branch, Lil G
-- Tier 2 (1.5x): Zilker Park, Live Oak
-- Tier 3 (2.0x): Northtown, Searight
-- Tier 4 (2.5x): East Metro, Bible Ridge
+### Tournament Example (Portlandia 2025)
+- **Rank Points**: 1st=15, 2nd=12, 3rd=9, 4th=7, 5th=6, 6th=5, 7th=3
+- **Performance**: Birdie=1, Eagle=5, Ace=10
+- **Course Multiplier**: Disabled (1.0x)
+
+**Adding new tournaments or modifying points?** Just update the database - no code changes needed!
 
 ## Contributing
 
