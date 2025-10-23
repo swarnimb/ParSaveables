@@ -2,14 +2,27 @@
   "name": "ParSaveables Scorecard and Chat",
   "nodes": [
     {
+      "parameters": {
+        "jsCode": " // Get image URL from incoming webhook data\n  const imageUrl = $input.all()[0].json.body.attachments[0].url;\n\n  // Build the request body\n  const requestBody = {\n    model: \"claude-sonnet-4-5-20250929\",\n    max_tokens: 4096,\n    temperature: 0.3,\n    messages: [\n      {\n        role: \"user\",\n        content: [\n          {\n            type: \"text\",\n            text: \"Extract ALL data from this UDisc disc golf scorecard screenshot and return it as valid JSON.\\n\\nThe scorecard layout shows (top to bottom, left to right):\\n- Header area (top 1-2 lines): Look for 'course name' and 'layout name' - they may be on separate lines or the same line \\n- Hole identifiers (may be 1, 2, 2a, 2b, 3, A, B,4, 5... - extract EXACTLY as shown)\\n- Distance for each hole (in feet)\\n- Par for each hole \\n- Player names (may be truncated with '...')\\n- Each player's score for each hole on the scorecard \\n- Total strokes and score relative to par for each player\\n- Date, time, location, temperature, wind at bottom\\n\\nIMPORTANT: \\n1. If you see a player name that is a bird emoji, extract it as the text 'Bird' instead of trying to copy the emoji.\\n2. Be VERY CAREFUL when reading player names - they are critical for identification.\\n3. Common player names in this league: Jaguar, Shogun, BigBirdie, Cobra, Fireball, Ace Brook.\\n4. CRITICAL: Count the ACTUAL number of holes shown - it may be 9, 18, 20, or another number.\\n5.  Hole names may include letters (like 2a, 2b, 3a, A, B) - extract them EXACTLY as shown.\\n6. Each player must have scores for ALL holes shown on the scorecard.\\n\\n FINDING COURSE NAME AND LAYOUT: - Scan the top portion of the scorecard (first 1-3 lines)\\n- Course name is typically a recognizable course or park name\\n- Layout name often includes descriptors like 'Long', 'Short', '18-hole', or something unrecognizable that will follow the course name \\n- These may appear on the same line (separated) or consecutive lines \\n- Use context to identify which text represents the course vs layout \\n\\nScoring definitions (calculate based on par for each hole):\\n- ACE: Score of 1 (hole-in-one)\\n- EAGLE: 2 strokes under par and score of 2 or more\\n- BIRDIE: 1 stroke under par\\n- PAR: Score equals par\\n- BOGEY: 1 stroke over par\\n- DOUBLE BOGEY+: 2 or more strokes over par\\n\\nRequired JSON structure:\\n{\\n  \\\"courseName\\\": tring,\\n\\\"layoutName\\\": string,\\n  \\\"date\\\": string,\\n  \\\"time\\\": string,\\n  \\\"location\\\": string,\\n\\\"temperature\\\": string,\\n  \\\"wind\\\": string, n  \\\"holes\\\": [\\n    {\\n      \\\"hole\\\": string (EXACT hole identifier from scorecard - may be 1, 2, 2a, 2b, 3, A, B,4, 5...),\\n      \\\"distance\\\": number (in feet),\\n      \\\"par\\\": number\\n    }\\n  ],\\n\\\"players\\\": [\\n    {\\n      \\\"name\\\": string (keep '...' if truncated, or use 'Bird' for bird emojis),\\n \\\"totalStrokes\\\": number,\\n      \\\"totalScore\\\": number (relative to par, e.g., -6, +3),\\n      \\\"holeByHole\\\": [18 numbers],\\n      \\\"birdies\\\": number,\\n      \\\"eagles\\\": number,\\n      \\\"aces\\\": number,\\n      \\\"pars\\\": number,\\n      \\\"bogeys\\\": number,\\n \\\"doubleBogeys\\\": number\\n    }\\n  ]\\n}\\n\\nCRITICAL:\\n - The 'holes' array length must match the actual number of holes on the scorecard\\n - Each player's 'holeByHole' array length must equal the number of holes\\n - Extract hole identifiers EXACTLY as shown (including letters like '2a', '2b', '3a', 'A', 'B') \\n\\nFor each player, count their birdies/eagles/aces/pars/bogeys by comparing their score on each hole to that hole's par value.\\n\\nReturn ONLY valid JSON with no markdown code blocks or explanations.\"},\n          {\n            type: \"image\",\n            source: {\n              type: \"url\",\n              url: imageUrl\n            }\n          }\n        ]\n      }\n    ]\n  };\n\n  return {\n    json: {\n      body: requestBody,\n      headers: {\n        \"anthropic-version\": \"2023-06-01\"\n      }\n    }\n  };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1904,
+        -1024
+      ],
+      "id": "1cb8afea-f5cc-429d-9ba0-12df30f9f4f1",
+      "name": "Build Claude Vision Request"
+    },
+    {
       "parameters": {},
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        0,
-        192
+        -1904,
+        -832
       ],
-      "id": "50176696-2857-401b-9a30-c529def3d838",
+      "id": "5806d8b8-4217-40ec-8a35-9a82cc73ee1b",
       "name": "No Operation, do nothing"
     },
     {
@@ -19,59 +32,24 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        448,
-        0
+        -1232,
+        -1024
       ],
-      "id": "21579dad-2c3d-487e-bb2e-58d3872691e2",
+      "id": "dace84c6-a050-4529-ac0f-1a45ad6ea154",
       "name": "Calculate Points"
     },
     {
       "parameters": {
-        "jsCode": "// Get the response from Anthropic\nconst anthropicResponse = $input.all()[0].json;\n\n// Extract the text content\nconst textContent = anthropicResponse.content[0].text;\n\n// Remove markdown code blocks if present\nlet cleanJson = textContent.trim();\nif (cleanJson.startsWith('```json')) {\n  cleanJson = cleanJson.replace(/```json\\n?/g, '').replace(/```\\n?/g, '');\n}\n\n// Parse the JSON\nconst parsedData = JSON.parse(cleanJson);\n\n// ===== VALIDATION: Check for incomplete data =====\nif (!parsedData.holes || parsedData.holes.length === 0) {\n  throw new Error('Scorecard extraction failed: No hole data found. Please ensure the image is a valid UDisc scorecard.');\n}\n\nif (!parsedData.players || parsedData.players.length === 0) {\n  throw new Error('Scorecard extraction failed: No player data found. Please ensure the image is a valid UDisc scorecard.');\n}\n\n// Check if all players have hole-by-hole data\nconst incompletePlayer = parsedData.players.find(p => !p.holeByHole || p.holeByHole.length === 0);\nif (incompletePlayer) {\n  throw new Error(`Scorecard extraction failed: Player \"${incompletePlayer.name}\" has no hole-by-hole scores. Please ensure the scorecard image is clear and complete.`);\n}\n\n// Verify and recalculate player stats based on actual par values\nconst holes = parsedData.holes;\n\nparsedData.players.forEach(player => {\n  let birdies = 0, eagles = 0, aces = 0, pars = 0, bogeys = 0, doubleBogeys = 0;\n  \n  player.holeByHole.forEach((score, index) => {\n    // Safety check: Make sure the hole exists\n    if (!holes[index] || holes[index].par === undefined) {\n      console.log(`Warning: Hole ${index + 1} data missing. Skipping this hole for player ${player.name}`);\n      return; // Skip this hole\n    }\n    \n    const par = holes[index].par;\n    const diff = score - par;\n    \n    if (score === 1) {\n      aces++;\n    } else if (diff <= -2) {\n      eagles++;\n    } else if (diff === -1) {\n      birdies++;\n    } else if (diff === 0) {\n      pars++;\n    } else if (diff === 1) {\n      bogeys++;\n    } else if (diff >= 2) {\n      doubleBogeys++;\n    }\n  });\n  \n  // Update the player's stats with verified counts\n  player.birdies = birdies;\n  player.eagles = eagles;\n  player.aces = aces;\n  player.pars = pars;\n  player.bogeys = bogeys;\n  player.doubleBogeys = doubleBogeys;\n});\n\n// Helper function to find the first birdie hole\nfunction getFirstBirdieHole(player, holes) {\n  for (let i = 0; i < player.holeByHole.length; i++) {\n    // Safety check: Make sure hole data exists\n    if (!holes[i] || holes[i].par === undefined) {\n      continue; // Skip this hole\n    }\n    \n    const score = player.holeByHole[i];\n    const par = holes[i].par;\n    if (score === par - 1 && score > 1) { // Birdie (not ace)\n      return i + 1; // Return hole number (1-indexed)\n    }\n  }\n  return 999; // No birdie found\n}\n\n// Apply tie-breaker logic and sort players\nconst players = parsedData.players;\n\nplayers.sort((a, b) => {\n  // Primary: Total score (lower is better, e.g., -6 beats -4)\n  if (a.totalScore !== b.totalScore) {\n    return a.totalScore - b.totalScore;\n  }\n  \n  // Tie-breaker 1: More birdies wins\n  if (a.birdies !== b.birdies) {\n    return b.birdies - a.birdies;\n  }\n  \n  // Tie-breaker 2: More pars wins\n  if (a.pars !== b.pars) {\n    return b.pars - a.pars;\n  }\n  \n  // Tie-breaker 3: Earlier first birdie wins\n  const aFirstBirdie = getFirstBirdieHole(a, holes);\n  const bFirstBirdie = getFirstBirdieHole(b, holes);\n  \n  if (aFirstBirdie !== bFirstBirdie) {\n    return aFirstBirdie - bFirstBirdie;\n  }\n  \n  // Tie-breaker 4: If all equal, they're tied\n  return 0;\n});\n\n// Assign ranks with proper tie handling\nlet currentRank = 1;\nfor (let i = 0; i < players.length; i++) {\n  if (i > 0) {\n    const prev = players[i - 1];\n    const curr = players[i];\n    \n    // Check if tied with previous player\n    const isTied = \n      prev.totalScore === curr.totalScore &&\n      prev.birdies === curr.birdies &&\n      prev.pars === curr.pars &&\n      getFirstBirdieHole(prev, holes) === getFirstBirdieHole(curr, holes);\n    \n    if (!isTied) {\n      currentRank = i + 1;\n    }\n  }\n  \n  players[i].rank = currentRank;\n}\n\n// Return the complete structured data\nreturn [{\n  json: {\n    courseName: parsedData.courseName,\n    layoutName: parsedData.layoutName,\n    date: parsedData.date,\n    time: parsedData.time,\n    location: parsedData.location,\n    temperature: parsedData.temperature,\n    wind: parsedData.wind,\n    holes: parsedData.holes,\n    players: players\n  }\n}];"
+        "jsCode": "// Get the response from Anthropic\n  const anthropicResponse = $input.all()[0].json;\n\n  // Extract the text content\n  const textContent = anthropicResponse.content[0].text;\n\n  // Remove markdown code blocks if present\n  let cleanJson = textContent.trim();\n  if (cleanJson.startsWith('```json')) {\n    cleanJson = cleanJson.replace(/```json\\n?/g, '').replace(/```\\n?/g, '');\n  }\n\n  // Parse the JSON\n  const parsedData = JSON.parse(cleanJson);\n\n  // ===== VALIDATION: Check for incomplete data =====\n  if (!parsedData.holes || parsedData.holes.length === 0) {\n    throw new Error('Scorecard extraction failed: No hole data found. Please ensure the image is a valid UDisc scorecard.');\n  }\n\n  if (!parsedData.players || parsedData.players.length === 0) {\n    throw new Error('Scorecard extraction failed: No player data found. Please ensure the image is a valid UDisc scorecard.');\n  }\n\n  // Check if all players have hole-by-hole data\n  const incompletePlayer = parsedData.players.find(p => !p.holeByHole || p.holeByHole.length ===\n  0);\n  if (incompletePlayer) {\n    throw new Error('Scorecard extraction failed: Player \"' + incompletePlayer.name + '\" has no hole-by-hole scores. Please ensure the scorecard image is clear and complete.');\n  }\n\n   // ===== NAME NORMALIZATION FUNCTION =====\n  function normalizePlayerName(name) {\n    // Trim whitespace\n    name = name.trim();\n\n    // Handle bird emoji player - Claude extracts as \"Bird\"\n    if (name.toLowerCase() === 'bird') {\n      return 'Bird';\n    }\n\n    // Handle truncated names\n    if (name.startsWith('Intern')) return 'Intern Line Cook';\n    if (name.startsWith('Jabba')) return 'Jabba the Putt';\n    if (name.startsWith('Food')) return 'Food Zaddy';\n\n    // List of valid registered players\n    const registeredPlayers = [\n      'Intern Line Cook',\n      'Jabba the Putt',\n      'Food Zaddy',\n      'Jaguar',\n      'Shogun',\n      'BigBirdie',\n      'Butter Cookie',\n      'Cobra',\n      'Bird',\n      'Fireball',\n      'Ace Brook',\n      'ScarletSpeedster'\n    ];\n\n    // Check for exact match (case-insensitive)\n    const exactMatch = registeredPlayers.find(p => p.toLowerCase() === name.toLowerCase());\n    if (exactMatch) {\n      return exactMatch;\n    }\n\n    // Levenshtein distance function for fuzzy matching\n    function levenshteinDistance(str1, str2) {\n      const m = str1.length;\n      const n = str2.length;\n      const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));\n\n      for (let i = 0; i <= m; i++) dp[i][0] = i;\n      for (let j = 0; j <= n; j++) dp[0][j] = j;\n\n      for (let i = 1; i <= m; i++) {\n        for (let j = 1; j <= n; j++) {\n          if (str1[i - 1].toLowerCase() === str2[j - 1].toLowerCase()) {\n            dp[i][j] = dp[i - 1][j - 1];\n          } else {\n            dp[i][j] = Math.min(\n              dp[i - 1][j] + 1,    // deletion\n              dp[i][j - 1] + 1,    // insertion\n              dp[i - 1][j - 1] + 1 // substitution\n            );\n          }\n        }\n      }\n      return dp[m][n];\n    }\n\n    // Find closest match using fuzzy matching\n    let closestMatch = null;\n    let smallestDistance = Infinity;\n\n    registeredPlayers.forEach(registeredName => {\n      const distance = levenshteinDistance(name, registeredName);\n\n      // Only consider it a match if distance is small relative to name length\n      // Threshold: max 2 character differences OR less than 30% of name length\n      const threshold = Math.max(2, Math.floor(registeredName.length * 0.3));\n\n      if (distance < smallestDistance && distance <= threshold) {\n        smallestDistance = distance;\n        closestMatch = registeredName;\n      }\n    });\n\n    if (closestMatch) {\n      console.log(`Fuzzy match: \"${name}\" -> \"${closestMatch}\" (distance: ${smallestDistance})`);\n      return closestMatch;\n    }\n\n    // If not matched, return as-is (will be filtered out later in dashboard)\n    return name;\n  }\n\n  // ===== NORMALIZE ALL PLAYER NAMES =====\n  parsedData.players.forEach(player => {\n    player.name = normalizePlayerName(player.name);\n  });\n\n  // Verify and recalculate player stats based on actual par values\n  const holes = parsedData.holes;\n\n  parsedData.players.forEach(player => {\n    let birdies = 0, eagles = 0, aces = 0, pars = 0, bogeys = 0, doubleBogeys = 0;\n\n    player.holeByHole.forEach((score, index) => {\n      // Safety check: Make sure the hole exists\n      if (!holes[index] || holes[index].par === undefined) {\n        console.log('Warning: Hole ' + (index + 1) + ' data missing. Skipping this hole for player' + player.name);\n        return; // Skip this hole\n      }\n\n      const par = holes[index].par;\n      const diff = score - par;\n\n      if (score === 1) {\n        aces++;\n      } else if (diff <= -2) {\n        eagles++;\n      } else if (diff === -1) {\n        birdies++;\n      } else if (diff === 0) {\n        pars++;\n      } else if (diff === 1) {\n        bogeys++;\n      } else if (diff >= 2) {\n        doubleBogeys++;\n      }\n    });\n\n    // Update the player's stats with verified counts\n    player.birdies = birdies;\n    player.eagles = eagles;\n    player.aces = aces;\n    player.pars = pars;\n    player.bogeys = bogeys;\n    player.doubleBogeys = doubleBogeys;\n  });\n\n  // Helper function to find the first birdie hole\n  function getFirstBirdieHole(player, holes) {\n    for (let i = 0; i < player.holeByHole.length; i++) {\n      // Safety check: Make sure hole data exists\n      if (!holes[i] || holes[i].par === undefined) {\n        continue; // Skip this hole\n      }\n\n      const score = player.holeByHole[i];\n      const par = holes[i].par;\n      if (score === par - 1 && score > 1) { // Birdie (not ace)\n        return i + 1; // Return hole number (1-indexed)\n      }\n    }\n    return 999; // No birdie found\n  }\n\n  // Apply tie-breaker logic and sort players\n  const players = parsedData.players;\n\n  players.sort((a, b) => {\n    // Primary: Total score (lower is better, e.g., -6 beats -4)\n    if (a.totalScore !== b.totalScore) {\n      return a.totalScore - b.totalScore;\n    }\n\n    // Tie-breaker 1: More birdies wins\n    if (a.birdies !== b.birdies) {\n      return b.birdies - a.birdies;\n    }\n\n    // Tie-breaker 2: More pars wins\n    if (a.pars !== b.pars) {\n      return b.pars - a.pars;\n    }\n\n    // Tie-breaker 3: Earlier first birdie wins\n    const aFirstBirdie = getFirstBirdieHole(a, holes);\n    const bFirstBirdie = getFirstBirdieHole(b, holes);\n\n    if (aFirstBirdie !== bFirstBirdie) {\n      return aFirstBirdie - bFirstBirdie;\n    }\n\n    // Tie-breaker 4: If all equal, they're tied\n    return 0;\n  });\n\n  // Assign ranks with proper tie handling\n  let currentRank = 1;\n  for (let i = 0; i < players.length; i++) {\n    if (i > 0) {\n      const prev = players[i - 1];\n      const curr = players[i];\n\n      // Check if tied with previous player\n      const isTied =\n        prev.totalScore === curr.totalScore &&\n        prev.birdies === curr.birdies &&\n        prev.pars === curr.pars &&\n        getFirstBirdieHole(prev, holes) === getFirstBirdieHole(curr, holes);\n\n      if (!isTied) {\n        currentRank = i + 1;\n      }\n    }\n\n    players[i].rank = currentRank;\n  }\n\n  // Return the complete structured data\n  return [{\n    json: {\n      courseName: parsedData.courseName,\n      layoutName: parsedData.layoutName,\n      date: parsedData.date,\n      time: parsedData.time,\n      location: parsedData.location,\n      temperature: parsedData.temperature,\n      wind: parsedData.wind,\n      holes: parsedData.holes,\n      players: players\n    }\n  }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        224,
-        0
+        -1456,
+        -1024
       ],
-      "id": "d0dc5fc6-5528-4e2f-9924-1ecaa752479e",
+      "id": "f658a128-9fdc-41a4-95e0-b079e296db62",
       "name": "Clean and Rank Players"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.anthropic.com/v1/messages",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "anthropic-version",
-              "value": "2023-06-01"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-5-20250929\",\n  \"max_tokens\": 4096,\n  \"temperature\": 0.3,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"Extract ALL data from this UDisc disc golf scorecard screenshot and return it as valid JSON.\\n\\nThe scorecard layout shows (top to bottom, left to right):\\n- Course name\\n- Course layout\\n- Hole numbers (1-18)\\n- Distance for each hole (in feet)\\n- Par for each hole\\n- Player names (may be truncated with '...')\\n- Each player's score for each hole (18 scores per player)\\n- Total strokes and score relative to par for each player\\n- Date, time, location, temperature, wind at bottom\\n\\nScoring definitions (calculate based on par for each hole):\\n- ACE: Score of 1 (hole-in-one)\\n- EAGLE: 2 strokes under par\\n- BIRDIE: 1 stroke under par\\n- PAR: Score equals par\\n- BOGEY: 1 stroke over par\\n- DOUBLE BOGEY+: 2 or more strokes over par\\n\\nRequired JSON structure:\\n{\\n  \\\"courseName\\\": string,\\n  \\\"layoutName\\\": string,\\n  \\\"date\\\": string,\\n  \\\"time\\\": string,\\n  \\\"location\\\": string,\\n  \\\"temperature\\\": string,\\n  \\\"wind\\\": string,\\n  \\\"holes\\\": [\\n    {\\n      \\\"hole\\\": number (1-18),\\n      \\\"distance\\\": number (in feet),\\n      \\\"par\\\": number\\n    }\\n  ],\\n  \\\"players\\\": [\\n    {\\n      \\\"name\\\": string (keep '...' if truncated),\\n      \\\"totalStrokes\\\": number,\\n      \\\"totalScore\\\": number (relative to par, e.g., -6, +3),\\n      \\\"holeByHole\\\": [18 numbers],\\n      \\\"birdies\\\": number,\\n      \\\"eagles\\\": number,\\n      \\\"aces\\\": number,\\n      \\\"pars\\\": number,\\n      \\\"bogeys\\\": number,\\n      \\\"doubleBogeys\\\": number\\n    }\\n  ]\\n}\\n\\nFor each player, count their birdies/eagles/aces/pars/bogeys by comparing their score on each hole to that hole's par value.\\n\\nReturn ONLY valid JSON with no markdown code blocks or explanations.\"\n        },\n        {\n          \"type\": \"image\",\n          \"source\": {\n            \"type\": \"url\",\n            \"url\": \"{{ $json.body.attachments[0].url }}\"\n          }\n        }\n      ]\n    }\n  ]\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        0,
-        0
-      ],
-      "id": "41fc67c3-1db1-403c-936a-5c1063305c65",
-      "name": "Extract Scorecard Data (Claude)",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "Jw2X4BQgM3RZ9kLO",
-          "name": "Header Auth account"
-        }
-      }
     },
     {
       "parameters": {
@@ -101,10 +79,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -224,
-        96
+        -2128,
+        -928
       ],
-      "id": "eb5f28e8-4130-484d-ab3c-ef57e88b2df7",
+      "id": "2ca37f87-25d2-41bc-9df2-1deac87f1ee1",
       "name": "Check if Image"
     },
     {
@@ -116,10 +94,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -448,
-        96
+        -2352,
+        -928
       ],
-      "id": "62806ef9-43b7-43a2-92ed-52d4d2880c31",
+      "id": "8dae960a-93b4-459b-83df-62e1b205d619",
       "name": "Receive Scorecard",
       "webhookId": "5497ebc3-4887-4f3a-9327-82d62b59b137"
     },
@@ -159,6 +137,10 @@
             {
               "fieldId": "course_multiplier",
               "fieldValue": "={{$json.roundInfo.courseMultiplier}}"
+            },
+            {
+              "fieldId": "season",
+              "fieldValue": "={{ new Date().getFullYear() }}"
             }
           ]
         }
@@ -166,14 +148,14 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        672,
-        0
+        -1008,
+        -1024
       ],
-      "id": "33b965e0-20fb-4e8e-b360-ab4b4069ff07",
+      "id": "4a2f3caa-89dd-4412-ab5c-f3d0a7ddaefb",
       "name": "Save Round Info",
       "credentials": {
         "supabaseApi": {
-          "id": "i3y1x07UvCf0qcWb",
+          "id": "5lkoycUx6AqbcPeU",
           "name": "Supabase account"
         }
       }
@@ -201,10 +183,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        896,
-        0
+        -784,
+        -1024
       ],
-      "id": "89db8949-d2ea-465a-814b-202ad22060a7",
+      "id": "fb0a3871-ea2d-4fa2-9149-49357bdea03a",
       "name": "Store Round ID"
     },
     {
@@ -290,14 +272,14 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        1568,
-        0
+        -112,
+        -1024
       ],
-      "id": "337b72c3-02ef-4269-af21-4bea821a9b67",
+      "id": "50511fd2-4ea5-413c-b8fe-5649f5320083",
       "name": "Save Player Stats",
       "credentials": {
         "supabaseApi": {
-          "id": "i3y1x07UvCf0qcWb",
+          "id": "5lkoycUx6AqbcPeU",
           "name": "Supabase account"
         }
       }
@@ -310,10 +292,10 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        1344,
-        0
+        -336,
+        -1024
       ],
-      "id": "2c9953ac-b49c-4b44-9f8e-577d86f4ada1",
+      "id": "fb559bb1-00bb-4cc8-9c10-ebd8547691df",
       "name": "Split Players into Rows"
     },
     {
@@ -323,10 +305,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1120,
-        0
+        -560,
+        -1024
       ],
-      "id": "927f1f31-26e2-4b7e-8336-51af37943b22",
+      "id": "4cd1b8bc-e450-48bd-bc3a-e627fd964ef8",
       "name": "Parse Players Array"
     },
     {
@@ -339,10 +321,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -448,
-        752
+        -2352,
+        -272
       ],
-      "id": "623fa1ea-452d-4d86-8da7-c2cd1fec64f0",
+      "id": "8b33c769-2085-4f9a-beda-6ead91707e38",
       "name": "Receive Chat Question",
       "webhookId": "9a8f9b3f-1d09-428d-943b-0beac37a080d"
     },
@@ -353,10 +335,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -224,
-        752
+        -2128,
+        -272
       ],
-      "id": "433035a5-50c4-4efe-881e-10b415044850",
+      "id": "7b4ef7cb-df77-463e-a970-d2ae3cbd09d5",
       "name": "Determine Query Type"
     },
     {
@@ -463,10 +445,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.3,
       "position": [
-        0,
-        704
+        -1904,
+        -320
       ],
-      "id": "f41554af-acac-4d3b-a375-149f5915bda8",
+      "id": "e6885238-1236-4b76-a477-241484d80220",
       "name": "Route by Query Type"
     },
     {
@@ -479,14 +461,14 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        224,
-        416
+        -1680,
+        -608
       ],
-      "id": "16b39dee-35c8-492a-b6f2-edf70d31f70e",
+      "id": "6ffd06c7-8d72-4422-8780-9c3a8e33bdc8",
       "name": "Get Leaderboard Data",
       "credentials": {
         "supabaseApi": {
-          "id": "i3y1x07UvCf0qcWb",
+          "id": "5lkoycUx6AqbcPeU",
           "name": "Supabase account"
         }
       }
@@ -509,14 +491,14 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        224,
-        608
+        -1680,
+        -416
       ],
-      "id": "991fd827-9c5b-4ce6-afbd-f22af1eb1bab",
+      "id": "a8efd44a-c625-4b6a-899a-402f2b468609",
       "name": "Get Player Stats",
       "credentials": {
         "supabaseApi": {
-          "id": "i3y1x07UvCf0qcWb",
+          "id": "5lkoycUx6AqbcPeU",
           "name": "Supabase account"
         }
       }
@@ -531,14 +513,14 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        224,
-        896
+        -1680,
+        -128
       ],
-      "id": "479bfa38-f7dd-4e23-a8a6-50486db2bc36",
+      "id": "27109f94-68a8-43bd-b8c9-750d8dfb267d",
       "name": "Get Course Stats",
       "credentials": {
         "supabaseApi": {
-          "id": "i3y1x07UvCf0qcWb",
+          "id": "5lkoycUx6AqbcPeU",
           "name": "Supabase account"
         }
       }
@@ -553,14 +535,14 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        224,
-        1088
+        -1680,
+        64
       ],
-      "id": "1aabc64b-fed6-4693-9b93-306e4824de8e",
+      "id": "e290da4d-e477-469e-a797-5e5817717c6e",
       "name": "Get Recent Rounds",
       "credentials": {
         "supabaseApi": {
-          "id": "i3y1x07UvCf0qcWb",
+          "id": "5lkoycUx6AqbcPeU",
           "name": "Supabase account"
         }
       }
@@ -572,10 +554,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        448,
-        704
+        -1456,
+        -320
       ],
-      "id": "7f74e3bb-378d-492f-a760-16e2a372a5a1",
+      "id": "cfd23440-2fdc-45b8-a320-60c1a2b41ba6",
       "name": "Merge All Routes"
     },
     {
@@ -585,10 +567,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        672,
-        752
+        -1232,
+        -272
       ],
-      "id": "762a5bba-2535-4751-a50a-6f7c11d4dcdc",
+      "id": "59b418ca-cfaf-4ec8-bb18-74f28e99d172",
       "name": "Prepare Data for Claude"
     },
     {
@@ -632,14 +614,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1120,
-        752
+        -784,
+        -272
       ],
-      "id": "9db12801-d683-4473-93dc-2212324604c5",
+      "id": "221564ea-6b02-4bd5-8298-91e64d005a53",
       "name": "Generate Answer",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "Jw2X4BQgM3RZ9kLO",
+          "id": "W3bky3N85AFDTH1o",
           "name": "Header Auth account"
         }
       }
@@ -651,10 +633,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1344,
-        752
+        -560,
+        -272
       ],
-      "id": "5177d233-1773-4120-832e-26a0a336e957",
+      "id": "0369087e-bbd3-42e4-b83c-f762b6bc020a",
       "name": "Extract Answer"
     },
     {
@@ -683,10 +665,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.4,
       "position": [
-        1568,
-        752
+        -336,
+        -272
       ],
-      "id": "33df5013-37a4-475d-8b2d-fa3c9d78d6a4",
+      "id": "3a8dcd30-6361-4186-8761-a21aebe0b033",
       "name": "Respond to Webhook"
     },
     {
@@ -696,11 +678,46 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        896,
-        752
+        -1008,
+        -272
       ],
-      "id": "5729cd68-fe25-4f60-b3a4-fc25f860136c",
+      "id": "9090c6d2-67d2-4173-8fef-9a17f08fac6b",
       "name": "Build Claude Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "={{ $json.headers[\"anthropic-version\"] }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1680,
+        -1024
+      ],
+      "id": "232a3fcd-5059-404b-9f7d-2e28b78f337c",
+      "name": "Call Claude Vision API",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "W3bky3N85AFDTH1o",
+          "name": "Header Auth account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -716,22 +733,11 @@
         ]
       ]
     },
-    "Extract Scorecard Data (Claude)": {
-      "main": [
-        [
-          {
-            "node": "Clean and Rank Players",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Check if Image": {
       "main": [
         [
           {
-            "node": "Extract Scorecard Data (Claude)",
+            "node": "Build Claude Vision Request",
             "type": "main",
             "index": 0
           }
@@ -970,21 +976,42 @@
           }
         ]
       ]
+    },
+    "Build Claude Vision Request": {
+      "main": [
+        [
+          {
+            "node": "Call Claude Vision API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Claude Vision API": {
+      "main": [
+        [
+          {
+            "node": "Clean and Rank Players",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1",
     "callerPolicy": "workflowsFromSameOwner",
-    "executionTimeout": -1,
     "availableInMCP": false,
-    "errorWorkflow": "oWdBcBiMTC5wwKJE"
+    "errorWorkflow": "6E99OzAj0odpizeQ"
   },
-  "versionId": "44a8157c-42fe-4a3d-9721-17de1157708b",
+  "versionId": "84f39b1a-c19a-47ed-ac17-97abde5f8fac",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "ff978110d07511b571b07f446e27923b856b4d0f922c99965ce226875ac45ce1"
   },
-  "id": "Sc13wR3lK4kEQKsB",
+  "id": "6E99OzAj0odpizeQ",
   "tags": []
 }
