@@ -14,30 +14,77 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Rajdhani', 'Orbitron', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1d35 25%, #2d1b3d 50%, #1a1d35 75%, #0a0e27 100%);
             background-attachment: fixed;
             min-height: 100vh;
             padding: 20px;
-            color: #1d1d1f;
+            color: #ffffff;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 0, 100, 0.03) 2px,
+                    rgba(255, 0, 100, 0.03) 4px
+                );
+            pointer-events: none;
+            z-index: 1;
         }
         
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            position: relative;
+            z-index: 2;
         }
         
         header {
             text-align: center;
-            color: #1d1d1f;
+            color: #ffffff;
             margin-bottom: 30px;
             position: relative;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 247, 250, 0.95) 100%);
+            background: linear-gradient(135deg, rgba(255, 0, 100, 0.15) 0%, rgba(255, 102, 0, 0.15) 50%, rgba(255, 215, 0, 0.15) 100%);
             padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow:
+                0 0 60px rgba(255, 0, 100, 0.3),
+                0 0 30px rgba(255, 102, 0, 0.2),
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            background-clip: padding-box;
             backdrop-filter: blur(20px);
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff0064, #ff6600, #ffd700, #ff6600, #ff0064);
+            background-size: 400% 400%;
+            border-radius: 20px;
+            z-index: -1;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
         
         .logo-container {
@@ -53,18 +100,26 @@
         }
         
         header h1 {
-            font-size: 3em;
+            font-size: 3.5em;
             margin-bottom: 10px;
-            background: linear-gradient(135deg, #0066cc 0%, #00aaff 50%, #0066cc 100%);
+            background: linear-gradient(135deg, #ff0064 0%, #ff6600 25%, #ffd700 50%, #ff6600 75%, #ff0064 100%);
+            background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            font-weight: 600;
-            letter-spacing: -0.5px;
+            font-weight: 700;
+            letter-spacing: 2px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 20px;
+            text-transform: uppercase;
+            animation: shine 3s linear infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
         }
         
         
@@ -199,25 +254,50 @@
         }
         
         .card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 250, 252, 0.98) 100%);
+            background: linear-gradient(135deg, rgba(20, 25, 45, 0.95) 0%, rgba(30, 20, 40, 0.95) 100%);
             backdrop-filter: blur(20px);
             border-radius: 20px;
             padding: 24px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow:
+                0 0 40px rgba(255, 0, 100, 0.2),
+                0 0 20px rgba(255, 102, 0, 0.1),
+                0 8px 32px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 102, 0, 0.3);
             min-height: 450px;
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
         }
         
         .card h2 {
-            color: #1d1d1f;
+            color: #ffd700;
             margin-bottom: 20px;
-            font-size: 1.4em;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            font-size: 1.5em;
+            border-bottom: 2px solid rgba(255, 102, 0, 0.4);
             padding-bottom: 12px;
-            font-weight: 600;
-            letter-spacing: -0.3px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            position: relative;
+            z-index: 1;
         }
         
         .scrollable-table {
@@ -256,27 +336,32 @@
         th, td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            border-bottom: 1px solid rgba(255, 102, 0, 0.2);
         }
 
         th {
-            background: rgba(0, 102, 204, 0.08);
-            font-weight: 500;
-            color: #1d1d1f;
+            background: linear-gradient(135deg, rgba(255, 0, 100, 0.3) 0%, rgba(255, 102, 0, 0.3) 100%);
+            font-weight: 600;
+            color: #ffd700;
             position: sticky;
             top: 0;
             z-index: 10;
             white-space: nowrap;
             font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
         }
 
         td {
             font-size: 0.9em;
-            color: #1d1d1f;
+            color: #ffffff;
         }
 
         tr:hover {
-            background: rgba(0, 102, 204, 0.04);
+            background: rgba(255, 102, 0, 0.1);
+            transform: scale(1.01);
+            transition: all 0.2s ease;
         }
         
         .rank-badge {
@@ -290,23 +375,39 @@
         }
         
         .rank-1 {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: #1d1d1f;
-            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%);
+            color: #000;
+            box-shadow:
+                0 0 20px rgba(255, 215, 0, 0.8),
+                0 0 40px rgba(255, 215, 0, 0.4),
+                inset 0 0 10px rgba(255, 255, 255, 0.5);
+            font-weight: 900;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
         .rank-2 {
-            background: linear-gradient(135deg, #C0C0C0 0%, #E8E8E8 100%);
-            color: #1d1d1f;
-            box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3);
+            background: linear-gradient(135deg, #E8E8E8 0%, #C0C0C0 50%, #E8E8E8 100%);
+            color: #000;
+            box-shadow:
+                0 0 15px rgba(192, 192, 192, 0.6),
+                inset 0 0 8px rgba(255, 255, 255, 0.4);
+            font-weight: 800;
         }
         .rank-3 {
-            background: linear-gradient(135deg, #CD7F32 0%, #E39A5A 100%);
-            color: white;
-            box-shadow: 0 2px 8px rgba(205, 127, 50, 0.3);
+            background: linear-gradient(135deg, #E39A5A 0%, #CD7F32 50%, #E39A5A 100%);
+            color: #fff;
+            box-shadow:
+                0 0 15px rgba(205, 127, 50, 0.6),
+                inset 0 0 8px rgba(255, 255, 255, 0.3);
+            font-weight: 800;
         }
         .rank-other {
-            background: rgba(0, 102, 204, 0.1);
-            color: #0066cc;
+            background: linear-gradient(135deg, rgba(255, 0, 100, 0.3) 0%, rgba(255, 102, 0, 0.3) 100%);
+            color: #ffd700;
+            border: 1px solid rgba(255, 102, 0, 0.5);
         }
         
         .bar-container {
@@ -448,57 +549,81 @@
                 </svg>
             </div>
             <h1>
-                <svg width="60" height="60" viewBox="0 0 100 100" style="flex-shrink: 0;">
+                <svg width="60" height="60" viewBox="0 0 100 100" style="flex-shrink: 0; filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));">
                     <!-- Pole -->
-                    <rect x="48" y="10" width="4" height="80" fill="#86868b"/>
+                    <rect x="48" y="10" width="4" height="80" fill="url(#poleGradient)"/>
+                    <defs>
+                        <linearGradient id="poleGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#ff6600;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#ff0064;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="basketGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#ff0064;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#ff6600;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#ffd700;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
                     <!-- Base -->
-                    <ellipse cx="50" cy="90" rx="15" ry="3" fill="#515154"/>
+                    <ellipse cx="50" cy="90" rx="15" ry="3" fill="#ff6600"/>
                     <!-- Basket rim -->
-                    <ellipse cx="50" cy="25" rx="20" ry="4" fill="#0066cc"/>
-                    <!-- Chains (3 sets) -->
-                    <line x1="40" y1="25" x2="40" y2="60" stroke="#86868b" stroke-width="1.5"/>
-                    <line x1="45" y1="25" x2="45" y2="62" stroke="#86868b" stroke-width="1.5"/>
-                    <line x1="50" y1="25" x2="50" y2="64" stroke="#86868b" stroke-width="1.5"/>
-                    <line x1="55" y1="25" x2="55" y2="62" stroke="#86868b" stroke-width="1.5"/>
-                    <line x1="60" y1="25" x2="60" y2="60" stroke="#86868b" stroke-width="1.5"/>
+                    <ellipse cx="50" cy="25" rx="20" ry="4" fill="url(#basketGradient)"/>
+                    <!-- Chains (3 sets) with glow -->
+                    <line x1="40" y1="25" x2="40" y2="60" stroke="#ffd700" stroke-width="2"/>
+                    <line x1="45" y1="25" x2="45" y2="62" stroke="#ff6600" stroke-width="2"/>
+                    <line x1="50" y1="25" x2="50" y2="64" stroke="#ff0064" stroke-width="2"/>
+                    <line x1="55" y1="25" x2="55" y2="62" stroke="#ff6600" stroke-width="2"/>
+                    <line x1="60" y1="25" x2="60" y2="60" stroke="#ffd700" stroke-width="2"/>
                     <!-- Bottom basket -->
-                    <path d="M 30 60 Q 50 75 70 60" fill="none" stroke="#0066cc" stroke-width="2"/>
-                    <ellipse cx="50" cy="60" rx="20" ry="3" fill="#0066cc"/>
+                    <path d="M 30 60 Q 50 75 70 60" fill="none" stroke="url(#basketGradient)" stroke-width="3"/>
+                    <ellipse cx="50" cy="60" rx="20" ry="3" fill="url(#basketGradient)"/>
                 </svg>
                 ParSaveables
-                <svg width="60" height="60" viewBox="0 0 100 100" style="flex-shrink: 0;">
+                <svg width="60" height="60" viewBox="0 0 100 100" style="flex-shrink: 0; filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));">
                     <!-- Pole -->
-                    <rect x="48" y="10" width="4" height="80" fill="#86868b"/>
+                    <rect x="48" y="10" width="4" height="80" fill="url(#poleGradient2)"/>
+                    <defs>
+                        <linearGradient id="poleGradient2" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#ff6600;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#ff0064;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="basketGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#ff0064;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#ff6600;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#ffd700;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
                     <!-- Base -->
-                    <ellipse cx="50" cy="90" rx="15" ry="3" fill="#515154"/>
+                    <ellipse cx="50" cy="90" rx="15" ry="3" fill="#ff6600"/>
                     <!-- Basket rim -->
-                    <ellipse cx="50" cy="25" rx="20" ry="4" fill="#0066cc"/>
-                    <!-- Chains (3 sets) -->
-                    <line x1="40" y1="25" x2="40" y2="60" stroke="#86868b" stroke-width="1.5"/>
-                    <line x1="45" y1="25" x2="45" y2="62" stroke="#86868b" stroke-width="1.5"/>
-                    <line x1="50" y1="25" x2="50" y2="64" stroke="#86868b" stroke-width="1.5"/>
-                    <line x1="55" y1="25" x2="55" y2="62" stroke="#86868b" stroke-width="1.5"/>
-                    <line x1="60" y1="25" x2="60" y2="60" stroke="#86868b" stroke-width="1.5"/>
+                    <ellipse cx="50" cy="25" rx="20" ry="4" fill="url(#basketGradient2)"/>
+                    <!-- Chains (3 sets) with glow -->
+                    <line x1="40" y1="25" x2="40" y2="60" stroke="#ffd700" stroke-width="2"/>
+                    <line x1="45" y1="25" x2="45" y2="62" stroke="#ff6600" stroke-width="2"/>
+                    <line x1="50" y1="25" x2="50" y2="64" stroke="#ff0064" stroke-width="2"/>
+                    <line x1="55" y1="25" x2="55" y2="62" stroke="#ff6600" stroke-width="2"/>
+                    <line x1="60" y1="25" x2="60" y2="60" stroke="#ffd700" stroke-width="2"/>
                     <!-- Bottom basket -->
-                    <path d="M 30 60 Q 50 75 70 60" fill="none" stroke="#0066cc" stroke-width="2"/>
-                    <ellipse cx="50" cy="60" rx="20" ry="3" fill="#0066cc"/>
+                    <path d="M 30 60 Q 50 75 70 60" fill="none" stroke="url(#basketGradient2)" stroke-width="3"/>
+                    <ellipse cx="50" cy="60" rx="20" ry="3" fill="url(#basketGradient2)"/>
                 </svg>
             </h1>
 
             <!-- Tab Navigation -->
             <div style="margin: 20px 0; display: flex; gap: 12px; justify-content: center;">
-                <button id="seasonsTab" onclick="switchTab('seasons')" style="padding: 12px 32px; font-size: 1.05em; border-radius: 12px; border: none; background: linear-gradient(135deg, #0066cc 0%, #00aaff 100%); color: white; cursor: pointer; font-weight: 500; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);">
+                <button id="seasonsTab" onclick="switchTab('seasons')" style="padding: 14px 36px; font-size: 1.1em; border-radius: 12px; border: 2px solid #ff6600; background: linear-gradient(135deg, #ff0064 0%, #ff6600 100%); color: white; cursor: pointer; font-weight: 700; transition: all 0.3s; box-shadow: 0 0 20px rgba(255, 102, 0, 0.6), 0 0 40px rgba(255, 0, 100, 0.3); text-transform: uppercase; letter-spacing: 1px;">
                     Seasons
                 </button>
-                <button id="tournamentsTab" onclick="switchTab('tournaments')" style="padding: 12px 32px; font-size: 1.05em; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.1); background: rgba(255, 255, 255, 0.8); color: #1d1d1f; cursor: pointer; font-weight: 500; transition: all 0.3s;">
+                <button id="tournamentsTab" onclick="switchTab('tournaments')" style="padding: 14px 36px; font-size: 1.1em; border-radius: 12px; border: 2px solid rgba(255, 102, 0, 0.4); background: rgba(20, 25, 45, 0.8); color: #ffd700; cursor: pointer; font-weight: 700; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;">
                     Tournaments
                 </button>
             </div>
 
             <!-- Event Selector -->
             <div style="margin: 15px 0;">
-                <label for="eventSelect" id="eventLabel" style="font-size: 1.05em; margin-right: 10px; color: #1d1d1f; font-weight: 500;">Season:</label>
-                <select id="eventSelect" onchange="loadAllData()" style="padding: 10px 16px; font-size: 1em; border-radius: 10px; background: white; color: #1d1d1f; border: 1px solid rgba(0, 0, 0, 0.15); cursor: pointer; font-weight: 400;">
+                <label for="eventSelect" id="eventLabel" style="font-size: 1.1em; margin-right: 10px; color: #ffd700; font-weight: 600; text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);">Season:</label>
+                <select id="eventSelect" onchange="loadAllData()" style="padding: 10px 20px; font-size: 1em; border-radius: 10px; background: linear-gradient(135deg, rgba(20, 25, 45, 0.9) 0%, rgba(30, 20, 40, 0.9) 100%); color: #ffd700; border: 2px solid rgba(255, 102, 0, 0.5); cursor: pointer; font-weight: 600; box-shadow: 0 0 15px rgba(255, 102, 0, 0.3);">
                     <!-- Options will be populated dynamically -->
                 </select>
             </div>
