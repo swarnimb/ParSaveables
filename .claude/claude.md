@@ -65,8 +65,9 @@ ParSaveables/
 │   └── SETUP.md               # Setup instructions
 ├── n8n-workflows/             # Workflow node code
 │   └── nodes/                 # Individual node implementations
-│       ├── calculate-points.js       # Enterprise-grade calculator
-│       └── load-configuration.js     # Config loader
+│       ├── calculate-points.js           # Enterprise-grade calculator
+│       ├── load-configuration-final.js   # Config loader
+│       └── select-best-event.js          # Event selection (tournament priority)
 ├── ParSaveablesDashboard/     # Frontend (single-page app)
 │   └── index.html             # Dashboard (1000+ lines)
 └── README.md                  # Public documentation

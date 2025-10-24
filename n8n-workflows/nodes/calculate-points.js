@@ -20,22 +20,31 @@
 // ============================================================================
 
 /**
- * Get event configuration from "Determine Event" node
+ * Get event configuration from "Load Configuration" node
  * This includes the points_system config from database
  */
-const event = $('Determine Event').item.json;
+const config = $('Load Configuration').item.json;
+const event = config.event;
 const pointsSystemConfig = event.points_config || throwError('No points system configured for this event');
 
 /**
  * Get course configuration from "Load Configuration" node
  * This includes course tier mappings and multipliers
  */
-const coursesConfig = $('Load Configuration').item.json.courses;
+const coursesConfig = config.courses;
+
+// DEBUG: Validate courses structure
+console.log(`[DEBUG] Number of courses: ${coursesConfig.length}`);
+console.log(`[DEBUG] First course:`, JSON.stringify(coursesConfig[0], null, 2));
+if (coursesConfig[0] && !coursesConfig[0].course_name) {
+  throw new Error(`[Calculate Points] Courses missing 'course_name' field. Got: ${JSON.stringify(coursesConfig[0])}`);
+}
 
 /**
- * Get round data from previous node (Format Event Data)
+ * Get round data from Load Configuration
+ * Load Configuration now includes roundData from Format Data for Query
  */
-const roundData = $input.all()[0].json;
+const roundData = config.roundData;
 
 // ============================================================================
 // STEP 2: EXTRACT CONFIGURATION VALUES

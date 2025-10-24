@@ -855,7 +855,7 @@
                 rounds.forEach((round, index) => {
                     html += `<th>Round ${index + 1}</th>`;
                 });
-                html += `<th>Total</th></tr></thead><tbody>`;
+                html += `</tr></thead><tbody>`;
 
                 // Sort by total points descending
                 const sortedPlayers = Object.keys(playerStats)
@@ -867,7 +867,7 @@
                         const score = playerStats[player][round.id];
                         html += score ? `<td>${score.toFixed(1)}</td>` : `<td style="color: #555;">-</td>`;
                     });
-                    html += `<td><strong>${playerTotalPoints[player].toFixed(1)}</strong></td></tr>`;
+                    html += `</tr>`;
                 });
 
                 html += '</tbody></table>';
@@ -964,16 +964,25 @@
             });
 
             const allMonths = [...new Set(Object.values(roundDateMap).map(d => d.substring(0, 7)))].sort();
-            const colors = ['#64ffda', '#ff6b6b', '#4ecdc4', '#95e1d3', '#f38181', '#aa96da', '#fcbad3', '#a8d8ea'];
-            const datasets = Object.entries(playerMonthlyData).map(([player, months], index) => ({
-                label: getDisplayName(player),
-                data: allMonths.map(month => months[month] || 0),
-                borderColor: colors[index % colors.length],
-                backgroundColor: colors[index % colors.length] + '40',
-                tension: 0.3,
-                fill: false,
-                borderWidth: 2
-            }));
+            const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF6384', '#4DC9F6', '#8BC34A', '#7C4DFF'];
+            const datasets = Object.entries(playerMonthlyData).map(([player, months], index) => {
+                // Calculate cumulative totals
+                let cumulative = 0;
+                const cumulativeData = allMonths.map(month => {
+                    cumulative += months[month] || 0;
+                    return cumulative;
+                });
+
+                return {
+                    label: getDisplayName(player),
+                    data: cumulativeData,
+                    borderColor: colors[index % colors.length],
+                    backgroundColor: colors[index % colors.length] + '40',
+                    tension: 0.3,
+                    fill: false,
+                    borderWidth: 2
+                };
+            });
 
             const ctx = document.getElementById('monthlyTrendChart');
             if (monthlyTrendChart) monthlyTrendChart.destroy();
