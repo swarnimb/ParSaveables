@@ -505,7 +505,7 @@
 
         <div class="row row-3">
             <div class="card">
-                <h2>📈 Monthly Points Trend</h2>
+                <h2 id="trendChartTitle">📈 Monthly Points Trend</h2>
                 <canvas id="monthlyTrendChart"></canvas>
             </div>
         </div>
@@ -950,55 +950,117 @@
             const roundDateMap = {};
             rounds.forEach(r => { roundDateMap[r.id] = r.date; });
 
-            const playerMonthlyData = {};
-            playerRounds.forEach(pr => {
-                // Only count registered players
-                if (!REGISTERED_PLAYERS.includes(pr.player_name)) return;
-
-                const date = roundDateMap[pr.round_id];
-                if (!date) return;
-                const month = date.substring(0, 7);
-                if (!playerMonthlyData[pr.player_name]) playerMonthlyData[pr.player_name] = {};
-                if (!playerMonthlyData[pr.player_name][month]) playerMonthlyData[pr.player_name][month] = 0;
-                playerMonthlyData[pr.player_name][month] += pr.final_total || 0;
-            });
-
-            const allMonths = [...new Set(Object.values(roundDateMap).map(d => d.substring(0, 7)))].sort();
             const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF6384', '#4DC9F6', '#8BC34A', '#7C4DFF'];
-            const datasets = Object.entries(playerMonthlyData).map(([player, months], index) => {
-                // Calculate cumulative totals
-                let cumulative = 0;
-                const cumulativeData = allMonths.map(month => {
-                    cumulative += months[month] || 0;
-                    return cumulative;
+
+            // Check if we're viewing tournaments or seasons
+            if (currentTab === 'tournaments') {
+                // For tournaments: show round-by-round cumulative points
+                document.getElementById('trendChartTitle').textContent = '📈 Points Trend';
+
+                // Create player data structure: player -> array of points per round
+                const playerRoundData = {};
+                rounds.forEach((round, roundIndex) => {
+                    playerRounds.forEach(pr => {
+                        if (!REGISTERED_PLAYERS.includes(pr.player_name)) return;
+                        if (pr.round_id !== round.id) return;
+
+                        if (!playerRoundData[pr.player_name]) {
+                            playerRoundData[pr.player_name] = new Array(rounds.length).fill(0);
+                        }
+                        playerRoundData[pr.player_name][roundIndex] = pr.final_total || 0;
+                    });
                 });
 
-                return {
-                    label: getDisplayName(player),
-                    data: cumulativeData,
-                    borderColor: colors[index % colors.length],
-                    backgroundColor: colors[index % colors.length] + '40',
-                    tension: 0.3,
-                    fill: false,
-                    borderWidth: 2
-                };
-            });
+                // Create round labels (Round 1, Round 2, etc.)
+                const roundLabels = rounds.map((_, index) => `Round ${index + 1}`);
 
-            const ctx = document.getElementById('monthlyTrendChart');
-            if (monthlyTrendChart) monthlyTrendChart.destroy();
-            monthlyTrendChart = new Chart(ctx, {
-                type: 'line',
-                data: { labels: allMonths, datasets: datasets },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: { legend: { position: 'top', labels: { color: '#64ffda', font: { size: 12 } } } },
-                    scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Points', color: '#64ffda' }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } },
-                        x: { title: { display: true, text: 'Month', color: '#64ffda' }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } }
+                const datasets = Object.entries(playerRoundData).map(([player, roundPoints], index) => {
+                    // Calculate cumulative totals across rounds
+                    let cumulative = 0;
+                    const cumulativeData = roundPoints.map(points => {
+                        cumulative += points;
+                        return cumulative;
+                    });
+
+                    return {
+                        label: getDisplayName(player),
+                        data: cumulativeData,
+                        borderColor: colors[index % colors.length],
+                        backgroundColor: colors[index % colors.length] + '40',
+                        tension: 0.3,
+                        fill: false,
+                        borderWidth: 2
+                    };
+                });
+
+                const ctx = document.getElementById('monthlyTrendChart');
+                if (monthlyTrendChart) monthlyTrendChart.destroy();
+                monthlyTrendChart = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: roundLabels, datasets: datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { position: 'top', labels: { color: '#64ffda', font: { size: 12 } } } },
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: 'Points', color: '#64ffda' }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } },
+                            x: { title: { display: true, text: 'Round', color: '#64ffda' }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } }
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                // For seasons: show monthly cumulative points (existing logic)
+                document.getElementById('trendChartTitle').textContent = '📈 Monthly Points Trend';
+
+                const playerMonthlyData = {};
+                playerRounds.forEach(pr => {
+                    // Only count registered players
+                    if (!REGISTERED_PLAYERS.includes(pr.player_name)) return;
+
+                    const date = roundDateMap[pr.round_id];
+                    if (!date) return;
+                    const month = date.substring(0, 7);
+                    if (!playerMonthlyData[pr.player_name]) playerMonthlyData[pr.player_name] = {};
+                    if (!playerMonthlyData[pr.player_name][month]) playerMonthlyData[pr.player_name][month] = 0;
+                    playerMonthlyData[pr.player_name][month] += pr.final_total || 0;
+                });
+
+                const allMonths = [...new Set(Object.values(roundDateMap).map(d => d.substring(0, 7)))].sort();
+                const datasets = Object.entries(playerMonthlyData).map(([player, months], index) => {
+                    // Calculate cumulative totals
+                    let cumulative = 0;
+                    const cumulativeData = allMonths.map(month => {
+                        cumulative += months[month] || 0;
+                        return cumulative;
+                    });
+
+                    return {
+                        label: getDisplayName(player),
+                        data: cumulativeData,
+                        borderColor: colors[index % colors.length],
+                        backgroundColor: colors[index % colors.length] + '40',
+                        tension: 0.3,
+                        fill: false,
+                        borderWidth: 2
+                    };
+                });
+
+                const ctx = document.getElementById('monthlyTrendChart');
+                if (monthlyTrendChart) monthlyTrendChart.destroy();
+                monthlyTrendChart = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: allMonths, datasets: datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { position: 'top', labels: { color: '#64ffda', font: { size: 12 } } } },
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: 'Points', color: '#64ffda' }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } },
+                            x: { title: { display: true, text: 'Month', color: '#64ffda' }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } }
+                        }
+                    }
+                });
+            }
         }
 
         function handleKeyPress(event) {
