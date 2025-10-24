@@ -14,15 +14,12 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-image: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80');
-            background-size: cover;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             background-attachment: fixed;
-            background-position: center;
-            background-repeat: no-repeat;
             min-height: 100vh;
             padding: 20px;
-            color: #e6f1ff;
+            color: #1d1d1f;
         }
         
         .container {
@@ -32,15 +29,15 @@
         
         header {
             text-align: center;
-            color: #64ffda;
+            color: #1d1d1f;
             margin-bottom: 30px;
             position: relative;
-            background: rgba(10, 20, 35, 0.95);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(100, 255, 218, 0.2);
-            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 247, 250, 0.95) 100%);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
         }
         
         .logo-container {
@@ -56,25 +53,32 @@
         }
         
         header h1 {
-            font-size: 2.5em;
+            font-size: 3em;
             margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(100, 255, 218, 0.5), 0 0 40px rgba(100, 255, 218, 0.3);
-            font-weight: 700;
-            letter-spacing: 2px;
+            background: linear-gradient(135deg, #0066cc 0%, #00aaff 50%, #0066cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
         }
         
         
         .chat-section {
-            background: rgba(10, 20, 35, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 250, 252, 0.98) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
             margin-bottom: 25px;
             margin-left: auto;
             margin-right: auto;
             max-width: 800px;
-            border: 1px solid rgba(100, 255, 218, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.9);
             transition: all 0.3s ease;
             min-height: auto;
             display: flex;
@@ -195,24 +199,25 @@
         }
         
         .card {
-            background: rgba(10, 20, 35, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(100, 255, 218, 0.2);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 250, 252, 0.98) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.9);
             min-height: 450px;
             display: flex;
             flex-direction: column;
         }
         
         .card h2 {
-            color: #64ffda;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-            border-bottom: 2px solid rgba(100, 255, 218, 0.3);
-            padding-bottom: 10px;
-            text-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+            color: #1d1d1f;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            padding-bottom: 12px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
         }
         
         .scrollable-table {
@@ -229,13 +234,17 @@
         }
         
         .scrollable-table::-webkit-scrollbar-track {
-            background: rgba(100, 255, 218, 0.1);
+            background: rgba(0, 0, 0, 0.05);
             border-radius: 4px;
         }
-        
+
         .scrollable-table::-webkit-scrollbar-thumb {
-            background: rgba(100, 255, 218, 0.3);
+            background: rgba(0, 102, 204, 0.3);
             border-radius: 4px;
+        }
+
+        .scrollable-table::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 102, 204, 0.5);
         }
         
         table {
@@ -247,13 +256,13 @@
         th, td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
         }
 
         th {
-            background: rgba(100, 255, 218, 0.1);
-            font-weight: 600;
-            color: #64ffda;
+            background: rgba(0, 102, 204, 0.08);
+            font-weight: 500;
+            color: #1d1d1f;
             position: sticky;
             top: 0;
             z-index: 10;
@@ -263,10 +272,11 @@
 
         td {
             font-size: 0.9em;
+            color: #1d1d1f;
         }
-        
+
         tr:hover {
-            background: rgba(100, 255, 218, 0.05);
+            background: rgba(0, 102, 204, 0.04);
         }
         
         .rank-badge {
@@ -279,22 +289,24 @@
             font-weight: bold;
         }
         
-        .rank-1 { 
-            background: linear-gradient(135deg, #64ffda 0%, #00d9ff 100%);
-            color: #0a192f;
-            box-shadow: 0 0 15px rgba(100, 255, 218, 0.5);
+        .rank-1 {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1d1d1f;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
         }
-        .rank-2 { 
-            background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
-            color: #0a192f;
+        .rank-2 {
+            background: linear-gradient(135deg, #C0C0C0 0%, #E8E8E8 100%);
+            color: #1d1d1f;
+            box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3);
         }
-        .rank-3 { 
-            background: linear-gradient(135deg, #cd7f32 0%, #e39a5a 100%);
+        .rank-3 {
+            background: linear-gradient(135deg, #CD7F32 0%, #E39A5A 100%);
             color: white;
+            box-shadow: 0 2px 8px rgba(205, 127, 50, 0.3);
         }
-        .rank-other { 
-            background: rgba(100, 255, 218, 0.2);
-            color: #64ffda;
+        .rank-other {
+            background: rgba(0, 102, 204, 0.1);
+            color: #0066cc;
         }
         
         .bar-container {
@@ -435,22 +447,58 @@
                     </g>
                 </svg>
             </div>
-            <h1>⛓️ Major ParSaveables League ⛓️</h1>
+            <h1>
+                <svg width="60" height="60" viewBox="0 0 100 100" style="flex-shrink: 0;">
+                    <!-- Pole -->
+                    <rect x="48" y="10" width="4" height="80" fill="#86868b"/>
+                    <!-- Base -->
+                    <ellipse cx="50" cy="90" rx="15" ry="3" fill="#515154"/>
+                    <!-- Basket rim -->
+                    <ellipse cx="50" cy="25" rx="20" ry="4" fill="#0066cc"/>
+                    <!-- Chains (3 sets) -->
+                    <line x1="40" y1="25" x2="40" y2="60" stroke="#86868b" stroke-width="1.5"/>
+                    <line x1="45" y1="25" x2="45" y2="62" stroke="#86868b" stroke-width="1.5"/>
+                    <line x1="50" y1="25" x2="50" y2="64" stroke="#86868b" stroke-width="1.5"/>
+                    <line x1="55" y1="25" x2="55" y2="62" stroke="#86868b" stroke-width="1.5"/>
+                    <line x1="60" y1="25" x2="60" y2="60" stroke="#86868b" stroke-width="1.5"/>
+                    <!-- Bottom basket -->
+                    <path d="M 30 60 Q 50 75 70 60" fill="none" stroke="#0066cc" stroke-width="2"/>
+                    <ellipse cx="50" cy="60" rx="20" ry="3" fill="#0066cc"/>
+                </svg>
+                ParSaveables
+                <svg width="60" height="60" viewBox="0 0 100 100" style="flex-shrink: 0;">
+                    <!-- Pole -->
+                    <rect x="48" y="10" width="4" height="80" fill="#86868b"/>
+                    <!-- Base -->
+                    <ellipse cx="50" cy="90" rx="15" ry="3" fill="#515154"/>
+                    <!-- Basket rim -->
+                    <ellipse cx="50" cy="25" rx="20" ry="4" fill="#0066cc"/>
+                    <!-- Chains (3 sets) -->
+                    <line x1="40" y1="25" x2="40" y2="60" stroke="#86868b" stroke-width="1.5"/>
+                    <line x1="45" y1="25" x2="45" y2="62" stroke="#86868b" stroke-width="1.5"/>
+                    <line x1="50" y1="25" x2="50" y2="64" stroke="#86868b" stroke-width="1.5"/>
+                    <line x1="55" y1="25" x2="55" y2="62" stroke="#86868b" stroke-width="1.5"/>
+                    <line x1="60" y1="25" x2="60" y2="60" stroke="#86868b" stroke-width="1.5"/>
+                    <!-- Bottom basket -->
+                    <path d="M 30 60 Q 50 75 70 60" fill="none" stroke="#0066cc" stroke-width="2"/>
+                    <ellipse cx="50" cy="60" rx="20" ry="3" fill="#0066cc"/>
+                </svg>
+            </h1>
 
             <!-- Tab Navigation -->
-            <div style="margin: 20px 0; display: flex; gap: 10px; justify-content: center;">
-                <button id="seasonsTab" onclick="switchTab('seasons')" style="padding: 10px 30px; font-size: 1.1em; border-radius: 8px; border: 2px solid #64ffda; background: linear-gradient(135deg, #64ffda 0%, #00d9ff 100%); color: #0a192f; cursor: pointer; font-weight: bold; transition: all 0.3s;">
+            <div style="margin: 20px 0; display: flex; gap: 12px; justify-content: center;">
+                <button id="seasonsTab" onclick="switchTab('seasons')" style="padding: 12px 32px; font-size: 1.05em; border-radius: 12px; border: none; background: linear-gradient(135deg, #0066cc 0%, #00aaff 100%); color: white; cursor: pointer; font-weight: 500; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);">
                     Seasons
                 </button>
-                <button id="tournamentsTab" onclick="switchTab('tournaments')" style="padding: 10px 30px; font-size: 1.1em; border-radius: 8px; border: 2px solid #64ffda; background: rgba(100, 255, 218, 0.1); color: #64ffda; cursor: pointer; font-weight: bold; transition: all 0.3s;">
+                <button id="tournamentsTab" onclick="switchTab('tournaments')" style="padding: 12px 32px; font-size: 1.05em; border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.1); background: rgba(255, 255, 255, 0.8); color: #1d1d1f; cursor: pointer; font-weight: 500; transition: all 0.3s;">
                     Tournaments
                 </button>
             </div>
 
             <!-- Event Selector -->
             <div style="margin: 15px 0;">
-                <label for="eventSelect" id="eventLabel" style="font-size: 1.1em; margin-right: 10px;">Season:</label>
-                <select id="eventSelect" onchange="loadAllData()" style="padding: 8px 15px; font-size: 1em; border-radius: 5px; background: white; color: #0a192f; border: 2px solid #64ffda; cursor: pointer;">
+                <label for="eventSelect" id="eventLabel" style="font-size: 1.05em; margin-right: 10px; color: #1d1d1f; font-weight: 500;">Season:</label>
+                <select id="eventSelect" onchange="loadAllData()" style="padding: 10px 16px; font-size: 1em; border-radius: 10px; background: white; color: #1d1d1f; border: 1px solid rgba(0, 0, 0, 0.15); cursor: pointer; font-weight: 400;">
                     <!-- Options will be populated dynamically -->
                 </select>
             </div>
