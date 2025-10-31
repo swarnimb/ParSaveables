@@ -1,0 +1,42 @@
+{
+  "name": "parsaveables-podcast-generator",
+  "version": "1.0.0",
+  "description": "Chain Reactions - Automated disc golf tournament podcast generator",
+  "main": "generate-podcast.js",
+  "type": "module",
+  "scripts": {
+    "generate": "node generate-podcast.js",
+    "generate:season": "node generate-podcast.js --type=season",
+    "generate:monthly": "node generate-podcast.js --type=monthly",
+    "generate:dialogue": "node generate-dialogue-podcast.js",
+    "generate:existing": "node generate-from-existing-script.js",
+    "test:script": "node test-script-generation.js",
+    "test:audio": "node test-audio-generation.js",
+    "test:data": "node test-data-fetcher.js"
+  },
+  "keywords": [
+    "disc-golf",
+    "podcast",
+    "ai",
+    "automation",
+    "tts"
+  ],
+  "author": "ParSaveables",
+  "license": "MIT",
+  "dependencies": {
+    "@elevenlabs/elevenlabs-js": "^2.20.1",
+    "@google-cloud/text-to-speech": "^5.0.1",
+    "@octokit/rest": "^20.0.2",
+    "@supabase/supabase-js": "^2.39.0",
+    "axios": "^1.6.2",
+    "dotenv": "^16.3.1",
+    "fluent-ffmpeg": "^2.1.2",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.55.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

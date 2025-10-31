@@ -102,11 +102,12 @@
         header h1 {
             font-size: 3.5em;
             margin-bottom: 10px;
-            background: linear-gradient(135deg, #ff0064 0%, #ff6600 25%, #ffd700 50%, #ff6600 75%, #ff0064 100%);
+            background: linear-gradient(135deg, #ff6699 0%, #ffaa33 25%, #ffee44 50%, #ffaa33 75%, #ff6699 100%);
             background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
             font-weight: 700;
             letter-spacing: 2px;
             display: flex;
@@ -115,7 +116,7 @@
             gap: 20px;
             text-transform: uppercase;
             animation: shine 3s linear infinite;
-            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+            filter: drop-shadow(0 0 15px rgba(255, 238, 68, 0.6));
         }
 
         @keyframes shine {
@@ -470,16 +471,153 @@
             color: #64ffda;
             padding: 20px;
         }
-        
+
+        /* Podcast Modal Styles */
+        .podcast-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .podcast-modal-content {
+            position: relative;
+            background: linear-gradient(135deg, rgba(20, 25, 45, 0.95) 0%, rgba(30, 20, 40, 0.95) 100%);
+            margin: 5% auto;
+            padding: 30px;
+            border: 2px solid #64ffda;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 40px rgba(100, 255, 218, 0.5), 0 0 80px rgba(0, 204, 255, 0.3);
+            animation: slideIn 0.4s ease;
+        }
+
+        .podcast-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(100, 255, 218, 0.3);
+        }
+
+        .podcast-modal-header h2 {
+            color: #64ffda;
+            margin: 0;
+            font-size: 1.8em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .close-modal {
+            color: #ff6699;
+            font-size: 2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            line-height: 1;
+        }
+
+        .close-modal:hover {
+            color: #ffee44;
+            transform: rotate(90deg);
+            text-shadow: 0 0 20px rgba(255, 238, 68, 0.8);
+        }
+
+        .podcast-episode {
+            background: rgba(20, 25, 45, 0.6);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 15px;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            transition: all 0.3s;
+        }
+
+        .podcast-episode:hover {
+            border-color: #64ffda;
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+            transform: translateX(5px);
+        }
+
+        .podcast-episode-title {
+            color: #ffd700;
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .podcast-episode-meta {
+            color: #64ffda;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .podcast-play-btn {
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #0066ff 0%, #00ccff 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(0, 204, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .podcast-play-btn:hover {
+            box-shadow: 0 0 25px rgba(0, 204, 255, 0.6);
+            transform: scale(1.05);
+        }
+
+        .podcast-audio-player {
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .podcast-loading {
+            text-align: center;
+            color: #64ffda;
+            font-size: 1.2em;
+            padding: 40px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 10px;
             }
-            
+
             header h1 {
                 font-size: 1.8em;
             }
-            
+
             .logo {
                 width: 60px;
                 height: 60px;
@@ -512,6 +650,12 @@
             
             .chat-box.visible {
                 height: 120px;
+            }
+
+            /* Fix mobile line graph height */
+            #monthlyTrendChart {
+                min-height: 300px !important;
+                height: 300px !important;
             }
         }
         
@@ -611,12 +755,15 @@
             </h1>
 
             <!-- Tab Navigation -->
-            <div style="margin: 20px 0; display: flex; gap: 12px; justify-content: center;">
+            <div style="margin: 20px 0; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
                 <button id="seasonsTab" onclick="switchTab('seasons')" style="padding: 14px 36px; font-size: 1.1em; border-radius: 12px; border: 2px solid #ff6600; background: linear-gradient(135deg, #ff0064 0%, #ff6600 100%); color: white; cursor: pointer; font-weight: 700; transition: all 0.3s; box-shadow: 0 0 20px rgba(255, 102, 0, 0.6), 0 0 40px rgba(255, 0, 100, 0.3); text-transform: uppercase; letter-spacing: 1px;">
                     Seasons
                 </button>
                 <button id="tournamentsTab" onclick="switchTab('tournaments')" style="padding: 14px 36px; font-size: 1.1em; border-radius: 12px; border: 2px solid rgba(255, 102, 0, 0.4); background: rgba(20, 25, 45, 0.8); color: #ffd700; cursor: pointer; font-weight: 700; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;">
                     Tournaments
+                </button>
+                <button id="podcastsBtn" onclick="openPodcastModal()" style="padding: 14px 36px; font-size: 1.1em; border-radius: 12px; border: 2px solid #64ffda; background: linear-gradient(135deg, #0066ff 0%, #00ccff 100%); color: white; cursor: pointer; font-weight: 700; transition: all 0.3s; box-shadow: 0 0 20px rgba(0, 204, 255, 0.6); text-transform: uppercase; letter-spacing: 1px;">
+                    🎙️ Podcasts
                 </button>
             </div>
 
@@ -628,6 +775,19 @@
                 </select>
             </div>
         </header>
+
+        <!-- Podcast Modal -->
+        <div id="podcastModal" class="podcast-modal" onclick="closePodcastModal(event)">
+            <div class="podcast-modal-content" onclick="event.stopPropagation()">
+                <div class="podcast-modal-header">
+                    <h2>🎙️ Par Saveables Podcasts</h2>
+                    <span class="close-modal" onclick="closePodcastModal()">&times;</span>
+                </div>
+                <div id="podcastList" class="podcast-loading">
+                    Loading podcasts...
+                </div>
+            </div>
+        </div>
 
         <div class="chat-section" id="chatSection">
             <div class="chat-box" id="chatBox"></div>
@@ -730,6 +890,171 @@
                 registeredName.toLowerCase() === playerName.toLowerCase()
             );
             return match || playerName;
+        }
+
+        // Podcast Modal Functions
+        let currentAudio = null;
+
+        function openPodcastModal() {
+            document.getElementById('podcastModal').style.display = 'block';
+            loadPodcasts();
+        }
+
+        function closePodcastModal(event) {
+            // Close only if clicking outside or on close button
+            if (!event || event.target.id === 'podcastModal' || event.target.className === 'close-modal') {
+                document.getElementById('podcastModal').style.display = 'none';
+                // Stop any playing audio
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio = null;
+                }
+            }
+        }
+
+        async function loadPodcasts() {
+            const podcastList = document.getElementById('podcastList');
+            podcastList.innerHTML = '<div class="podcast-loading">Loading podcasts...</div>';
+
+            try {
+                // Fetch releases from GitHub
+                const response = await fetch('https://api.github.com/repos/swarnimb/ParSaveables/releases');
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch podcasts');
+                }
+
+                const releases = await response.json();
+
+                // Filter releases that have audio files
+                const podcastReleases = releases.filter(release =>
+                    release.assets && release.assets.some(asset => asset.name.endsWith('.mp3'))
+                );
+
+                if (podcastReleases.length === 0) {
+                    podcastList.innerHTML = '<div class="podcast-loading">No podcasts available yet. Check back soon!</div>';
+                    return;
+                }
+
+                // Display podcasts
+                podcastList.innerHTML = '';
+                podcastReleases.forEach((release, index) => {
+                    const audioAsset = release.assets.find(asset => asset.name.endsWith('.mp3'));
+                    if (audioAsset) {
+                        const episodeDiv = createPodcastEpisode(release, audioAsset, index + 1);
+                        podcastList.appendChild(episodeDiv);
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error loading podcasts:', error);
+                podcastList.innerHTML = '<div class="podcast-loading" style="color: #ff6699;">Failed to load podcasts. Please try again later.</div>';
+            }
+        }
+
+        function createPodcastEpisode(release, audioAsset, episodeNumber) {
+            const episodeDiv = document.createElement('div');
+            episodeDiv.className = 'podcast-episode';
+
+            const title = document.createElement('div');
+            title.className = 'podcast-episode-title';
+            title.textContent = release.name || `Episode ${episodeNumber}`;
+
+            const meta = document.createElement('div');
+            meta.className = 'podcast-episode-meta';
+            const releaseDate = new Date(release.published_at).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const fileSize = (audioAsset.size / (1024 * 1024)).toFixed(1);
+            meta.textContent = `📅 ${releaseDate} | 💾 ${fileSize} MB`;
+
+            const description = document.createElement('div');
+            description.style.color = '#e6f1ff';
+            description.style.marginBottom = '15px';
+            description.style.fontSize = '0.95em';
+            description.style.lineHeight = '1.5';
+            description.textContent = release.body || 'No description available.';
+
+            const playBtn = document.createElement('button');
+            playBtn.className = 'podcast-play-btn';
+            playBtn.textContent = '▶️ Play';
+            playBtn.onclick = () => playPodcast(audioAsset.browser_download_url, episodeDiv, playBtn);
+
+            episodeDiv.appendChild(title);
+            episodeDiv.appendChild(meta);
+            episodeDiv.appendChild(description);
+            episodeDiv.appendChild(playBtn);
+
+            return episodeDiv;
+        }
+
+        function playPodcast(audioUrl, episodeDiv, playBtn) {
+            // Stop any currently playing audio
+            if (currentAudio) {
+                currentAudio.pause();
+                // Reset previous play button
+                const prevBtns = document.querySelectorAll('.podcast-play-btn');
+                prevBtns.forEach(btn => {
+                    btn.textContent = '▶️ Play';
+                    btn.style.background = 'linear-gradient(135deg, #0066ff 0%, #00ccff 100%)';
+                });
+                // Remove previous audio players
+                document.querySelectorAll('.podcast-audio-player').forEach(player => player.remove());
+            }
+
+            // Check if clicking same button
+            if (currentAudio && currentAudio.src === audioUrl && !currentAudio.paused) {
+                currentAudio.pause();
+                playBtn.textContent = '▶️ Play';
+                playBtn.style.background = 'linear-gradient(135deg, #0066ff 0%, #00ccff 100%)';
+                currentAudio = null;
+                return;
+            }
+
+            // Create and play new audio
+            const audio = new Audio(audioUrl);
+            currentAudio = audio;
+
+            const audioPlayer = document.createElement('audio');
+            audioPlayer.controls = true;
+            audioPlayer.className = 'podcast-audio-player';
+            audioPlayer.src = audioUrl;
+            audioPlayer.style.filter = 'hue-rotate(180deg) saturate(1.5)';
+
+            episodeDiv.appendChild(audioPlayer);
+
+            audioPlayer.play();
+            playBtn.textContent = '⏸️ Pause';
+            playBtn.style.background = 'linear-gradient(135deg, #ff0064 0%, #ff6600 100%)';
+
+            audioPlayer.onended = () => {
+                playBtn.textContent = '▶️ Play';
+                playBtn.style.background = 'linear-gradient(135deg, #0066ff 0%, #00ccff 100%)';
+                currentAudio = null;
+            };
+
+            audioPlayer.onpause = () => {
+                if (!audioPlayer.ended) {
+                    playBtn.textContent = '▶️ Play';
+                    playBtn.style.background = 'linear-gradient(135deg, #0066ff 0%, #00ccff 100%)';
+                }
+            };
+
+            audioPlayer.onplay = () => {
+                playBtn.textContent = '⏸️ Pause';
+                playBtn.style.background = 'linear-gradient(135deg, #ff0064 0%, #ff6600 100%)';
+            };
+
+            // Toggle play/pause on button click
+            playBtn.onclick = () => {
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                } else {
+                    audioPlayer.pause();
+                }
+            };
         }
 
         // Switch between Seasons and Tournaments tabs
@@ -1173,7 +1498,7 @@
                     data: { labels: roundLabels, datasets: datasets },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
+                        maintainAspectRatio: false,
                         plugins: { legend: { position: 'top', labels: { color: '#64ffda', font: { size: 12 } } } },
                         scales: {
                             y: { beginAtZero: true, title: { display: true, text: 'Points', color: '#64ffda' }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } },
@@ -1225,7 +1550,7 @@
                     data: { labels: allMonths, datasets: datasets },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
+                        maintainAspectRatio: false,
                         plugins: { legend: { position: 'top', labels: { color: '#64ffda', font: { size: 12 } } } },
                         scales: {
                             y: { beginAtZero: true, title: { display: true, text: 'Points', color: '#64ffda' }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } },

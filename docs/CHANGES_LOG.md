@@ -1,5 +1,169 @@
 # ParSaveables - Changes Log
 
+## 2025-10-31: Podcast System and Dashboard Improvements
+
+### Changes Implemented
+
+#### 1. Automated Podcast Generator ✅
+
+**Added:** Complete podcast generation system with AI-powered commentary
+
+**Features:**
+- **Script Generation:** Claude AI generates natural dialogue between two hosts (Hyzer and Annie)
+- **Text-to-Speech:** ElevenLabs (primary) and Google Cloud TTS (fallback)
+- **Audio Production:** FFmpeg-based mixing with intro/outro music
+- **Publishing:** Automatic upload to GitHub Releases
+- **Character Tracking:** Monitors ElevenLabs free tier usage (10,000 chars/month)
+
+**Key Files:**
+- `podcast/generate-from-existing-script.js` - Main generation workflow
+- `podcast/lib/elevenlabs-audio-generator.js` - ElevenLabs TTS integration
+- `podcast/lib/audio-mixer.js` - FFmpeg audio mixing
+- `podcast/lib/dialogue-script-generator.js` - Claude AI script generation
+- `podcast/lib/data-fetcher.js` - Supabase data fetching
+- `podcast/lib/github-uploader.js` - GitHub Releases publisher
+
+**NPM Scripts:**
+```bash
+npm run generate            # Full automated workflow
+npm run generate:existing   # Use manually edited script
+npm run test:script         # Test script generation
+npm run test:audio          # Test audio generation
+```
+
+**Documentation:** `docs/PODCAST_SYSTEM.md`
+
+#### 2. Dashboard Podcast Player ✅
+
+**Added:** Podcast modal with episode player in dashboard header
+
+**Features:**
+- 🎙️ Podcasts button in header navigation
+- Scrollable modal displaying all podcast episodes
+- Fetches episodes from GitHub Releases API
+- Inline HTML5 audio player for each episode
+- Glassmorphism design matching dashboard aesthetic
+- Mobile responsive
+
+**Implementation:**
+- CSS: Lines 475-610 (modal styling)
+- HTML: Lines 773-784 (modal structure)
+- JavaScript: Lines 889-1052 (player functionality)
+
+**User Flow:**
+1. Click "🎙️ Podcasts" button in header
+2. Modal opens with episode list
+3. Click play button to stream episode
+4. Audio player appears inline with controls
+
+#### 3. Fixed ParSaveables Header Text Visibility ✅
+
+**Problem:** Header text gradient was invisible against dark background
+
+**Solution:**
+- Brighter gradient colors: `#ff6699`, `#ffaa33`, `#ffee44`
+- Added white text stroke: `-webkit-text-stroke: 1px rgba(255, 255, 255, 0.3)`
+- Stronger drop shadow for glow effect
+
+**Location:** `ParSaveablesDashboard/index.html` lines 102-120
+
+#### 4. Fixed Mobile Line Graph Height ✅
+
+**Problem:** Chart.js line graph was vertically scrunched on mobile devices, causing player lines to overlap
+
+**Solution:**
+- Set `maintainAspectRatio: false` in Chart.js configuration
+- Added CSS: `min-height: 300px` for canvas on mobile screens
+- Chart now displays at comfortable height on all devices
+
+**Changes:**
+- CSS: Lines 655-659 (mobile canvas height)
+- Chart Config: Lines 1501, 1553 (aspect ratio disabled)
+
+**Before:** Lines overlapped due to vertical compression
+**After:** 300px height with clear spacing between lines
+
+### Technical Details
+
+**Podcast System Architecture:**
+```
+Supabase → Claude AI → ElevenLabs/Google TTS → FFmpeg → GitHub Releases
+```
+
+**Voice Configuration:**
+- Hyzer: Andriy Tkachenko (ElevenLabs voice ID: `hWHihsTve3RbzG4PHDBQ`)
+- Annie: Cat (ElevenLabs voice ID: `54Cze5LrTSyLgbO6Fhlc`)
+
+**Audio Production:**
+- Intro music: 12 seconds (fades out over 10 seconds)
+- Voice starts: 8 seconds (overlaps with fading intro)
+- Outro music: 15 seconds
+- Output format: MP3, 128 kbps, 44.1 kHz stereo
+
+**Dashboard Modal Styling:**
+- Backdrop blur: `backdrop-filter: blur(10px)`
+- Max height: `80vh` with scrollable content
+- Hover effect: `transform: translateX(5px)`
+- Close on outside click or X button
+
+### Files Modified
+
+1. `ParSaveablesDashboard/index.html` - Dashboard improvements
+2. `.claude/CLAUDE.md` - Updated project documentation
+3. `docs/PODCAST_SYSTEM.md` - New podcast documentation
+4. `docs/CHANGES_LOG.md` - This file
+
+### New Files Added
+
+**Podcast System:**
+- `podcast/generate-podcast.js`
+- `podcast/generate-dialogue-podcast.js`
+- `podcast/generate-from-existing-script.js`
+- `podcast/test-script-generation.js`
+- `podcast/test-audio-generation.js`
+- `podcast/test-data-fetcher.js`
+- `podcast/lib/data-fetcher.js`
+- `podcast/lib/dialogue-script-generator.js`
+- `podcast/lib/elevenlabs-audio-generator.js`
+- `podcast/lib/google-audio-generator.js`
+- `podcast/lib/audio-mixer.js`
+- `podcast/lib/github-uploader.js`
+- `podcast/package.json`
+- `podcast/.env` (not committed)
+
+### Environment Variables
+
+New required variables for podcast system:
+```bash
+# ElevenLabs
+ELEVENLABS_API_KEY=your_key
+ELEVENLABS_HYZER_VOICE=hWHihsTve3RbzG4PHDBQ
+ELEVENLABS_ANNIE_VOICE=54Cze5LrTSyLgbO6Fhlc
+
+# TTS Provider Selection
+TTS_PROVIDER=elevenlabs  # or 'google'
+
+# Audio Settings
+INTRO_DURATION_SECONDS=12
+OUTRO_DURATION_SECONDS=15
+```
+
+### Known Issues
+
+1. **ElevenLabs Voice Selection:** User testing in progress for voice pairing preferences
+2. **FFmpeg Path (Windows):** Hardcoded path in configuration files
+3. **Character Limit:** Free tier limited to 10,000 characters/month (~1-2 episodes)
+
+### Future Enhancements
+
+Planned for podcast system:
+- Voice cloning for custom character voices (requires paid tier)
+- RSS feed generation for podcast apps
+- Sound effects library (crowd reactions, disc throws)
+- Automatic episode scheduling
+
+---
+
 ## 2025-10-21: Course Tiers Table Improvements
 
 ### Changes Implemented

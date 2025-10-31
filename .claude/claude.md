@@ -2,14 +2,16 @@
 
 ## Project Overview
 
-**ParSaveables** is a disc golf league tracking system that automatically processes scorecard screenshots, calculates points, and displays real-time leaderboards with AI-powered analytics.
+**ParSaveables** is a disc golf league tracking system that automatically processes scorecard screenshots, calculates points, and displays real-time leaderboards with AI-powered analytics. It also includes an automated podcast generator that creates AI-powered commentary episodes.
 
 **Tech Stack:**
 - Frontend: Vanilla HTML/CSS/JavaScript (Vercel)
 - Database: Supabase (PostgreSQL)
 - Automation: n8n workflows (Render)
-- AI: Anthropic Claude (Vision + Chat)
+- AI: Anthropic Claude (Vision + Chat + Script Generation)
+- TTS: ElevenLabs / Google Cloud Text-to-Speech
 - Integration: GroupMe webhooks
+- Podcast: Node.js + FFmpeg
 
 **Key Architecture:** Configuration-driven, database-first design. All business rules stored in database, not code.
 
@@ -62,22 +64,38 @@ ParSaveables/
 ├── docs/                       # All documentation
 │   ├── refactoring/           # Refactoring guides (one-time)
 │   ├── ARCHITECTURE.md        # System design
-│   └── SETUP.md               # Setup instructions
+│   ├── SETUP.md               # Setup instructions
+│   └── PODCAST_SYSTEM.md      # Podcast generator documentation
 ├── n8n-workflows/             # Workflow node code
 │   └── nodes/                 # Individual node implementations
 │       ├── calculate-points.js           # Enterprise-grade calculator
 │       ├── load-configuration-final.js   # Config loader
 │       └── select-best-event.js          # Event selection (tournament priority)
+├── podcast/                    # Automated podcast generator
+│   ├── lib/                   # Core podcast modules
+│   │   ├── data-fetcher.js           # Supabase data fetching
+│   │   ├── dialogue-script-generator.js  # Claude AI script generation
+│   │   ├── elevenlabs-audio-generator.js # ElevenLabs TTS integration
+│   │   ├── google-audio-generator.js     # Google Cloud TTS fallback
+│   │   ├── audio-mixer.js            # FFmpeg audio mixing
+│   │   └── github-uploader.js        # GitHub Releases publisher
+│   ├── generate-podcast.js    # Main generation script
+│   ├── generate-from-existing-script.js  # Generate from manual edits
+│   ├── assets/                # Intro/outro music
+│   ├── output/                # Generated episodes
+│   └── package.json           # NPM scripts and dependencies
 ├── ParSaveablesDashboard/     # Frontend (single-page app)
-│   └── index.html             # Dashboard (1000+ lines)
+│   └── index.html             # Dashboard (1500+ lines, includes podcast player)
 └── README.md                  # Public documentation
 ```
 
 **Key Files:**
 - `database/migrations/001_add_config_tables.sql` - Configuration tables
 - `n8n-workflows/nodes/calculate-points.js` - Core points logic
-- `ParSaveablesDashboard/index.html` - Dashboard UI
+- `ParSaveablesDashboard/index.html` - Dashboard UI (includes podcast player)
+- `podcast/generate-from-existing-script.js` - Podcast generator
 - `docs/refactoring/README_REFACTORING.md` - Start here for architecture understanding
+- `docs/PODCAST_SYSTEM.md` - Complete podcast documentation
 
 ---
 
@@ -256,6 +274,119 @@ When players have identical scores:
 
 ---
 
+## Podcast System
+
+### Overview
+
+**Podcast Name:** Chain Reactions
+**Tagline:** The world of heavy bags, curses, and pocket beers
+
+The podcast system automatically generates AI-powered commentary episodes featuring two hosts:
+- **Hyzer** - Sports commentary energy
+- **Annie** - Sarcastic/witty personality
+
+### Quick Start
+
+```bash
+cd podcast
+npm install
+
+# Generate podcast from scratch
+npm run generate
+
+# Generate from manually edited script
+npm run generate:existing
+```
+
+### Architecture
+
+**Workflow:**
+1. Fetch data from Supabase (seasons, tournaments, player stats)
+2. Generate dialogue script with Claude AI
+3. Convert script to audio (ElevenLabs or Google TTS)
+4. Mix audio with intro/outro music (FFmpeg)
+5. Upload to GitHub Releases
+
+**Key Files:**
+- `podcast/generate-from-existing-script.js` - Main generation script
+- `podcast/lib/elevenlabs-audio-generator.js` - ElevenLabs TTS integration
+- `podcast/lib/audio-mixer.js` - FFmpeg audio mixing
+- `podcast/lib/dialogue-script-generator.js` - Claude AI script generation
+
+### TTS Configuration
+
+**ElevenLabs (Primary - Free Tier):**
+- Character limit: 10,000/month (free tier)
+- Voices: Andriy Tkachenko (Hyzer), Cat (Annie)
+- Configured in `.env`: `TTS_PROVIDER=elevenlabs`
+
+**Google Cloud TTS (Fallback):**
+- No character limits
+- Voices: en-US-Neural2-J (Hyzer), en-US-Neural2-F (Annie)
+- Configured in `.env`: `TTS_PROVIDER=google`
+
+### Dashboard Integration
+
+The dashboard includes a podcast player accessible via the "🎙️ Podcasts" button in the header:
+- Fetches episodes from GitHub Releases API
+- Displays scrollable episode list in modal
+- HTML5 audio player for each episode
+- Glassmorphism design matching dashboard aesthetic
+
+**Implementation:** `ParSaveablesDashboard/index.html` (lines 773-1052)
+
+### Common Tasks
+
+**Generate Podcast:**
+```bash
+npm run generate:existing  # Use existing script (no Claude AI generation)
+```
+
+**Test Components:**
+```bash
+npm run test:script  # Test script generation only
+npm run test:audio   # Test audio generation only
+npm run test:data    # Test data fetcher only
+```
+
+**Character Usage Tracking:**
+The system automatically tracks ElevenLabs character usage:
+```
+📊 Total characters used: 6,100/10,000 (61%)
+💡 Remaining: 3,900 characters (~28 segments)
+```
+
+### Environment Variables
+
+Required in `podcast/.env`:
+```bash
+# Supabase
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_key
+
+# Claude AI
+ANTHROPIC_API_KEY=your_key
+
+# ElevenLabs
+ELEVENLABS_API_KEY=your_key
+ELEVENLABS_HYZER_VOICE=hWHihsTve3RbzG4PHDBQ
+ELEVENLABS_ANNIE_VOICE=54Cze5LrTSyLgbO6Fhlc
+
+# GitHub
+GITHUB_TOKEN=your_token
+GITHUB_OWNER=your_username
+GITHUB_REPO=ParSaveables
+
+# Audio
+TTS_PROVIDER=elevenlabs
+INTRO_DURATION_SECONDS=12
+OUTRO_DURATION_SECONDS=15
+```
+
+**Full Documentation:** See `docs/PODCAST_SYSTEM.md`
+
+---
+
 ## Known Issues & Workarounds
 
 ### Issue 1: Tournament Detection
@@ -334,6 +465,7 @@ Planned but not implemented:
 **Documentation:**
 - Architecture: `docs/ARCHITECTURE.md`
 - Setup: `docs/SETUP.md`
+- Podcast System: `docs/PODCAST_SYSTEM.md`
 - Refactoring Guide: `docs/refactoring/README_REFACTORING.md`
 - Workflow Details: `docs/WORKFLOW_DETAILS.md`
 
@@ -368,4 +500,4 @@ Planned but not implemented:
 
 ---
 
-*Last updated: October 23, 2025 (after enterprise refactoring)*
+*Last updated: October 31, 2025 (added podcast system and dashboard improvements)*

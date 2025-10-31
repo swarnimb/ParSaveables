@@ -47,3 +47,10 @@ secrets.txt
 *.backup
 *.bak
 *.old
+
+# Podcast system
+podcast/output/
+podcast/temp/
+podcast/assets/
+podcast/google-cloud-credentials.json
+nul
