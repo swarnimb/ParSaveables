@@ -300,7 +300,13 @@
             position: relative;
             z-index: 1;
         }
-        
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+
         .scrollable-table {
             max-height: 350px;
             overflow-y: auto;
@@ -653,8 +659,7 @@
             }
 
             /* Fix mobile line graph height */
-            #monthlyTrendChart {
-                min-height: 300px !important;
+            .chart-container {
                 height: 300px !important;
             }
         }
@@ -839,7 +844,9 @@
         <div class="row row-3">
             <div class="card">
                 <h2 id="trendChartTitle">📈 Monthly Points Trend</h2>
-                <canvas id="monthlyTrendChart"></canvas>
+                <div class="chart-container">
+                    <canvas id="monthlyTrendChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
