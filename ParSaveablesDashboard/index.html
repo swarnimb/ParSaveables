@@ -197,6 +197,7 @@
         .chat-input-container {
             display: flex;
             gap: 8px;
+            border-top: none;
         }
         
         #chatInput {
@@ -965,27 +966,20 @@
             const episodeDiv = document.createElement('div');
             episodeDiv.className = 'podcast-episode';
 
+            // Episode title
             const title = document.createElement('div');
             title.className = 'podcast-episode-title';
             title.textContent = release.name || `Episode ${episodeNumber}`;
 
+            // Meta info with duration estimate
             const meta = document.createElement('div');
             meta.className = 'podcast-episode-meta';
-            const releaseDate = new Date(release.published_at).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
             const fileSize = (audioAsset.size / (1024 * 1024)).toFixed(1);
-            meta.textContent = `📅 ${releaseDate} | 💾 ${fileSize} MB`;
+            // Estimate duration: ~1MB per minute for 128kbps MP3
+            const estimatedDuration = Math.round(fileSize);
+            meta.textContent = `⏱️ ${estimatedDuration} min`;
 
-            const description = document.createElement('div');
-            description.style.color = '#e6f1ff';
-            description.style.marginBottom = '15px';
-            description.style.fontSize = '0.95em';
-            description.style.lineHeight = '1.5';
-            description.textContent = release.body || 'No description available.';
-
+            // Play button
             const playBtn = document.createElement('button');
             playBtn.className = 'podcast-play-btn';
             playBtn.textContent = '▶️ Play';
@@ -993,7 +987,6 @@
 
             episodeDiv.appendChild(title);
             episodeDiv.appendChild(meta);
-            episodeDiv.appendChild(description);
             episodeDiv.appendChild(playBtn);
 
             return episodeDiv;
@@ -1022,21 +1015,37 @@
                 return;
             }
 
-            // Create and play new audio
-            const audio = new Audio(audioUrl);
-            currentAudio = audio;
-
+            // Create audio player element
             const audioPlayer = document.createElement('audio');
             audioPlayer.controls = true;
             audioPlayer.className = 'podcast-audio-player';
-            audioPlayer.src = audioUrl;
-            audioPlayer.style.filter = 'hue-rotate(180deg) saturate(1.5)';
+            audioPlayer.preload = 'metadata';
+            audioPlayer.crossOrigin = 'anonymous';
+            audioPlayer.style.width = '100%';
+            audioPlayer.style.marginTop = '15px';
+            audioPlayer.style.borderRadius = '8px';
+            audioPlayer.style.outline = 'none';
 
+            // Create source element for better mobile compatibility
+            const source = document.createElement('source');
+            source.src = audioUrl;
+            source.type = 'audio/mpeg';
+            audioPlayer.appendChild(source);
+
+            currentAudio = audioPlayer;
             episodeDiv.appendChild(audioPlayer);
 
-            audioPlayer.play();
-            playBtn.textContent = '⏸️ Pause';
-            playBtn.style.background = 'linear-gradient(135deg, #ff0064 0%, #ff6600 100%)';
+            // Try to play with error handling for mobile
+            const playPromise = audioPlayer.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    playBtn.textContent = '⏸️ Pause';
+                    playBtn.style.background = 'linear-gradient(135deg, #ff0064 0%, #ff6600 100%)';
+                }).catch((error) => {
+                    console.error('Playback error:', error);
+                    playBtn.textContent = '▶️ Play';
+                });
+            }
 
             audioPlayer.onended = () => {
                 playBtn.textContent = '▶️ Play';
@@ -1056,10 +1065,16 @@
                 playBtn.style.background = 'linear-gradient(135deg, #ff0064 0%, #ff6600 100%)';
             };
 
+            audioPlayer.onerror = () => {
+                playBtn.textContent = '❌ Error';
+                playBtn.style.background = 'linear-gradient(135deg, #666 0%, #999 100%)';
+                console.error('Audio loading error');
+            };
+
             // Toggle play/pause on button click
             playBtn.onclick = () => {
                 if (audioPlayer.paused) {
-                    audioPlayer.play();
+                    audioPlayer.play().catch(err => console.error('Play error:', err));
                 } else {
                     audioPlayer.pause();
                 }
