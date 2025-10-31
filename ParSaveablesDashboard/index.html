@@ -762,6 +762,11 @@
                 </svg>
             </h1>
 
+            <!-- Podcast Button (Top Right) -->
+            <button id="podcastsBtn" onclick="openPodcastModal()" style="position: absolute; top: 20px; right: 20px; padding: 12px; font-size: 1.8em; border-radius: 50%; border: 2px solid #64ffda; background: linear-gradient(135deg, #0066ff 0%, #00ccff 100%); color: white; cursor: pointer; transition: all 0.3s; box-shadow: 0 0 20px rgba(0, 204, 255, 0.6); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                🎙️
+            </button>
+
             <!-- Tab Navigation -->
             <div style="margin: 20px 0; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
                 <button id="seasonsTab" onclick="switchTab('seasons')" style="padding: 14px 36px; font-size: 1.1em; border-radius: 12px; border: 2px solid #ff6600; background: linear-gradient(135deg, #ff0064 0%, #ff6600 100%); color: white; cursor: pointer; font-weight: 700; transition: all 0.3s; box-shadow: 0 0 20px rgba(255, 102, 0, 0.6), 0 0 40px rgba(255, 0, 100, 0.3); text-transform: uppercase; letter-spacing: 1px;">
@@ -769,9 +774,6 @@
                 </button>
                 <button id="tournamentsTab" onclick="switchTab('tournaments')" style="padding: 14px 36px; font-size: 1.1em; border-radius: 12px; border: 2px solid rgba(255, 102, 0, 0.4); background: rgba(20, 25, 45, 0.8); color: #ffd700; cursor: pointer; font-weight: 700; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;">
                     Tournaments
-                </button>
-                <button id="podcastsBtn" onclick="openPodcastModal()" style="padding: 14px 36px; font-size: 1.1em; border-radius: 12px; border: 2px solid #64ffda; background: linear-gradient(135deg, #0066ff 0%, #00ccff 100%); color: white; cursor: pointer; font-weight: 700; transition: all 0.3s; box-shadow: 0 0 20px rgba(0, 204, 255, 0.6); text-transform: uppercase; letter-spacing: 1px;">
-                    🎙️ Podcasts
                 </button>
             </div>
 
@@ -1019,23 +1021,18 @@
             const audioPlayer = document.createElement('audio');
             audioPlayer.controls = true;
             audioPlayer.className = 'podcast-audio-player';
-            audioPlayer.preload = 'metadata';
-            audioPlayer.crossOrigin = 'anonymous';
+            audioPlayer.preload = 'none';
+            audioPlayer.src = audioUrl;
             audioPlayer.style.width = '100%';
             audioPlayer.style.marginTop = '15px';
             audioPlayer.style.borderRadius = '8px';
             audioPlayer.style.outline = 'none';
 
-            // Create source element for better mobile compatibility
-            const source = document.createElement('source');
-            source.src = audioUrl;
-            source.type = 'audio/mpeg';
-            audioPlayer.appendChild(source);
-
             currentAudio = audioPlayer;
             episodeDiv.appendChild(audioPlayer);
 
-            // Try to play with error handling for mobile
+            // Load and play
+            audioPlayer.load();
             const playPromise = audioPlayer.play();
             if (playPromise !== undefined) {
                 playPromise.then(() => {
@@ -1044,6 +1041,7 @@
                 }).catch((error) => {
                     console.error('Playback error:', error);
                     playBtn.textContent = '▶️ Play';
+                    playBtn.style.background = 'linear-gradient(135deg, #0066ff 0%, #00ccff 100%)';
                 });
             }
 

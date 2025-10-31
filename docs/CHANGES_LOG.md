@@ -1,6 +1,59 @@
 # ParSaveables - Changes Log
 
-## 2025-10-31: Podcast System and Dashboard Improvements
+## 2025-10-31: UI Refinements and Audio Player Fixes
+
+### Changes Implemented
+
+#### 1. Podcast Button Repositioned ✅
+
+**Changed:** Moved podcast button from tab navigation to top-right corner
+
+**Before:** Podcast button was inline with Seasons/Tournaments tabs
+**After:** Circular mic icon button in top-right corner (position: absolute)
+
+**Styling:**
+- Circular button (60x60px)
+- Mic emoji icon (🎙️)
+- Blue gradient background matching brand
+- Glowing shadow effect
+- Top: 20px, Right: 20px positioning
+
+**Benefit:** Cleaner tab navigation with only Seasons/Tournaments, podcast access always visible
+
+#### 2. Audio Player Fixed (Mobile & Web) ✅
+
+**Problem:** Podcast episodes not playing on mobile or web browsers
+
+**Root Cause:**
+- CORS issues with `crossOrigin='anonymous'`
+- Overcomplicated source element creation
+- Conflicting preload settings
+
+**Solution:**
+- Simplified audio element creation
+- Direct `src` attribute (removed `<source>` element)
+- Changed `preload='none'` (lazy loading)
+- Removed `crossOrigin` attribute
+- Added explicit `load()` call before play
+- Better error handling with visual feedback
+
+**Result:** Audio now plays successfully on all platforms
+
+#### 3. Simplified Episode Display ✅
+
+**Removed:** Long episode descriptions
+**Kept:** Episode name, duration estimate, play button
+
+**Duration Calculation:** ~1MB per minute for 128kbps MP3
+
+#### 4. Chatbot UI Cleanup ✅
+
+**Fixed:** Removed border-top line above input/send button
+**Added:** `border-top: none` to `.chat-input-container`
+
+---
+
+## 2025-10-31: Podcast System and Dashboard Improvements (Earlier Today)
 
 ### Changes Implemented
 
