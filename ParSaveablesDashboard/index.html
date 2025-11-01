@@ -700,19 +700,66 @@
                     </g>
                 </svg>
             </div>
-            <h1 style="position: relative; display: inline-flex; align-items: center; gap: 20px;">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Disc_golf_basket.jpg/800px-Disc_golf_basket.jpg"
-                     alt="Disc Golf Basket"
-                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.8));">
-                <span style="position: relative; display: inline-block;">
-                    <img src="https://www.citypng.com/public/uploads/preview/hd-real-gold-and-red-king-crown-png-704081695122649zm2izk6f2p.png"
-                         alt="Crown"
-                         style="position: absolute; top: -40px; left: 50%; transform: translateX(-50%); width: 50px; height: 50px; filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.8));">
-                    ParSaveables
-                </span>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Disc_golf_basket.jpg/800px-Disc_golf_basket.jpg"
-                     alt="Disc Golf Basket"
-                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.8));">
+            <h1>
+                <svg width="60" height="60" viewBox="0 0 100 100" style="flex-shrink: 0; filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));">
+                    <!-- Pole -->
+                    <rect x="48" y="10" width="4" height="80" fill="url(#poleGradient)"/>
+                    <defs>
+                        <linearGradient id="poleGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#ff6600;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#ff0064;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="basketGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#ff0064;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#ff6600;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#ffd700;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Base -->
+                    <ellipse cx="50" cy="90" rx="15" ry="3" fill="#ff6600"/>
+                    <!-- Basket rim -->
+                    <ellipse cx="50" cy="25" rx="20" ry="4" fill="url(#basketGradient)"/>
+                    <!-- Chains (3 sets) with glow -->
+                    <line x1="40" y1="25" x2="40" y2="60" stroke="#ffd700" stroke-width="2"/>
+                    <line x1="45" y1="25" x2="45" y2="62" stroke="#ff6600" stroke-width="2"/>
+                    <line x1="50" y1="25" x2="50" y2="64" stroke="#ff0064" stroke-width="2"/>
+                    <line x1="55" y1="25" x2="55" y2="62" stroke="#ff6600" stroke-width="2"/>
+                    <line x1="60" y1="25" x2="60" y2="60" stroke="#ffd700" stroke-width="2"/>
+                    <!-- Bottom basket -->
+                    <path d="M 30 60 Q 50 75 70 60" fill="none" stroke="url(#basketGradient)" stroke-width="3"/>
+                    <ellipse cx="50" cy="60" rx="20" ry="3" fill="url(#basketGradient)"/>
+                </svg>
+                ParSaveables
+                <svg width="60" height="60" viewBox="0 0 100 100" style="flex-shrink: 0; filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));">
+                    <!-- Pole -->
+                    <rect x="48" y="10" width="4" height="80" fill="url(#poleGradient2)"/>
+                    <defs>
+                        <linearGradient id="poleGradient2" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#ff6600;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#ff0064;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="basketGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#ff0064;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#ff6600;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#ffd700;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Base -->
+                    <ellipse cx="50" cy="90" rx="15" ry="3" fill="#ff6600"/>
+                    <!-- Basket rim -->
+                    <ellipse cx="50" cy="25" rx="20" ry="4" fill="url(#basketGradient2)"/>
+                    <!-- Chains (3 sets) with glow -->
+                    <line x1="40" y1="25" x2="40" y2="60" stroke="#ffd700" stroke-width="2"/>
+                    <line x1="45" y1="25" x2="45" y2="62" stroke="#ff6600" stroke-width="2"/>
+                    <line x1="50" y1="25" x2="50" y2="64" stroke="#ff0064" stroke-width="2"/>
+                    <line x1="55" y1="25" x2="55" y2="62" stroke="#ff6600" stroke-width="2"/>
+                    <line x1="60" y1="25" x2="60" y2="60" stroke="#ffd700" stroke-width="2"/>
+                    <!-- Bottom basket -->
+                    <path d="M 30 60 Q 50 75 70 60" fill="none" stroke="url(#basketGradient2)" stroke-width="3"/>
+                    <ellipse cx="50" cy="60" rx="20" ry="3" fill="url(#basketGradient2)"/>
+                </svg>
             </h1>
 
             <!-- Podcast Button (Top Right) -->
