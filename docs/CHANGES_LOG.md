@@ -1,5 +1,33 @@
 # ParSaveables - Changes Log
 
+## 2025-11-01: Project Priorities Updated
+
+### Documentation Changes
+
+#### 1. Roadmap Reorganization ✅
+
+**Updated:** `.claude/CLAUDE.md` with new priority structure
+
+**Priority 1 (High - In Progress):**
+- Admin UI for configuration management
+- Fix mobile podcast playback (works on desktop, not mobile Chrome)
+
+**Priority 2 (Medium - Pending Resources):**
+- Podcast voice improvement with ElevenLabs (waiting for credit refresh)
+
+**Future Enhancements (Lower Priority):**
+- Real-time dashboard updates (WebSockets)
+- Mobile app, stored procedures, duplicate detection
+- Voice cloning, RSS feed, sound effects, analytics
+
+#### 2. Known Issues Updated ✅
+
+**Added:** Mobile podcast playback as Issue #1 (CRITICAL - Unresolved)
+**Status:** Multiple fixes attempted, still not working on mobile
+**Next Steps:** Browser console debugging, HTTPS verification, alternative hosting
+
+---
+
 ## 2025-10-31: UI Refinements and Audio Player Fixes
 
 ### Changes Implemented
