@@ -1021,7 +1021,7 @@
             const audioPlayer = document.createElement('audio');
             audioPlayer.controls = true;
             audioPlayer.className = 'podcast-audio-player';
-            audioPlayer.preload = 'none';
+            audioPlayer.preload = 'metadata';
             audioPlayer.src = audioUrl;
             audioPlayer.style.width = '100%';
             audioPlayer.style.marginTop = '15px';
@@ -1031,52 +1031,44 @@
             currentAudio = audioPlayer;
             episodeDiv.appendChild(audioPlayer);
 
-            // Load and play
-            audioPlayer.load();
-            const playPromise = audioPlayer.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    playBtn.textContent = '⏸️ Pause';
-                    playBtn.style.background = 'linear-gradient(135deg, #ff0064 0%, #ff6600 100%)';
-                }).catch((error) => {
-                    console.error('Playback error:', error);
-                    playBtn.textContent = '▶️ Play';
-                    playBtn.style.background = 'linear-gradient(135deg, #0066ff 0%, #00ccff 100%)';
-                });
-            }
+            // Don't auto-play - let user click the audio player controls
+            // This prevents mobile browser blocking
+            playBtn.textContent = '🎵 Playing';
+            playBtn.style.background = 'linear-gradient(135deg, #00cc88 0%, #00ff99 100%)';
+            playBtn.disabled = true;
 
             audioPlayer.onended = () => {
                 playBtn.textContent = '▶️ Play';
                 playBtn.style.background = 'linear-gradient(135deg, #0066ff 0%, #00ccff 100%)';
+                playBtn.disabled = false;
                 currentAudio = null;
             };
 
             audioPlayer.onpause = () => {
                 if (!audioPlayer.ended) {
-                    playBtn.textContent = '▶️ Play';
+                    playBtn.textContent = '▶️ Resume';
                     playBtn.style.background = 'linear-gradient(135deg, #0066ff 0%, #00ccff 100%)';
+                    playBtn.disabled = false;
                 }
             };
 
             audioPlayer.onplay = () => {
-                playBtn.textContent = '⏸️ Pause';
-                playBtn.style.background = 'linear-gradient(135deg, #ff0064 0%, #ff6600 100%)';
+                playBtn.textContent = '🎵 Playing';
+                playBtn.style.background = 'linear-gradient(135deg, #00cc88 0%, #00ff99 100%)';
+                playBtn.disabled = true;
             };
 
-            audioPlayer.onerror = () => {
+            audioPlayer.onerror = (e) => {
                 playBtn.textContent = '❌ Error';
                 playBtn.style.background = 'linear-gradient(135deg, #666 0%, #999 100%)';
-                console.error('Audio loading error');
+                playBtn.disabled = false;
+                console.error('Audio loading error:', e);
+                console.error('Audio URL:', audioUrl);
             };
 
-            // Toggle play/pause on button click
-            playBtn.onclick = () => {
-                if (audioPlayer.paused) {
-                    audioPlayer.play().catch(err => console.error('Play error:', err));
-                } else {
-                    audioPlayer.pause();
-                }
-            };
+            // Button doesn't control playback - just shows status
+            // User clicks the audio player controls directly
+            playBtn.onclick = null;
         }
 
         // Switch between Seasons and Tournaments tabs
