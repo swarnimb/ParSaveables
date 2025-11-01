@@ -1237,7 +1237,7 @@
                 .map(([name, stats]) => ({ name, ...stats }))
                 .sort((a, b) => b.points - a.points);
 
-            let html = `<table><thead><tr><th>Rank</th><th>Player</th><th>Played</th><th>Counted</th><th>Points</th><th>Wins</th><th>Top 3</th></tr></thead><tbody>`;
+            let html = `<table><thead><tr><th>Rank</th><th>Player</th><th>Played</th><th>Points</th><th>Wins</th><th>Top 3</th></tr></thead><tbody>`;
 
             leaderboard.forEach((player, index) => {
                 const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-other';
@@ -1245,7 +1245,6 @@
                     <td><span class="rank-badge ${rankClass}">${index + 1}</span></td>
                     <td><strong>${getDisplayName(player.name)}</strong></td>
                     <td>${player.rounds}</td>
-                    <td>${player.countedRounds}</td>
                     <td><strong>${player.points.toFixed(1)}</strong></td>
                     <td>${player.wins}</td>
                     <td>${player.top3}</td>
