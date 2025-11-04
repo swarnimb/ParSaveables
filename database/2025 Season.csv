@@ -1,0 +1,54 @@
+﻿Round,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36
+Date,1/5/2025,1/5/2025,1/11/2025,1/18/2025,1/18/2025,1/26/2025,2/1/2025,2/1/2025,2/8/2025,2/23/2025,2/23/2025,3/1/2025,3/7/2025,3/8/2025,3/14/2025,3/16/2025,3/16/2025,3/20/2025,3/22/2025,4/13/2025,4/13/2025,5/17/2025,5/30/2025,5/31/2025,6/6/2025,6/22/2025,7/12/2025,7/19/2025,7/19/2025,8/2/2025,8/9/2025,8/16/2025,9/1/2025,9/12/2025,4/6/2025,9/20/2025
+Course,Lil G,Roy G,Cat hollow,Searight,Circle C,Sprinkle,Armadillo Mini,Armadillo,Zilker,Bartholomew,Live Oak,Searight,Roy G,Met Center,Live Oak,Roy G,Lil G,Harvey Penick,Cat Hollow,Frisbee Fling,Zilker Park,Zilker Park,Live Oak,Northotown,Liveoak,Sprinkle Valley,Circle C,Lil G,Lil G,Searight,Roy G,Sprinkle Valley,Williamson County,Searight,Sprinkle,Roy G
+Course Multiplier,1,2.5,2,2,2,2.5,1,2.5,1.5,1.5,1.5,2,2.5,2,1.5,2.5,1,2.5,2,2,1.5,1.5,1.5,2,1.5,2.5,2,1,1,2,2.5,2.5,2,2,2.5,2.5
+Intern Line Cook Rank,,,,Not top 3,1,,,,,Not top 3,3,,2,Not top 3,3,,,,,Not top 3,,,,3,2,,,,,Not top 3,2,,,3,,
+Intern Line Cook Points,0,0,0,4,24,0,0,0,0,4.5,10.5,0,17.5,8,10.5,0,0,0,0,8,0,0,0,10,16.5,0,0,0,0,8,22.5,0,0,14,0,0
+Intern Line Cook Aces,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Intern Line Cook Eagles,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Intern Line Cook Birdies,,,,,2,,,,,1,2,,,2,2,,,,,2,,,,,4,,,,,2,2,,,2,,
+🦤 Rank,Tied 1,Not top 3,1,1,Not top 3,Not top 3,2,2,1,2,,1,,,1,,,3,1,2,3,2,,2,,2,2,1,3,1,3,,2,2,,Not top 3
+🦤 Points,11.5,5,20,30,10,5,12,25,18,15,0,28,0,0,19.5,0,0,12.5,24,18,9,15,0,24,0,22.5,22,13,7,28,15,0,16,20,0,15
+🦤 Aces,,,,,,,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+🦤 Eagles,,,,,,,,,,,,,,,,,,,,,,,,1,,,,,,,,,,,,
+🦤 Birdies,3,,,5,3,,,3,2,3,,4,,,3,,,,2,2,1,3,,2,,2,4,3,2,4,1,,1,3,,1
+Shogun Rank,Tied 1,1,Not top 3,2,2,1,1,1,2,,,,Not top 3,1,Not top 3,,Not top 3,1,,3,Not top 3,,3,,1,1,Not top 3,2,1,2,,1,1,,,2
+Shogun Points,11.5,30,4,20,16,27.5,10,35,13.5,0,0,0,5,34,4.5,0,3,27.5,0,10,4.5,0,9,0,19.5,27.5,6,11,15,18,0,27.5,24,0,0,35
+Shogun Aces,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Shogun Eagles,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Shogun Birdies,3,2,,3,1,1,,4,2,,,,,7,1,,1,1,,,1,,1,,3,1,1,4,5,2,,1,2,,,
+Jabba the Putt Rank,3,2,2,3,Not top 3,2,Not top 3,Not top 3,,1,1,2,,Not top 3,Not top 3,1,Not top 3,2,Not top 3,1,1,2,Not top 3,1,3,Not top 3,1,,,Not top 3,Not top 3,3,Not top 3,Not top 3,Not top 3,1
+Jabba the Putt Points,6,25,18,14,8,17.5,2,10,0,21,19.5,20,0,10,6,25,3,20,8,26,19.5,13.5,7.5,30,12,5,26,0,0,4,5,17.5,6,8,5,60
+Jabba the Putt Aces,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Jabba the Putt Eagles,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Jabba the Putt Birdies,1,3,2,2,2,,,2,,4,3,3,,3,2,,1,1,2,3,3,2,3,5,3,,3,,,,,2,1,2,,2
+Cobra Rank,,,3,,Not top 3,,Not top 3,3,,,,,3,3,Not top 3,,,,2,Not top 3,Not top 3,,,,,,,,,,Not top 3,,Not top 3,Not top 3,3,
+Cobra Points,0,0,14,0,6,0,2,20,0,0,0,0,17.5,18,4.5,0,0,0,16,6,3,0,0,0,0,0,0,0,0,0,7.5,0,6,4,25,0
+Cobra Aces,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Cobra Eagles,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Cobra Birdies,,,2,,1,,,3,,,,,2,4,1,,,,1,1,,,,,,,,,,,1,,1,,,
+Butter Cookie Rank,,,,Not top 3,Not top 3,,Not top 3,Not top 3,3,Not top 3,2,Not top 3,,Not top 3,,,,,Not top 3,,,Not top 3,,Not top 3,,,,,,Not top 3,Not top 3,,,,1,
+Butter Cookie Points,0,0,0,6,4,0,2,10,9,4.5,15,10,0,8,0,0,0,0,4,0,0,3,0,6,0,0,0,0,0,4,5,0,0,0,50,0
+Butter Cookie Aces,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Butter Cookie Eagles,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Butter Cookie Birdies,,,,1,,,,2,1,1,3,3,,2,,,,,,,,,,1,,,,,,,,,,,,
+BigBirdie Rank,Not top 3,Not top 3,Not top 3,,,Not top 3,Not top 3,Not top 3,,,,,,,,3,3,,Not top 3,Not top 3,,,,Not top 3,,,Not top 3,3,2,Not top 3,Not top 3,2,,,2,
+BigBirdie Points,4,5,4,0,0,5,2,5,0,0,0,0,0,0,0,25,6,0,4,4,0,0,0,6,0,0,4,6,10,8,5,20,0,0,17.5,0
+BigBirdie Aces,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+BigBirdie Eagles,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+BigBirdie Birdies,2,,,,,,,,,,,,,,,,1,,,,,,,1,,,,1,3,2,,1,,,,
+Fireball Rank,Not top 3,3,Not top 3,Not top 3,3,3,,,Not top 3,3,,3,1,2,2,,,Not top 3,Not top 3,Not top 3,2,1,2,Not top 3,,Not top 3,Not top 3,,,,,,,,,3
+Fireball Points,4,15,4,4,12,12.5,0,0,4.5,10.5,0,18,27.5,20,16.5,0,0,7.5,6,10,12,21,12,10,0,7.5,6,0,0,0,0,0,0,0,0,30
+Fireball Aces,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Fireball Eagles,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Fireball Birdies,2,1,,,1,,,,1,2,,4,1,3,4,,,1,1,3,1,4,1,3,,1,1,,,,,,,,,1
+Jaguar Rank,,,,,,,,,,,,,,,,,,,,,,,1,Not top 3,Not top 3,3,3,,,3,,Not top 3,3,1,,Not top 3
+Jaguar Points,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22.5,4,9,17.5,16,0,0,12,0,7.5,14,26,0,10
+Jaguar Aces,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Jaguar Eagles,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Jaguar Birdies,,,,,,,,,,,,,,,,,,,,,,,5,,4,2,3,,,1,,1,2,3,,
+AceBrook Rank,Not top 3,Not top 3,Not top 3,Not top 3,Not top 3,,3,Not top 3,,Not top 3,Not top 3,,,,,2,1,,,Not top 3,,,,,,,,Not top 3,Not top 3,,,Not top 3,,,,
+AceBrook Points,2,5,4,4,4,0,5,7.5,0,3,6,0,0,0,0,17.5,11,0,0,6,0,0,0,0,0,0,0,3,3,0,0,5,0,0,0,0
+AceBrook Aces,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+AceBrook Eagles,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+AceBrook Birdies,,,,,,,,1,,,2,,,,,,1,,,1,,,,,,,,1,1,,,,,,,
