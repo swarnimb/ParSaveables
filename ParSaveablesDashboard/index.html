@@ -798,6 +798,51 @@
             table {
                 font-size: 0.75em;
             }
+
+            /* Points System visual tables on mobile */
+            #pointsSystemInfo {
+                padding: 10px !important;
+                overflow-x: hidden;
+            }
+
+            #pointsSystemInfo h3 {
+                font-size: 1em !important;
+            }
+
+            #pointsSystemInfo h4 {
+                font-size: 0.9em !important;
+            }
+
+            #pointsSystemInfo table {
+                font-size: 0.7em;
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #pointsSystemInfo th,
+            #pointsSystemInfo td {
+                padding: 5px !important;
+                white-space: normal;
+                word-break: break-word;
+            }
+
+            #pointsSystemInfo strong {
+                font-size: 0.85em;
+            }
+
+            #pointsSystemInfo div {
+                line-height: 1.4 !important;
+            }
+
+            #pointsSystemInfo br {
+                display: none;
+            }
+
+            #pointsSystemInfo div > strong {
+                display: block;
+                margin-top: 5px;
+            }
         }
     </style>
 </head>
@@ -1838,9 +1883,9 @@
                 const uniqueTiers = courses ? [...new Map(courses.map(c => [c.multiplier, c])).values()] : [];
 
                 // Build the points system explanation
-                let html = '<div style="padding: 20px; color: #e6f1ff; line-height: 1.8;">';
+                let html = '<div style="padding: 20px; color: #e6f1ff; line-height: 1.8; overflow-x: hidden;">';
 
-                html += `<h3 style="color: #64ffda; margin-top: 0;">📊 ${selectedEvent.name} Scoring Rules</h3>`;
+                html += `<h3 style="color: #64ffda; margin-top: 0; font-size: 1.2em;">📊 ${selectedEvent.name} Scoring Rules</h3>`;
 
                 // Event Type
                 html += `<div style="margin-bottom: 20px;">`;
@@ -1852,11 +1897,11 @@
                 html += `</div>`;
 
                 // Placement Points
-                html += `<h4 style="color: #ff6600; margin-top: 20px;">🏅 Placement Points</h4>`;
-                html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`;
+                html += `<h4 style="color: #ff6600; margin-top: 20px; font-size: 1em;">🏅 Placement Points</h4>`;
+                html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed;">`;
                 html += `<thead><tr style="background: rgba(100, 255, 218, 0.1);">`;
-                html += `<th style="padding: 10px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Place</th>`;
-                html += `<th style="padding: 10px; text-align: right; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Points</th>`;
+                html += `<th style="padding: 8px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Place</th>`;
+                html += `<th style="padding: 8px; text-align: right; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Points</th>`;
                 html += `</tr></thead><tbody>`;
 
                 // Show placement points from rank_points JSONB
@@ -1870,8 +1915,8 @@
                         hasRankings = true;
                         const suffix = place === 1 ? 'st' : place === 2 ? 'nd' : place === 3 ? 'rd' : 'th';
                         html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
-                        html += `<td style="padding: 8px;">${emojis[place-1]} ${place}${suffix} Place</td>`;
-                        html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${points}</td>`;
+                        html += `<td style="padding: 6px; font-size: 0.9em;">${emojis[place-1]} ${place}${suffix}</td>`;
+                        html += `<td style="padding: 6px; text-align: right; color: #64ffda; font-weight: bold; font-size: 0.9em;">${points}</td>`;
                         html += `</tr>`;
                     }
                 }
@@ -1879,38 +1924,44 @@
                 // Show default points if configured
                 if (rankPoints.default !== undefined) {
                     html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
-                    html += `<td style="padding: 8px;">Other Places</td>`;
-                    html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${rankPoints.default}</td>`;
+                    html += `<td style="padding: 6px; font-size: 0.9em;">Other</td>`;
+                    html += `<td style="padding: 6px; text-align: right; color: #64ffda; font-weight: bold; font-size: 0.9em;">${rankPoints.default}</td>`;
                     html += `</tr>`;
                 }
 
                 html += `</tbody></table>`;
 
                 // Performance Bonuses
-                if (perfPoints.ace || perfPoints.eagle || perfPoints.birdie) {
-                    html += `<h4 style="color: #ff6600; margin-top: 20px;">⭐ Performance Bonuses</h4>`;
-                    html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`;
+                if (perfPoints.ace || perfPoints.eagle || perfPoints.birdie || perfPoints.most_birdies) {
+                    html += `<h4 style="color: #ff6600; margin-top: 20px; font-size: 1em;">⭐ Performance Bonuses</h4>`;
+                    html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed;">`;
                     html += `<thead><tr style="background: rgba(100, 255, 218, 0.1);">`;
-                    html += `<th style="padding: 10px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Achievement</th>`;
-                    html += `<th style="padding: 10px; text-align: right; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Bonus Points</th>`;
+                    html += `<th style="padding: 8px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Achievement</th>`;
+                    html += `<th style="padding: 8px; text-align: right; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Bonus</th>`;
                     html += `</tr></thead><tbody>`;
 
                     if (perfPoints.ace) {
                         html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
-                        html += `<td style="padding: 8px;">🎯 Ace (Hole-in-One)</td>`;
-                        html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${perfPoints.ace}</td>`;
+                        html += `<td style="padding: 6px; font-size: 0.9em;">🎯 Ace</td>`;
+                        html += `<td style="padding: 6px; text-align: right; color: #64ffda; font-weight: bold; font-size: 0.9em;">${perfPoints.ace}</td>`;
                         html += `</tr>`;
                     }
                     if (perfPoints.eagle) {
                         html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
-                        html += `<td style="padding: 8px;">🦅 Eagle (-2 strokes)</td>`;
-                        html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${perfPoints.eagle}</td>`;
+                        html += `<td style="padding: 6px; font-size: 0.9em;">🦅 Eagle</td>`;
+                        html += `<td style="padding: 6px; text-align: right; color: #64ffda; font-weight: bold; font-size: 0.9em;">${perfPoints.eagle}</td>`;
                         html += `</tr>`;
                     }
                     if (perfPoints.birdie) {
                         html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
-                        html += `<td style="padding: 8px;">🐦 Birdie (-1 stroke)</td>`;
-                        html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${perfPoints.birdie}</td>`;
+                        html += `<td style="padding: 6px; font-size: 0.9em;">🐦 Birdie</td>`;
+                        html += `<td style="padding: 6px; text-align: right; color: #64ffda; font-weight: bold; font-size: 0.9em;">${perfPoints.birdie}</td>`;
+                        html += `</tr>`;
+                    }
+                    if (perfPoints.most_birdies) {
+                        html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
+                        html += `<td style="padding: 6px; font-size: 0.9em;">🏆 Most Birdies</td>`;
+                        html += `<td style="padding: 6px; text-align: right; color: #64ffda; font-weight: bold; font-size: 0.9em;">${perfPoints.most_birdies}</td>`;
                         html += `</tr>`;
                     }
                     html += `</tbody></table>`;
@@ -1918,22 +1969,22 @@
 
                 // Course Tier Multipliers
                 if (uniqueTiers && uniqueTiers.length > 0) {
-                    html += `<h4 style="color: #ff6600; margin-top: 20px;">🏞️ Course Difficulty Multipliers</h4>`;
-                    html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`;
+                    html += `<h4 style="color: #ff6600; margin-top: 20px; font-size: 1em;">🏞️ Course Multipliers</h4>`;
+                    html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed;">`;
                     html += `<thead><tr style="background: rgba(100, 255, 218, 0.1);">`;
-                    html += `<th style="padding: 10px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Difficulty</th>`;
-                    html += `<th style="padding: 10px; text-align: center; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Multiplier</th>`;
+                    html += `<th style="padding: 8px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Difficulty</th>`;
+                    html += `<th style="padding: 8px; text-align: center; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Multiplier</th>`;
                     html += `</tr></thead><tbody>`;
 
                     uniqueTiers.forEach(tier => {
                         const difficulty = tier.multiplier >= 2.5 ? 'Hardest' : tier.multiplier >= 2.0 ? 'Hard' : tier.multiplier >= 1.5 ? 'Medium' : 'Easy';
                         html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
-                        html += `<td style="padding: 8px;">${difficulty}</td>`;
-                        html += `<td style="padding: 8px; text-align: center; color: #ff6600; font-weight: bold; font-size: 1.1em;">${tier.multiplier}x</td>`;
+                        html += `<td style="padding: 6px; font-size: 0.9em;">${difficulty}</td>`;
+                        html += `<td style="padding: 6px; text-align: center; color: #ff6600; font-weight: bold; font-size: 0.9em;">${tier.multiplier}x</td>`;
                         html += `</tr>`;
                     });
                     html += `</tbody></table>`;
-                    html += `<p style="font-size: 0.85em; color: rgba(230, 241, 255, 0.6); font-style: italic; margin-top: 10px;">* All placement and performance points are multiplied by the course tier multiplier</p>`;
+                    html += `<p style="font-size: 0.75em; color: rgba(230, 241, 255, 0.6); font-style: italic; margin-top: 5px;">* All points multiplied by course tier</p>`;
                 }
 
                 html += '</div>';
