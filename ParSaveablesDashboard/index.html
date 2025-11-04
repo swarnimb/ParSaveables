@@ -1745,12 +1745,18 @@
                 }
 
                 console.log('Event config:', eventConfig);
+                console.log('Points systems data:', eventConfig.points_systems);
 
                 // Extract points system config
                 const pointsSystem = eventConfig.points_systems;
-                if (!pointsSystem || !pointsSystem.config) {
-                    throw new Error('Points system configuration not found');
+                if (!pointsSystem) {
+                    throw new Error('Points system not linked to event (points_systems is null)');
                 }
+                if (!pointsSystem.config) {
+                    throw new Error('Points system config is missing or empty');
+                }
+
+                console.log('Points system config:', pointsSystem.config);
 
                 const config = pointsSystem.config;
                 const rankPoints = config.rank_points || {};
@@ -1887,7 +1893,11 @@
 
             } catch (error) {
                 console.error('Error loading points system:', error);
-                container.innerHTML = '<p style="color: #ff6600; padding: 20px;">Error loading points system information.</p>';
+                console.error('Error details:', error.message, error.stack);
+                container.innerHTML = `<div style="color: #ff6600; padding: 20px;">
+                    <p>Error loading points system information.</p>
+                    <p style="font-size: 0.8em; margin-top: 10px;">Debug: ${error.message}</p>
+                </div>`;
             }
         }
 
