@@ -802,7 +802,6 @@
             /* Points System visual tables on mobile */
             #pointsSystemInfo {
                 padding: 5px !important;
-                overflow-x: hidden;
             }
 
             #pointsSystemInfo h3 {
@@ -819,35 +818,25 @@
             }
 
             #pointsSystemInfo > div > div {
-                width: 90% !important;
-                max-width: 280px !important;
+                width: 100% !important;
+                max-width: 100% !important;
                 margin: 0 auto !important;
                 padding: 0 !important;
+                overflow-x: auto;
             }
 
             #pointsSystemInfo table {
-                font-size: 0.6em;
+                font-size: 0.75em;
                 width: 100% !important;
-                display: table;
-                table-layout: fixed;
+                display: block;
+                overflow-x: auto;
             }
 
             #pointsSystemInfo th,
             #pointsSystemInfo td {
-                padding: 4px 2px !important;
-                white-space: normal;
-                word-break: break-word;
+                padding: 8px 6px !important;
+                white-space: nowrap;
                 font-size: 1em;
-            }
-
-            #pointsSystemInfo th:first-child,
-            #pointsSystemInfo td:first-child {
-                width: 60%;
-            }
-
-            #pointsSystemInfo th:last-child,
-            #pointsSystemInfo td:last-child {
-                width: 40%;
             }
 
             #pointsSystemInfo strong {
@@ -970,10 +959,10 @@
 
             <!-- Tab Navigation -->
             <div style="margin: 20px 0; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-                <button id="seasonsTab" onclick="switchTab('seasons')" style="padding: 14px 36px; font-size: 1.1em; border-radius: 12px; border: 2px solid #ff6600; background: linear-gradient(135deg, #ff0064 0%, #ff6600 100%); color: white; cursor: pointer; font-weight: 700; transition: all 0.3s; box-shadow: 0 0 20px rgba(255, 102, 0, 0.6), 0 0 40px rgba(255, 0, 100, 0.3); text-transform: uppercase; letter-spacing: 1px;">
+                <button id="seasonsTab" onclick="switchTab('seasons')" style="padding: 14px 36px; font-size: 0.825em; border-radius: 12px; border: 2px solid #ff6600; background: linear-gradient(135deg, #ff0064 0%, #ff6600 100%); color: white; cursor: pointer; font-weight: 700; transition: all 0.3s; box-shadow: 0 0 20px rgba(255, 102, 0, 0.6), 0 0 40px rgba(255, 0, 100, 0.3); text-transform: uppercase; letter-spacing: 1px; min-width: 160px;">
                     Seasons
                 </button>
-                <button id="tournamentsTab" onclick="switchTab('tournaments')" style="padding: 14px 36px; font-size: 1.1em; border-radius: 12px; border: 2px solid rgba(255, 102, 0, 0.4); background: rgba(20, 25, 45, 0.8); color: #ffd700; cursor: pointer; font-weight: 700; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;">
+                <button id="tournamentsTab" onclick="switchTab('tournaments')" style="padding: 14px 36px; font-size: 0.825em; border-radius: 12px; border: 2px solid rgba(255, 102, 0, 0.4); background: rgba(20, 25, 45, 0.8); color: #ffd700; cursor: pointer; font-weight: 700; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px; min-width: 160px;">
                     Tournaments
                 </button>
             </div>
