@@ -1724,10 +1724,18 @@
             const container = document.getElementById('pointsSystemInfo');
 
             try {
-                // Fetch event configuration
+                // Fetch event configuration with points system
                 const { data: eventConfig, error: configError } = await supabase
                     .from('events')
-                    .select('*')
+                    .select(`
+                        *,
+                        points_systems (
+                            id,
+                            name,
+                            config,
+                            description
+                        )
+                    `)
                     .eq('id', selectedEventId)
                     .single();
 
@@ -1737,6 +1745,17 @@
                 }
 
                 console.log('Event config:', eventConfig);
+
+                // Extract points system config
+                const pointsSystem = eventConfig.points_systems;
+                if (!pointsSystem || !pointsSystem.config) {
+                    throw new Error('Points system configuration not found');
+                }
+
+                const config = pointsSystem.config;
+                const rankPoints = config.rank_points || {};
+                const perfPoints = config.performance_points || {};
+                const courseMultiplier = config.course_multiplier || {};
 
                 // Fetch course tier multipliers (handle if table doesn't exist)
                 let courseTiers = [];
@@ -1786,33 +1805,35 @@
                 html += `<th style="padding: 10px; text-align: right; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Points</th>`;
                 html += `</tr></thead><tbody>`;
 
-                // Show placement points based on event config
-                const placementPoints = [
-                    { place: 1, points: eventConfig.place_1_points, emoji: '🥇' },
-                    { place: 2, points: eventConfig.place_2_points, emoji: '🥈' },
-                    { place: 3, points: eventConfig.place_3_points, emoji: '🥉' },
-                    { place: 4, points: eventConfig.place_4_points, emoji: '' },
-                    { place: 5, points: eventConfig.place_5_points, emoji: '' },
-                    { place: 6, points: eventConfig.place_6_points, emoji: '' },
-                    { place: 7, points: eventConfig.place_7_points, emoji: '' },
-                    { place: 8, points: eventConfig.place_8_points, emoji: '' },
-                    { place: 9, points: eventConfig.place_9_points, emoji: '' },
-                    { place: 10, points: eventConfig.place_10_points, emoji: '' }
-                ];
+                // Show placement points from rank_points JSONB
+                const emojis = ['🥇', '🥈', '🥉', '', '', '', '', '', '', ''];
+                const maxPlace = 10;
+                let hasRankings = false;
 
-                placementPoints.forEach(({ place, points, emoji }) => {
+                for (let place = 1; place <= maxPlace; place++) {
+                    const points = rankPoints[place.toString()];
                     if (points !== null && points !== undefined) {
+                        hasRankings = true;
                         const suffix = place === 1 ? 'st' : place === 2 ? 'nd' : place === 3 ? 'rd' : 'th';
                         html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
-                        html += `<td style="padding: 8px;">${emoji} ${place}${suffix} Place</td>`;
+                        html += `<td style="padding: 8px;">${emojis[place-1]} ${place}${suffix} Place</td>`;
                         html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${points}</td>`;
                         html += `</tr>`;
                     }
-                });
+                }
+
+                // Show default points if configured
+                if (rankPoints.default !== undefined) {
+                    html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
+                    html += `<td style="padding: 8px;">Other Places</td>`;
+                    html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${rankPoints.default}</td>`;
+                    html += `</tr>`;
+                }
+
                 html += `</tbody></table>`;
 
                 // Performance Bonuses
-                if (eventConfig.ace_bonus || eventConfig.eagle_bonus || eventConfig.birdie_bonus) {
+                if (perfPoints.ace || perfPoints.eagle || perfPoints.birdie) {
                     html += `<h4 style="color: #ff6600; margin-top: 20px;">⭐ Performance Bonuses</h4>`;
                     html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`;
                     html += `<thead><tr style="background: rgba(100, 255, 218, 0.1);">`;
@@ -1820,22 +1841,22 @@
                     html += `<th style="padding: 10px; text-align: right; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Bonus Points</th>`;
                     html += `</tr></thead><tbody>`;
 
-                    if (eventConfig.ace_bonus) {
+                    if (perfPoints.ace) {
                         html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
                         html += `<td style="padding: 8px;">🎯 Ace (Hole-in-One)</td>`;
-                        html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${eventConfig.ace_bonus}</td>`;
+                        html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${perfPoints.ace}</td>`;
                         html += `</tr>`;
                     }
-                    if (eventConfig.eagle_bonus) {
+                    if (perfPoints.eagle) {
                         html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
                         html += `<td style="padding: 8px;">🦅 Eagle (-2 strokes)</td>`;
-                        html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${eventConfig.eagle_bonus}</td>`;
+                        html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${perfPoints.eagle}</td>`;
                         html += `</tr>`;
                     }
-                    if (eventConfig.birdie_bonus) {
+                    if (perfPoints.birdie) {
                         html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
                         html += `<td style="padding: 8px;">🐦 Birdie (-1 stroke)</td>`;
-                        html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${eventConfig.birdie_bonus}</td>`;
+                        html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${perfPoints.birdie}</td>`;
                         html += `</tr>`;
                     }
                     html += `</tbody></table>`;
