@@ -801,35 +801,49 @@
 
             /* Points System visual tables on mobile */
             #pointsSystemInfo {
-                padding: 10px !important;
+                padding: 5px !important;
                 overflow-x: hidden;
             }
 
             #pointsSystemInfo h3 {
-                font-size: 1em !important;
+                font-size: 0.85em !important;
             }
 
             #pointsSystemInfo h4 {
-                font-size: 0.9em !important;
+                font-size: 0.8em !important;
+                margin-top: 10px !important;
             }
 
             #pointsSystemInfo > div > div {
-                width: 100% !important;
-                max-width: 100% !important;
+                width: 95% !important;
+                max-width: 95% !important;
                 margin: 0 auto !important;
+                padding: 0 !important;
             }
 
             #pointsSystemInfo table {
-                font-size: 0.7em;
+                font-size: 0.65em;
                 width: 100% !important;
                 display: table;
+                table-layout: fixed;
             }
 
             #pointsSystemInfo th,
             #pointsSystemInfo td {
-                padding: 5px !important;
+                padding: 4px 2px !important;
                 white-space: normal;
                 word-break: break-word;
+                font-size: 1em;
+            }
+
+            #pointsSystemInfo th:first-child,
+            #pointsSystemInfo td:first-child {
+                width: 65%;
+            }
+
+            #pointsSystemInfo th:last-child,
+            #pointsSystemInfo td:last-child {
+                width: 35%;
             }
 
             #pointsSystemInfo strong {
@@ -847,6 +861,11 @@
             #pointsSystemInfo > div > strong {
                 display: block;
                 margin-top: 5px;
+            }
+
+            #pointsSystemInfo p {
+                font-size: 0.7em !important;
+                padding: 0 5px !important;
             }
         }
     </style>
