@@ -791,16 +791,12 @@
                 }
 
                 let html = '<table class="data-table">';
-                html += '<thead><tr><th>ID</th><th>Name</th><th>Description</th><th>Config Preview</th><th>Actions</th></tr></thead>';
+                html += '<thead><tr><th>Name</th><th>Actions</th></tr></thead>';
                 html += '<tbody>';
 
                 data.forEach(ps => {
-                    const configPreview = JSON.stringify(ps.config).substring(0, 100) + '...';
                     html += `<tr>
-                        <td>${ps.id}</td>
                         <td><strong>${ps.name}</strong></td>
-                        <td>${ps.description || '-'}</td>
-                        <td><code style="font-size: 0.85em; color: #64ffda;">${configPreview}</code></td>
                         <td>
                             <button class="btn btn-secondary" onclick='editPointsSystem(${JSON.stringify(ps)})'>Edit</button>
                             <button class="btn btn-danger" onclick="deletePointsSystem(${ps.id}, '${ps.name}')">Delete</button>
@@ -924,18 +920,15 @@
                 }
 
                 let html = '<table class="data-table">';
-                html += '<thead><tr><th>ID</th><th>Course Name</th><th>Tier</th><th>Multiplier</th><th>Active</th><th>Actions</th></tr></thead>';
+                html += '<thead><tr><th>Course Name</th><th>Tier</th><th>Multiplier</th><th>Actions</th></tr></thead>';
                 html += '<tbody>';
 
                 data.forEach(course => {
-                    const activeIcon = course.active ? '✅' : '❌';
                     const tierName = ['', 'Beginner', 'Intermediate', 'Advanced', 'Expert'][course.tier];
                     html += `<tr>
-                        <td>${course.id}</td>
                         <td><strong>${course.course_name}</strong></td>
                         <td>Tier ${course.tier} - ${tierName}</td>
                         <td>${course.multiplier}x</td>
-                        <td>${activeIcon}</td>
                         <td>
                             <button class="btn btn-secondary" onclick='editCourse(${JSON.stringify(course)})'>Edit</button>
                             <button class="btn btn-danger" onclick="deleteCourse(${course.id}, '${course.course_name}')">Delete</button>
@@ -1058,22 +1051,15 @@
                 }
 
                 let html = '<table class="data-table">';
-                html += '<thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Year</th><th>Start Date</th><th>End Date</th><th>Points System</th><th>Active</th><th>Actions</th></tr></thead>';
+                html += '<thead><tr><th>Name</th><th>Type</th><th>Year</th><th>Actions</th></tr></thead>';
                 html += '<tbody>';
 
                 data.forEach(event => {
-                    const activeIcon = event.is_active ? '✅' : '❌';
                     const typeIcon = event.type === 'season' ? '🏆' : '🎯';
-                    const psName = event.points_systems ? event.points_systems.name : 'Not Set';
                     html += `<tr>
-                        <td>${event.id}</td>
                         <td><strong>${event.name}</strong></td>
                         <td>${typeIcon} ${event.type}</td>
                         <td>${event.year}</td>
-                        <td>${new Date(event.start_date).toLocaleDateString()}</td>
-                        <td>${event.end_date ? new Date(event.end_date).toLocaleDateString() : '-'}</td>
-                        <td>${psName}</td>
-                        <td>${activeIcon}</td>
                         <td>
                             <button class="btn btn-secondary" onclick='editEvent(${JSON.stringify(event).replace(/'/g, "\\'")})'>Edit</button>
                             <button class="btn btn-danger" onclick="deleteEvent(${event.id}, '${event.name}')">Delete</button>
