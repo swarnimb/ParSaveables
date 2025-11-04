@@ -931,7 +931,7 @@
             </h1>
 
             <!-- Admin Button (Top Left) -->
-            <button id="adminBtn" onclick="window.location.href='admin.html'" style="position: absolute; top: 20px; left: 20px; padding: 12px; font-size: 1.8em; border-radius: 50%; border: 2px solid #ffd700; background: linear-gradient(135deg, #ff6600 0%, #ff0064 100%); color: white; cursor: pointer; transition: all 0.3s; box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;" title="Admin Panel">
+            <button id="adminBtn" onclick="window.location.href='admin.html'" style="position: absolute; top: 20px; left: 20px; padding: 7.2px; font-size: 1.08em; border-radius: 50%; border: 2px solid #ffd700; background: linear-gradient(135deg, #ff6600 0%, #ff0064 100%); color: white; cursor: pointer; transition: all 0.3s; box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;" title="Admin Panel">
                 ⚙️
             </button>
 
@@ -1883,7 +1883,7 @@
                 const uniqueTiers = courses ? [...new Map(courses.map(c => [c.multiplier, c])).values()] : [];
 
                 // Build the points system explanation
-                let html = '<div style="padding: 20px; color: #e6f1ff; line-height: 1.8; overflow-x: hidden;">';
+                let html = '<div style="padding: 20px; color: #e6f1ff; line-height: 1.8; overflow-x: hidden; text-align: center;">';
 
                 html += `<h3 style="color: #64ffda; margin-top: 0; font-size: 1.2em;">📊 ${selectedEvent.name} Scoring Rules</h3>`;
 
@@ -1898,7 +1898,8 @@
 
                 // Placement Points
                 html += `<h4 style="color: #ff6600; margin-top: 20px; font-size: 1em;">🏅 Placement Points</h4>`;
-                html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed;">`;
+                html += `<div style="display: flex; justify-content: center;">`;
+                html += `<table style="width: auto; max-width: 400px; border-collapse: collapse; margin-bottom: 20px;">`;
                 html += `<thead><tr style="background: rgba(100, 255, 218, 0.1);">`;
                 html += `<th style="padding: 8px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Place</th>`;
                 html += `<th style="padding: 8px; text-align: right; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Points</th>`;
@@ -1929,12 +1930,13 @@
                     html += `</tr>`;
                 }
 
-                html += `</tbody></table>`;
+                html += `</tbody></table></div>`;
 
                 // Performance Bonuses
                 if (perfPoints.ace || perfPoints.eagle || perfPoints.birdie || perfPoints.most_birdies) {
                     html += `<h4 style="color: #ff6600; margin-top: 20px; font-size: 1em;">⭐ Performance Bonuses</h4>`;
-                    html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed;">`;
+                    html += `<div style="display: flex; justify-content: center;">`;
+                    html += `<table style="width: auto; max-width: 400px; border-collapse: collapse; margin-bottom: 20px;">`;
                     html += `<thead><tr style="background: rgba(100, 255, 218, 0.1);">`;
                     html += `<th style="padding: 8px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Achievement</th>`;
                     html += `<th style="padding: 8px; text-align: right; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Bonus</th>`;
@@ -1964,13 +1966,14 @@
                         html += `<td style="padding: 6px; text-align: right; color: #64ffda; font-weight: bold; font-size: 0.9em;">${perfPoints.most_birdies}</td>`;
                         html += `</tr>`;
                     }
-                    html += `</tbody></table>`;
+                    html += `</tbody></table></div>`;
                 }
 
                 // Course Tier Multipliers
                 if (uniqueTiers && uniqueTiers.length > 0) {
                     html += `<h4 style="color: #ff6600; margin-top: 20px; font-size: 1em;">🏞️ Course Multipliers</h4>`;
-                    html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed;">`;
+                    html += `<div style="display: flex; justify-content: center;">`;
+                    html += `<table style="width: auto; max-width: 400px; border-collapse: collapse; margin-bottom: 20px;">`;
                     html += `<thead><tr style="background: rgba(100, 255, 218, 0.1);">`;
                     html += `<th style="padding: 8px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Difficulty</th>`;
                     html += `<th style="padding: 8px; text-align: center; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Multiplier</th>`;
@@ -1983,7 +1986,7 @@
                         html += `<td style="padding: 6px; text-align: center; color: #ff6600; font-weight: bold; font-size: 0.9em;">${tier.multiplier}x</td>`;
                         html += `</tr>`;
                     });
-                    html += `</tbody></table>`;
+                    html += `</tbody></table></div>`;
                     html += `<p style="font-size: 0.75em; color: rgba(230, 241, 255, 0.6); font-style: italic; margin-top: 5px;">* All points multiplied by course tier</p>`;
                 }
 
