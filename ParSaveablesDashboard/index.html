@@ -984,6 +984,15 @@
                 </div>
             </div>
         </div>
+
+        <div class="row row-4">
+            <div class="card">
+                <h2 id="pointsSystemTitle">📋 Points System Rules</h2>
+                <div class="scrollable-table">
+                    <div id="pointsSystemInfo" class="loading">Loading...</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1292,7 +1301,8 @@
                 loadLeaderboard(),
                 loadBirdieLeaders(),
                 loadCoursesTable(),
-                loadMonthlyTrend()
+                loadMonthlyTrend(),
+                loadPointsSystem()
             ]);
         }
 
@@ -1644,8 +1654,8 @@
                         maintainAspectRatio: false,
                         plugins: { legend: { position: 'top', labels: { color: '#64ffda', font: { size: 12 } } } },
                         scales: {
-                            y: { beginAtZero: true, title: { display: true, text: 'Points', color: '#64ffda' }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } },
-                            x: { title: { display: true, text: 'Round', color: '#64ffda' }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } }
+                            y: { beginAtZero: true, title: { display: false }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } },
+                            x: { title: { display: false }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } }
                         }
                     }
                 });
@@ -1696,11 +1706,134 @@
                         maintainAspectRatio: false,
                         plugins: { legend: { position: 'top', labels: { color: '#64ffda', font: { size: 12 } } } },
                         scales: {
-                            y: { beginAtZero: true, title: { display: true, text: 'Points', color: '#64ffda' }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } },
-                            x: { title: { display: true, text: 'Month', color: '#64ffda' }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } }
+                            y: { beginAtZero: true, title: { display: false }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } },
+                            x: { title: { display: false }, ticks: { color: '#e6f1ff' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } }
                         }
                     }
                 });
+            }
+        }
+
+        async function loadPointsSystem() {
+            const selectedEventId = getSelectedEventId();
+            if (!selectedEventId) return;
+
+            const selectedEvent = availableEvents.find(e => e.id === selectedEventId);
+            if (!selectedEvent) return;
+
+            const container = document.getElementById('pointsSystemInfo');
+
+            try {
+                // Fetch event configuration
+                const { data: eventConfig, error: configError } = await supabase
+                    .from('events')
+                    .select('*')
+                    .eq('id', selectedEventId)
+                    .single();
+
+                if (configError) throw configError;
+
+                // Fetch course tier multipliers
+                const { data: courseTiers, error: tiersError } = await supabase
+                    .from('course_tier_multipliers')
+                    .select('*')
+                    .eq('event_id', selectedEventId)
+                    .order('multiplier', { ascending: false });
+
+                if (tiersError) throw tiersError;
+
+                // Build the points system explanation
+                let html = '<div style="padding: 20px; color: #e6f1ff; line-height: 1.8;">';
+
+                html += `<h3 style="color: #64ffda; margin-top: 0;">📊 ${selectedEvent.name} Scoring Rules</h3>`;
+
+                // Event Type
+                html += `<div style="margin-bottom: 20px;">`;
+                html += `<strong style="color: #ffd700;">Event Type:</strong> ${eventConfig.event_type === 'season' ? '🏆 Season' : '🎯 Tournament'}<br>`;
+                html += `<strong style="color: #ffd700;">Start Date:</strong> ${new Date(eventConfig.start_date).toLocaleDateString()}<br>`;
+                if (eventConfig.end_date) {
+                    html += `<strong style="color: #ffd700;">End Date:</strong> ${new Date(eventConfig.end_date).toLocaleDateString()}<br>`;
+                }
+                html += `</div>`;
+
+                // Placement Points
+                html += `<h4 style="color: #ff6600; margin-top: 20px;">🏅 Placement Points</h4>`;
+                html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`;
+                html += `<thead><tr style="background: rgba(100, 255, 218, 0.1);">`;
+                html += `<th style="padding: 10px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Place</th>`;
+                html += `<th style="padding: 10px; text-align: right; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Points</th>`;
+                html += `</tr></thead><tbody>`;
+
+                for (let i = 1; i <= 10; i++) {
+                    const points = eventConfig[`place_${i}_points`];
+                    if (points) {
+                        const medal = i === 1 ? '🥇' : i === 2 ? '🥈' : i === 3 ? '🥉' : '';
+                        html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
+                        html += `<td style="padding: 8px;">${medal} ${i}${i === 1 ? 'st' : i === 2 ? 'nd' : i === 3 ? 'rd' : 'th'} Place</td>`;
+                        html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${points}</td>`;
+                        html += `</tr>`;
+                    }
+                }
+                html += `</tbody></table>`;
+
+                // Performance Bonuses
+                if (eventConfig.ace_bonus || eventConfig.eagle_bonus || eventConfig.birdie_bonus) {
+                    html += `<h4 style="color: #ff6600; margin-top: 20px;">⭐ Performance Bonuses</h4>`;
+                    html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`;
+                    html += `<thead><tr style="background: rgba(100, 255, 218, 0.1);">`;
+                    html += `<th style="padding: 10px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Achievement</th>`;
+                    html += `<th style="padding: 10px; text-align: right; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Bonus Points</th>`;
+                    html += `</tr></thead><tbody>`;
+
+                    if (eventConfig.ace_bonus) {
+                        html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
+                        html += `<td style="padding: 8px;">🎯 Ace (Hole-in-One)</td>`;
+                        html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${eventConfig.ace_bonus}</td>`;
+                        html += `</tr>`;
+                    }
+                    if (eventConfig.eagle_bonus) {
+                        html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
+                        html += `<td style="padding: 8px;">🦅 Eagle (-2 strokes)</td>`;
+                        html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${eventConfig.eagle_bonus}</td>`;
+                        html += `</tr>`;
+                    }
+                    if (eventConfig.birdie_bonus) {
+                        html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
+                        html += `<td style="padding: 8px;">🐦 Birdie (-1 stroke)</td>`;
+                        html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${eventConfig.birdie_bonus}</td>`;
+                        html += `</tr>`;
+                    }
+                    html += `</tbody></table>`;
+                }
+
+                // Course Tier Multipliers
+                if (courseTiers && courseTiers.length > 0) {
+                    html += `<h4 style="color: #ff6600; margin-top: 20px;">🏞️ Course Difficulty Multipliers</h4>`;
+                    html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`;
+                    html += `<thead><tr style="background: rgba(100, 255, 218, 0.1);">`;
+                    html += `<th style="padding: 10px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Tier</th>`;
+                    html += `<th style="padding: 10px; text-align: center; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Multiplier</th>`;
+                    html += `<th style="padding: 10px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Description</th>`;
+                    html += `</tr></thead><tbody>`;
+
+                    courseTiers.forEach(tier => {
+                        const difficulty = tier.multiplier >= 2.5 ? 'Hardest' : tier.multiplier >= 2.0 ? 'Hard' : tier.multiplier >= 1.5 ? 'Medium' : 'Easy';
+                        html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
+                        html += `<td style="padding: 8px;">${difficulty}</td>`;
+                        html += `<td style="padding: 8px; text-align: center; color: #ff6600; font-weight: bold; font-size: 1.1em;">${tier.multiplier}x</td>`;
+                        html += `<td style="padding: 8px; font-size: 0.9em; color: rgba(230, 241, 255, 0.8);">${tier.description || 'Standard course difficulty'}</td>`;
+                        html += `</tr>`;
+                    });
+                    html += `</tbody></table>`;
+                    html += `<p style="font-size: 0.85em; color: rgba(230, 241, 255, 0.6); font-style: italic; margin-top: 10px;">* All placement and performance points are multiplied by the course tier multiplier</p>`;
+                }
+
+                html += '</div>';
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading points system:', error);
+                container.innerHTML = '<p style="color: #ff6600; padding: 20px;">Error loading points system information.</p>';
             }
         }
 
