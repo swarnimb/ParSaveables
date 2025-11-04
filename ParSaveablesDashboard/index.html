@@ -124,6 +124,101 @@
         }
         
         
+        .pun-banner {
+            background: linear-gradient(135deg, rgba(255, 165, 0, 0.95) 0%, rgba(255, 140, 0, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            border-left: 6px solid #ff6600;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin: 20px auto 25px;
+            max-width: 800px;
+            box-shadow:
+                0 4px 20px rgba(255, 140, 0, 0.4),
+                0 0 40px rgba(255, 165, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideDown 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pun-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        .pun-icon {
+            font-size: 2em;
+            flex-shrink: 0;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .pun-text {
+            flex: 1;
+            color: #000;
+            font-size: 1.1em;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.5px;
+            line-height: 1.4;
+            position: relative;
+            z-index: 1;
+        }
+
+        .pun-refresh {
+            background: rgba(0, 0, 0, 0.2);
+            border: none;
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .pun-refresh:hover {
+            background: rgba(0, 0, 0, 0.3);
+            transform: rotate(180deg);
+        }
+
         .chat-section {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 250, 252, 0.98) 100%);
             backdrop-filter: blur(20px);
@@ -631,32 +726,51 @@
                 width: 60px;
                 height: 60px;
             }
-            
+
+            .pun-banner {
+                padding: 12px 15px;
+                gap: 10px;
+            }
+
+            .pun-icon {
+                font-size: 1.5em;
+            }
+
+            .pun-text {
+                font-size: 0.95em;
+            }
+
+            .pun-refresh {
+                width: 32px;
+                height: 32px;
+                font-size: 1em;
+            }
+
             .row-2 {
                 grid-template-columns: 1fr;
             }
-            
+
             .card {
                 padding: 15px;
             }
-            
+
             .card h2 {
                 font-size: 1.1em;
             }
-            
+
             table {
                 font-size: 0.85em;
             }
-            
+
             th, td {
                 padding: 8px;
             }
-            
+
             .player-name {
                 min-width: 80px;
                 font-size: 0.85em;
             }
-            
+
             .chat-box.visible {
                 height: 120px;
             }
@@ -671,7 +785,15 @@
             header h1 {
                 font-size: 2.5em;
             }
-            
+
+            .pun-banner {
+                padding: 10px 12px;
+            }
+
+            .pun-text {
+                font-size: 0.85em;
+            }
+
             table {
                 font-size: 0.75em;
             }
@@ -797,6 +919,13 @@
                     Loading podcasts...
                 </div>
             </div>
+        </div>
+
+        <!-- Pun Banner -->
+        <div class="pun-banner" id="punBanner">
+            <div class="pun-icon" id="punIcon">⚠️</div>
+            <div class="pun-text" id="punText">Loading pun...</div>
+            <button class="pun-refresh" onclick="refreshPun()" title="Get another pun">🔄</button>
         </div>
 
         <div class="chat-section" id="chatSection">
@@ -1622,13 +1751,249 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
+        // Pun system - 200 hilarious disc golf one-liners
+        const discGolfPuns = [
+            // Trees & Obstacles (40 puns)
+            { icon: '🌲', text: 'Warning: Trees are 90% air, but your disc will find the other 10% every time.' },
+            { icon: '🌳', text: 'Tree Fact: They\'re called "tree magnets" for a reason. Your disc agrees.' },
+            { icon: '🎯', text: 'Pro Tip: The gap between trees is called "optimism." Use sparingly.' },
+            { icon: '⚠️', text: 'Hazard Alert: That tree wasn\'t there on your practice throw. We checked.' },
+            { icon: '🌲', text: 'Breaking: Local tree reports 47th disc this week. "Business is good," says tree.' },
+            { icon: '🌳', text: 'Fun Fact: Trees don\'t move. Your disc does. Physics is against you.' },
+            { icon: '⚠️', text: 'Important: If you can see the basket through the trees, that\'s called "false hope."' },
+            { icon: '🌲', text: 'Update: Tree population remains undefeated against disc golfers since 1970.' },
+            { icon: '🎪', text: 'Entertainment: Watch grown adults argue with vegetation. Tonight at 7!' },
+            { icon: '🌳', text: 'Reminder: Throwing harder at the tree won\'t make it move. We\'ve tested this.' },
+            { icon: '⚠️', text: 'PSA: Your disc is now an ornament. The tree accepts your donation.' },
+            { icon: '🌲', text: 'Tree Review: "Five stars! Caught every disc thrown near me." - Oak on Hole 7' },
+            { icon: '🌳', text: 'Spoiler: That gap looked bigger from the tee pad. It wasn\'t.' },
+            { icon: '🎯', text: 'Accuracy Check: You hit exactly what you were looking at. Unfortunately, that was a tree.' },
+            { icon: '⚠️', text: 'Notice: Trees grow in the exact spot you need them not to be. Coincidence? We think not.' },
+            { icon: '🌲', text: 'Fact: The tree is not sorry. The tree never was. The tree never will be.' },
+            { icon: '🌳', text: 'Update: Your disc ricocheted off 3 trees and went backwards. New record!' },
+            { icon: '⚠️', text: 'Alert: That wasn\'t a "skip shot." That was tree violence.' },
+            { icon: '🌲', text: 'Observation: You threw around 47 trees successfully. Congratulations on finding #48.' },
+            { icon: '🌳', text: 'Report: Tree says it was "just standing there." Your disc had no comment.' },
+            { icon: '⚠️', text: 'Warning: Attempting to throw through solid objects may result in disappointment.' },
+            { icon: '🌲', text: 'Bulletin: Trees are stationary. This has been confirmed by science.' },
+            { icon: '🌳', text: 'News Flash: Man yells at tree. Tree unbothered. Disc still stuck.' },
+            { icon: '🎯', text: 'Discovery: Trees are surprisingly good goalies. Who knew?' },
+            { icon: '⚠️', text: 'Attention: Your disc found the only tree in a 50-foot radius. Impressive.' },
+            { icon: '🌲', text: 'Memo: Trees don\'t have feelings, but they do have your disc.' },
+            { icon: '🌳', text: 'Update: Local squirrel now has nicer discs than you. Thanks, tree.' },
+            { icon: '⚠️', text: 'Alert: The tree hit percentage on this hole is 87%. You\'re not special.' },
+            { icon: '🌲', text: 'Reminder: Trees are disc golf\'s most consistent defensive players.' },
+            { icon: '🌳', text: 'Fact: Your disc curved. The tree didn\'t. Guess who won?' },
+            { icon: '🎪', text: 'Performance Art: Watching someone shake a tree for 10 minutes. Beautiful.' },
+            { icon: '⚠️', text: 'Warning: "Thread the needle" is a suggestion, not a guarantee.' },
+            { icon: '🌲', text: 'Report: Tree population vs. Disc Golf Population. Trees winning 1,000,000 to 0.' },
+            { icon: '🌳', text: 'Notice: Your disc went left. The basket is right. The tree is laughing.' },
+            { icon: '⚠️', text: 'Safety Tip: Trees are harder than discs. Don\'t challenge them.' },
+            { icon: '🌲', text: 'Breaking: Tree refuses to apologize for being exactly where it\'s always been.' },
+            { icon: '🌳', text: 'Fun Fact: Every tree on the course is personally offended by your throw.' },
+            { icon: '🎯', text: 'Accuracy Update: You hit your target! Oh wait, that was the wrong target.' },
+            { icon: '⚠️', text: 'Hazard: The trees are plotting against you. All of them.' },
+            { icon: '🌲', text: 'Tree Status: Still there. Still catching discs. Still unimpressed.' },
+
+            // Wind & Weather (30 puns)
+            { icon: '🌪️', text: 'Weather Report: Wind speed is "yes." Plan accordingly.' },
+            { icon: '💨', text: 'Wind Advisory: Your disc will go everywhere except where you threw it.' },
+            { icon: '🌧️', text: 'Forecast: 100% chance of excuses. Expect heavy complaints.' },
+            { icon: '☀️', text: 'Hot Take: The sun is in your eyes. And your opponent\'s. Physics doesn\'t care.' },
+            { icon: '🌪️', text: 'Update: Wind changed direction mid-flight just to spite you specifically.' },
+            { icon: '💨', text: 'Breaking: Local player blames wind for putt from 2 feet. Wind unavailable for comment.' },
+            { icon: '🌧️', text: 'Rain Check: Wet disc + wet hands = adventure. Good luck!' },
+            { icon: '⚠️', text: 'Alert: Headwind on drives, tailwind on putts. Murphy\'s Law confirmed.' },
+            { icon: '🌪️', text: 'Notice: Wind is not your friend. Wind has never been your friend.' },
+            { icon: '💨', text: 'Fact: Wind only exists when you\'re winning. Coincidence? Absolutely not.' },
+            { icon: '🌧️', text: 'Update: Rain makes discs slippery. Who could have predicted this?' },
+            { icon: '☀️', text: 'Sun Advisory: You can\'t see, you\'re sweating, but hey - nice day!' },
+            { icon: '🌪️', text: 'Wind Status: Chaos mode activated. All bets are off.' },
+            { icon: '💨', text: 'Breeze Report: That 2 mph wind totally affected your 40-foot putt. Sure.' },
+            { icon: '🌧️', text: 'Weather Fact: Rain makes bad throws 47% more dramatic.' },
+            { icon: '⚠️', text: 'Warning: Mud and dignity don\'t mix. Choose wisely.' },
+            { icon: '🌪️', text: 'Gust Update: Wind gusted at the exact moment of release. Every. Single. Time.' },
+            { icon: '💨', text: 'Forecast: Wind will be perfect... for your competitor.' },
+            { icon: '🌧️', text: 'Rain Fact: Soggy discs fly like soggy pancakes. Science!' },
+            { icon: '☀️', text: 'Heat Index: Too hot to think, perfect for bad decisions!' },
+            { icon: '🌪️', text: 'Alert: Wind is now considered a competitive player. Currently ranked #1.' },
+            { icon: '💨', text: 'Update: That wasn\'t wind. That was your disc\'s poor life choices.' },
+            { icon: '🌧️', text: 'Splash Zone: Water hazards are now "disc collectors." Resistance is futile.' },
+            { icon: '⚠️', text: 'Advisory: Lightning means stop playing. But you won\'t. We know you.' },
+            { icon: '🌪️', text: 'Wind Pattern: Chaotic evil. No further details available.' },
+            { icon: '💨', text: 'Fun Fact: Wind always knows which way you DON\'T want it to blow.' },
+            { icon: '🌧️', text: 'Precipitation Update: Everything is wet. You are wet. Accept it.' },
+            { icon: '☀️', text: 'Sunshine Report: Great visibility to watch your disc miss spectacularly!' },
+            { icon: '🌪️', text: 'Breaking: Meteorologist confirms wind is "just messing with you now."' },
+            { icon: '💨', text: 'Breeze Status: Strong enough to blame, weak enough to be questioned.' },
+
+            // Putting (40 puns)
+            { icon: '🎯', text: 'Putt Update: From this distance, you\'re more likely to hit Mars than chains.' },
+            { icon: '🔔', text: 'Chain Fact: They make beautiful sounds when OTHER people putt.' },
+            { icon: '⚠️', text: 'Alert: That 10-footer is actually a 30-footer. Perspective is everything.' },
+            { icon: '🎯', text: 'Putting Tip: Missing left and right equally means you\'re "consistent."' },
+            { icon: '🔔', text: 'Reminder: Chains are designed to catch discs. Yours disagree.' },
+            { icon: '⚠️', text: 'Notice: Three-putting from 15 feet is called "getting your steps in."' },
+            { icon: '🎯', text: 'Fun Fact: 90% of putts don\'t go in if you leave them short. The other 10% also don\'t.' },
+            { icon: '🔔', text: 'Chain Report: Working perfectly. Just not with your disc.' },
+            { icon: '⚠️', text: 'PSA: Chains are not "too bouncy." You just throw too hard.' },
+            { icon: '🎯', text: 'Putting Stats: You made that exact putt in practice. Practice doesn\'t count.' },
+            { icon: '🔔', text: 'Sound Alert: That "thud" sound means you hit the basket wrong. Congrats!' },
+            { icon: '⚠️', text: 'Warning: Staring at the basket won\'t make it bigger. We\'ve tried.' },
+            { icon: '🎯', text: 'Pro Tip: If you can touch the basket, you can still miss the putt.' },
+            { icon: '🔔', text: 'Chain Music: Beautiful melody available. Your disc sold separately.' },
+            { icon: '⚠️', text: 'Update: You\'ve now putted over/under/around the basket. Achievement unlocked!' },
+            { icon: '🎯', text: 'Putting Fact: Confidence and accuracy are inversely proportional.' },
+            { icon: '🔔', text: 'Ding Ding! Oh wait, that was someone else\'s disc. Carry on.' },
+            { icon: '⚠️', text: 'Notice: That "circle of confidence" is more like an "oval of hope."' },
+            { icon: '🎯', text: 'Reality Check: You sank this putt in your head. Your disc didn\'t get the memo.' },
+            { icon: '🔔', text: 'Chain Study: Scientists confirm they work. Your results may vary.' },
+            { icon: '⚠️', text: 'Alert: "Kick-in" putts are 50% skill, 50% begging.' },
+            { icon: '🎯', text: 'Putt Analysis: Too high, too low, too left, too right. Perfect!' },
+            { icon: '🔔', text: 'Breaking: Man argues with chains about "should have stayed in." Chains win.' },
+            { icon: '⚠️', text: 'Reminder: A gimme is only a gimme if everyone agrees. They don\'t.' },
+            { icon: '🎯', text: 'Putting Truth: You can make a 50-footer in practice but not a 10-footer in competition.' },
+            { icon: '🔔', text: 'Chain Reaction: Your disc had one. It was leaving the basket area.' },
+            { icon: '⚠️', text: 'Warning: Putting your foot closer won\'t help. The basket knows what you did.' },
+            { icon: '🎯', text: 'Update: Your putt hit every part of the basket except the inside.' },
+            { icon: '🔔', text: 'Fun Fact: Chains catch 99% of putts. Just not yours right now.' },
+            { icon: '⚠️', text: 'PSA: "Good putt" is what people say when you miss. Translation: nice try.' },
+            { icon: '🎯', text: 'Putting Wisdom: If you aim at nothing, you\'ll hit it every time.' },
+            { icon: '🔔', text: 'Chain Status: Ready and willing. Your disc is not.' },
+            { icon: '⚠️', text: 'Notice: That wasn\'t a spit-out. That was a rejection.' },
+            { icon: '🎯', text: 'Truth Bomb: You make that putt alone. You miss it with witnesses.' },
+            { icon: '🔔', text: 'Sound Effect: *CLANG* Translation: So close yet so far.' },
+            { icon: '⚠️', text: 'Attention: Jump putts are for people who want to miss from farther away.' },
+            { icon: '🎯', text: 'Putt Report: Height - good. Direction - questionable. Result - try again.' },
+            { icon: '🔔', text: 'Chain Fact: They\'re right there. Like, RIGHT there. How did you miss?' },
+            { icon: '⚠️', text: 'Update: You\'ve invented a new putting style called "optimistic chaos."' },
+            { icon: '🎯', text: 'Final Word: The basket is large. The chains are many. Your disc is lost.' },
+
+            // Discs & Equipment (30 puns)
+            { icon: '💿', text: 'Disc Report: You have 47 discs but throw the same 3 every round.' },
+            { icon: '🎨', text: 'Color Fact: Bright pink discs are easier to find. You still bought blue.' },
+            { icon: '⚠️', text: 'Warning: That $30 disc will not make you throw better. But you\'ll buy it anyway.' },
+            { icon: '💿', text: 'Update: Your bag weighs 40 pounds. You only use 4 discs. Math doesn\'t check out.' },
+            { icon: '🎨', text: 'Notice: Limited edition plastic doesn\'t fly differently. Your wallet disagrees.' },
+            { icon: '⚠️', text: 'Breaking: Local player blames disc for bad throw. Disc has receipts.' },
+            { icon: '💿', text: 'Disc Math: More discs = more better. Science says no. You say yes.' },
+            { icon: '🎨', text: 'Fun Fact: That disc is "understable." So is your decision to buy it.' },
+            { icon: '⚠️', text: 'Alert: You need a new disc like you need a hole in your... wallet.' },
+            { icon: '💿', text: 'Reminder: Every disc is "the one" until the next one comes out.' },
+            { icon: '🎨', text: 'Color Theory: White discs are for people who enjoy long searches.' },
+            { icon: '⚠️', text: 'PSA: "Seasoning" your disc is just an excuse for scratches and dents.' },
+            { icon: '💿', text: 'Truth: You don\'t need another putter. You need to practice with the ones you have.' },
+            { icon: '🎨', text: 'Observation: Pink discs in pink bags. This is peak camouflage fail.' },
+            { icon: '⚠️', text: 'Update: Your "overstable" disc is now a "tree-stable" disc.' },
+            { icon: '💿', text: 'Disc Status: Lost in the woods. Last known speed: too fast.' },
+            { icon: '🎨', text: 'Breaking: Man owns 15 putters. Still can\'t putt. Putter sales continue.' },
+            { icon: '⚠️', text: 'Warning: That disc is "out of production" because it was terrible.' },
+            { icon: '💿', text: 'Bag Check: 20 discs, 1 towel, 3 snacks. Priorities are clear.' },
+            { icon: '🎨', text: 'Design Update: Cool stamp won\'t help you throw. Still looks rad though!' },
+            { icon: '⚠️', text: 'Notice: "Beginner-friendly" discs are for beginners. You are not fooling anyone.' },
+            { icon: '💿', text: 'Disc Fact: The perfect disc exists. It\'s the one you lost last week.' },
+            { icon: '🎨', text: 'Color Advisory: "Glow" discs help you lose discs in the dark more efficiently!' },
+            { icon: '⚠️', text: 'Alert: Switching discs mid-round won\'t fix your form. But go ahead.' },
+            { icon: '💿', text: 'Truth Bomb: Your backup disc flies exactly like your main disc. Badly.' },
+            { icon: '🎨', text: 'Update: Tie-dye discs don\'t make you throw better. They make you look cool missing.' },
+            { icon: '⚠️', text: 'PSA: "Breaking in" your disc means hitting trees. You\'re doing great!' },
+            { icon: '💿', text: 'Disc Economics: Spent $300 on plastic. Score hasn\'t improved. System working as intended.' },
+            { icon: '🎨', text: 'Fun Fact: Clear discs are for people who enjoy losing things permanently.' },
+            { icon: '⚠️', text: 'Warning: That disc flies perfectly... for someone else.' },
+
+            // Scores & Competition (30 puns)
+            { icon: '🏆', text: 'Leaderboard Update: You\'re not last! (Someone didn\'t finish)' },
+            { icon: '📊', text: 'Score Check: That\'s not a score. That\'s a phone number.' },
+            { icon: '⚠️', text: 'Reality: Par is a suggestion. You\'ve decided to ignore it completely.' },
+            { icon: '🏆', text: 'Competition Status: You vs. You from last week. Last week\'s you is winning.' },
+            { icon: '📊', text: 'Stat Update: 100% of your shots got you closer to finishing. Eventually.' },
+            { icon: '⚠️', text: 'Breaking: Local player invents new score called "I\'d rather not say."' },
+            { icon: '🏆', text: 'Tournament Alert: You finished! That\'s... that\'s actually great!' },
+            { icon: '📊', text: 'Math Time: Par plus 8 is called "having fun." Right? Right??' },
+            { icon: '⚠️', text: 'Score Report: Higher numbers aren\'t better in disc golf. Reminder sent.' },
+            { icon: '🏆', text: 'Achievement: Completed round without losing disc. Victory!' },
+            { icon: '📊', text: 'Stats Don\'t Lie: You played all 18 holes. Your score is evidence.' },
+            { icon: '⚠️', text: 'Notice: "Casual round" scores don\'t count. Translation: it went poorly.' },
+            { icon: '🏆', text: 'Update: You beat your personal worst! Oh wait...' },
+            { icon: '📊', text: 'Scorecard Truth: Writing "4" when you got a 7 doesn\'t change reality.' },
+            { icon: '⚠️', text: 'Alert: That wasn\'t a "birdie try." That was attempting par.' },
+            { icon: '🏆', text: 'Victory Condition: You vs. the course. Course is undefeated.' },
+            { icon: '📊', text: 'Fun Fact: Negative scores are good. You have positive scores. Many positive.' },
+            { icon: '⚠️', text: 'Reminder: The max score per hole is 10. You\'ve reached it. Several times.' },
+            { icon: '🏆', text: 'Podium Update: You\'re in 7th place! (Out of 7 players)' },
+            { icon: '📊', text: 'Score Analysis: Consistent! Consistently over par, but still.' },
+            { icon: '⚠️', text: 'Breaking: Player declares "that hole doesn\'t count." Scorecard disagrees.' },
+            { icon: '🏆', text: 'Trophy Status: "Participation Award" is still an award. Congrats!' },
+            { icon: '📊', text: 'Math Check: You shot your age! (If you\'re 73 years old)' },
+            { icon: '⚠️', text: 'PSA: Comparing your score to pros is "unhealthy." We don\'t recommend it.' },
+            { icon: '🏆', text: 'Update: You won something! (Most trees hit in a single round)' },
+            { icon: '📊', text: 'Score Truth: It\'s not about the score, it\'s about... who are we kidding, it\'s the score.' },
+            { icon: '⚠️', text: 'Alert: Your handicap is called "existing." We\'re working on it.' },
+            { icon: '🏆', text: 'Victory Lap: You finished before dark. That\'s the real win!' },
+            { icon: '📊', text: 'Statistic: You improved by 0.5 strokes this month. See you in 2028 for par!' },
+            { icon: '⚠️', text: 'Final Score: Let\'s just say you "completed the course" and leave it at that.' },
+
+            // General Humor & Philosophy (30 puns)
+            { icon: '🎪', text: 'Philosophy: Disc golf - because golf is expensive and hiking is boring!' },
+            { icon: '🧠', text: 'Deep Thought: You came for exercise. You\'re getting a therapy session.' },
+            { icon: '⚠️', text: 'Life Lesson: The journey matters more than the destination. Especially when you\'re looking for your disc.' },
+            { icon: '🎪', text: 'Truth: Disc golf is 90% mental. The other 10% is also mental.' },
+            { icon: '🧠', text: 'Wisdom: Every throw is a learning experience. Today you learned a lot.' },
+            { icon: '⚠️', text: 'Reality Check: You\'re throwing plastic at metal chains. This is your hobby.' },
+            { icon: '🎪', text: 'Fun Fact: Disc golf keeps you humble. Extremely humble. Painfully humble.' },
+            { icon: '🧠', text: 'Observation: You started happy. Now you\'re arguing with a tree. Character development!' },
+            { icon: '⚠️', text: 'Update: Disc golf is "relaxing." Also: lies people tell themselves.' },
+            { icon: '🎪', text: 'Breaking: Adults pay money to throw plastic in the woods. Society is fine.' },
+            { icon: '🧠', text: 'Psychology: You keep playing because "next time will be better." Narrator: It wasn\'t.' },
+            { icon: '⚠️', text: 'Life Update: Your disc golf game reflects your life choices. Concerning.' },
+            { icon: '🎪', text: 'Entertainment: Watching someone\'s round fall apart on Hole 7. Classic cinema.' },
+            { icon: '🧠', text: 'Mindfulness: Be present. In this moment, you are over par. Very over par.' },
+            { icon: '⚠️', text: 'Notice: Disc golf is "just for fun." So is screaming into the void.' },
+            { icon: '🎪', text: 'Social Study: Disc golfers are the only people who celebrate hitting metal.' },
+            { icon: '🧠', text: 'Meditation: Breathe in. Breathe out. Miss putt. Breathe angrily.' },
+            { icon: '⚠️', text: 'Truth: You love disc golf. Disc golf tolerates you.' },
+            { icon: '🎪', text: 'Documentary: Man walks in circles for 2 hours. Calls it "sport." More at 11.' },
+            { icon: '🧠', text: 'Zen Moment: The disc is not your enemy. The disc is your teacher. A harsh teacher.' },
+            { icon: '⚠️', text: 'Update: You said "just one more round." That was 3 hours ago.' },
+            { icon: '🎪', text: 'Comedy Gold: Pretending that shank was intentional. Oscar-worthy performance!' },
+            { icon: '🧠', text: 'Enlightenment: The basket is always there. Your disc rarely is.' },
+            { icon: '⚠️', text: 'PSA: Disc golf addiction is real. Symptoms include: more discs, worse scores.' },
+            { icon: '🎪', text: 'Theatre: The dramatic sigh after a bad shot. Perfection. 10/10.' },
+            { icon: '🧠', text: 'Philosophy: If a disc falls in the woods and no one sees it, did you still lose?' },
+            { icon: '⚠️', text: 'Warning: Objects in scorecard are worse than they appear.' },
+            { icon: '🎪', text: 'Performance Art: The walk of shame after an air ball. Beautiful.' },
+            { icon: '🧠', text: 'Wisdom: Every pro was once a beginner. You are proving this. Extensively.' },
+            { icon: '🎯', text: 'Final Truth: Disc golf is hard. But you keep coming back. That\'s the spirit!' }
+        ];
+
+        function getRandomPun() {
+            return discGolfPuns[Math.floor(Math.random() * discGolfPuns.length)];
+        }
+
+        function displayPun() {
+            const pun = getRandomPun();
+            document.getElementById('punIcon').textContent = pun.icon;
+            document.getElementById('punText').textContent = pun.text;
+        }
+
+        function refreshPun() {
+            const banner = document.getElementById('punBanner');
+            banner.style.animation = 'none';
+            setTimeout(() => {
+                banner.style.animation = 'slideDown 0.6s ease-out';
+                displayPun();
+            }, 10);
+        }
+
         // Initialize: Load events first, then load data
         async function initialize() {
+            displayPun(); // Show initial pun
             await loadEvents();
         }
 
         initialize();
         setInterval(loadAllData, 300000); // Auto-refresh every 5 minutes
+        setInterval(refreshPun, 45000); // Auto-change pun every 45 seconds
     </script>
 </body>
 </html>

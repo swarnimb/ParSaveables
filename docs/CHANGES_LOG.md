@@ -1,5 +1,201 @@
 # ParSaveables - Changes Log
 
+## 2025-11-03: Pun Banner Feature
+
+### Changes Implemented
+
+#### Fun Warning-Style Banner with Disc Golf Puns ✅
+
+**Feature:**
+Added an eye-catching horizontal banner between the event selector and chatbot that displays randomized disc golf puns in a warning-style design.
+
+**Design Elements:**
+- Orange gradient background (warning-style aesthetic)
+- Left border accent for emphasis
+- Animated slide-down entrance on page load
+- Shimmer effect across banner
+- Bouncing icon animation
+- Refresh button to get a new pun on demand
+
+**User Experience:**
+- **200 hilarious disc golf one-liners** covering various topics:
+  - Trees & Obstacles (40 puns)
+  - Wind & Weather (30 puns)
+  - Putting (40 puns)
+  - Discs & Equipment (30 puns)
+  - Scores & Competition (30 puns)
+  - General Humor & Philosophy (30 puns)
+- Auto-rotates to a new pun every 45 seconds
+- Manual refresh button for instant pun changes
+- Fully responsive on mobile devices
+- Variety of themed icons (🌲🌳🎯⚠️🌪️💨🌧️☀️🔔💿🎨🏆📊🎪🧠)
+
+**Pun Categories (200 Total):**
+
+1. **Trees & Obstacles (40 puns)** - The eternal struggle between disc and nature
+   - Tree magnetism and physics
+   - Gap shooting optimism
+   - Disc donation to local vegetation
+
+2. **Wind & Weather (30 puns)** - Nature's favorite excuses
+   - Wind conspiracy theories
+   - Rain adventures
+   - Sun-related complications
+
+3. **Putting (40 puns)** - The great humbler
+   - Chain music (for others)
+   - Distance perception issues
+   - Confidence vs. reality
+
+4. **Discs & Equipment (30 puns)** - Gear addiction reality
+   - Bag weight vs. disc usage
+   - Color selection regret
+   - Limited edition obsession
+
+5. **Scores & Competition (30 puns)** - The harsh truth
+   - Creative scoring terminology
+   - Leaderboard realities
+   - Personal record celebrations
+
+6. **General Humor & Philosophy (30 puns)** - Deep disc golf thoughts
+   - Sport justification
+   - Mental game observations
+   - Life lessons from the course
+
+**Example Puns:**
+- "Warning: Trees are 90% air, but your disc will find the other 10% every time."
+- "Weather Report: Wind speed is 'yes.' Plan accordingly."
+- "Putt Update: From this distance, you're more likely to hit Mars than chains."
+- "Disc Report: You have 47 discs but throw the same 3 every round."
+- "Score Check: That's not a score. That's a phone number."
+- "Philosophy: Disc golf - because golf is expensive and hiking is boring!"
+
+**Code Changes:**
+
+**CSS Styling:**
+```css
+.pun-banner {
+    background: linear-gradient(135deg, rgba(255, 165, 0, 0.95) 0%, rgba(255, 140, 0, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    border-left: 6px solid #ff6600;
+    box-shadow with glow effects
+    animation: slideDown 0.6s ease-out;
+}
+
+.pun-icon {
+    animation: bounce 2s ease-in-out infinite;
+}
+```
+
+**JavaScript Implementation:**
+```javascript
+const discGolfPuns = [
+    // Trees & Obstacles (40 puns)
+    { icon: '🌲', text: 'Warning: Trees are 90% air, but your disc will find the other 10% every time.' },
+    // ... 199 more puns across 6 categories
+];
+
+function getRandomPun() {
+    return discGolfPuns[Math.floor(Math.random() * discGolfPuns.length)];
+}
+
+function displayPun() {
+    const pun = getRandomPun();
+    document.getElementById('punIcon').textContent = pun.icon;
+    document.getElementById('punText').textContent = pun.text;
+}
+
+function refreshPun() {
+    const banner = document.getElementById('punBanner');
+    banner.style.animation = 'none';
+    setTimeout(() => {
+        banner.style.animation = 'slideDown 0.6s ease-out';
+        displayPun();
+    }, 10);
+}
+
+// Initialize with random pun
+displayPun();
+
+// Auto-refresh pun every 45 seconds
+setInterval(refreshPun, 45000);
+```
+
+**Responsive Design:**
+- Desktop: Full-size banner with large text and icon
+- Tablet (768px): Slightly smaller padding and font sizes
+- Mobile (480px): Compact layout optimized for small screens
+
+**HTML Structure:**
+```html
+<div class="pun-banner" id="punBanner">
+    <div class="pun-icon" id="punIcon">⚠️</div>
+    <div class="pun-text" id="punText">Loading pun...</div>
+    <button class="pun-refresh" onclick="refreshPun()">🔄</button>
+</div>
+```
+
+### Files Modified
+
+1. **Dashboard (index.html)**
+   - Added `.pun-banner`, `.pun-icon`, `.pun-text`, `.pun-refresh` CSS classes with full styling
+   - Added animations: `slideDown`, `shimmer`, `bounce` with keyframes
+   - Added HTML banner element between header and chat section
+   - Added `discGolfPuns` array with **200 hilarious one-liners** organized in 6 categories
+   - Added `getRandomPun()`, `displayPun()`, `refreshPun()` functions
+   - Added auto-rotation interval (45 seconds)
+   - Added responsive styles for mobile devices (768px and 480px breakpoints)
+   - Total addition: ~300 lines of code (CSS + HTML + JavaScript)
+
+### Benefits
+
+**User Engagement:**
+- Adds personality and humor to the dashboard
+- Creates a more engaging user experience
+- Reinforces disc golf culture and community
+- 200 unique puns ensure variety across many visits
+- Covers all aspects of disc golf (trees, weather, putting, gear, scores, philosophy)
+
+**Visual Appeal:**
+- Eye-catching orange gradient design with warning aesthetic
+- Warning-style banner fits the playful, self-deprecating disc golf humor
+- Smooth animations (slide-down entrance, shimmer effect, bouncing icon)
+- Multiple themed icons for visual variety
+
+**Technical Quality:**
+- Lightweight (no external dependencies, pure vanilla JS)
+- Smooth CSS animations with hardware acceleration
+- Fully responsive design (desktop, tablet, mobile)
+- Organized code structure with clear categories
+- Easy to add more puns or modify existing ones
+
+**Content Variety:**
+- 40 tree/obstacle puns (most relatable disc golf struggle)
+- 40 putting puns (the great equalizer)
+- 30 wind/weather puns (favorite excuses)
+- 30 disc/equipment puns (gear addiction reality)
+- 30 score/competition puns (harsh truths)
+- 30 general/philosophy puns (why we play)
+
+### Deployment
+
+- **Committed**: 2025-11-03
+- **Pushed to**: GitHub main branch (pending)
+- **Auto-deploy**: Vercel (https://par-saveables.vercel.app)
+- **Status**: Ready for deployment
+
+### Future Enhancements
+
+**Potential Additions:**
+1. Context-aware puns based on current leaderboard data
+2. Player-specific puns when hovering over their names
+3. Dynamic puns triggered by specific events (new round posted)
+4. User-submitted puns voting system
+5. Seasonal puns (holidays, weather-related)
+6. Integration with chatbot for pun requests
+
+---
+
 ## 2025-11-01: Project Priorities Updated
 
 ### Documentation Changes

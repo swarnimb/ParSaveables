@@ -7,6 +7,7 @@ A disc golf amateur season score tracking system with an AI-powered chatbot and 
 - **Automated Scorecard Processing**: Upload UDisc scorecard screenshots to GroupMe, automatically extract and calculate scores
 - **AI Chatbot**: Ask questions about player stats, leaderboards, and course performance
 - **Real-time Dashboard**: View season standings, player statistics, and performance trends
+- **Fun Pun Banner**: 200 hilarious disc golf one-liners rotating on the dashboard for entertainment
 - **Configuration-Driven**: Course tiers and points systems stored in database (no code changes needed)
 - **Multi-Event Support**: Separate scoring for seasons and tournaments
 
