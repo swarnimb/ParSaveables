@@ -220,6 +220,11 @@
             overflow: hidden;
         }
 
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
         .data-table th {
             background: linear-gradient(135deg, rgba(255, 0, 100, 0.3) 0%, rgba(255, 102, 0, 0.3) 100%);
             padding: 15px;
@@ -385,12 +390,38 @@
                 flex-direction: column;
             }
 
+            .tab-content {
+                padding: 15px;
+            }
+
             .data-table {
-                font-size: 0.9em;
+                font-size: 0.75em;
+                display: block;
+                overflow-x: auto;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 8px 6px;
+                white-space: nowrap;
+            }
+
+            .data-table button {
+                padding: 4px 8px;
+                font-size: 0.85em;
+                margin-right: 4px;
             }
 
             .modal-content {
                 padding: 20px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-buttons .btn {
+                width: 100%;
             }
         }
     </style>
