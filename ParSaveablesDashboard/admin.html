@@ -49,16 +49,21 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            padding: 7.2px 14.4px;
+            padding: 0;
             background: linear-gradient(135deg, #0066ff 0%, #00ccff 100%);
             color: white;
             border: 2px solid #64ffda;
-            border-radius: 8px;
+            border-radius: 50%;
             cursor: pointer;
-            font-size: 0.6em;
+            font-size: 0.9em;
             font-weight: bold;
             transition: all 0.3s;
             box-shadow: 0 0 20px rgba(0, 204, 255, 0.6);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .back-btn:hover {
@@ -455,7 +460,7 @@
             <header>
                 <button class="back-btn" onclick="window.location.href='index.html'">←</button>
                 <h1>⚙️ Control Panel</h1>
-                <button class="btn btn-danger" onclick="logout()" style="position: absolute; top: 20px; right: 20px; padding: 7.2px 14.4px; font-size: 0.6em;">Logout</button>
+                <button class="btn btn-danger" onclick="logout()" style="position: absolute; top: 20px; right: 20px; padding: 0; font-size: 0.9em; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">⏻</button>
             </header>
 
             <!-- Tab Navigation -->
