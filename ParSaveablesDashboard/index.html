@@ -1731,16 +1731,38 @@
                     .eq('id', selectedEventId)
                     .single();
 
-                if (configError) throw configError;
+                if (configError) {
+                    console.error('Error fetching event config:', configError);
+                    throw configError;
+                }
 
-                // Fetch course tier multipliers
-                const { data: courseTiers, error: tiersError } = await supabase
-                    .from('course_tier_multipliers')
-                    .select('*')
-                    .eq('event_id', selectedEventId)
+                console.log('Event config:', eventConfig);
+
+                // Fetch course tier multipliers (handle if table doesn't exist)
+                let courseTiers = [];
+                try {
+                    const { data: tiersData, error: tiersError } = await supabase
+                        .from('course_tier_multipliers')
+                        .select('*')
+                        .eq('event_id', selectedEventId)
+                        .order('multiplier', { ascending: false });
+
+                    if (!tiersError && tiersData) {
+                        courseTiers = tiersData;
+                    }
+                } catch (e) {
+                    console.warn('Course tier multipliers not available:', e);
+                }
+
+                // Fetch course tiers (distinct multipliers)
+                const { data: courses, error: coursesError } = await supabase
+                    .from('courses')
+                    .select('tier, multiplier')
+                    .eq('active', true)
                     .order('multiplier', { ascending: false });
 
-                if (tiersError) throw tiersError;
+                // Get unique tier multipliers
+                const uniqueTiers = courses ? [...new Map(courses.map(c => [c.multiplier, c])).values()] : [];
 
                 // Build the points system explanation
                 let html = '<div style="padding: 20px; color: #e6f1ff; line-height: 1.8;">';
@@ -1749,7 +1771,7 @@
 
                 // Event Type
                 html += `<div style="margin-bottom: 20px;">`;
-                html += `<strong style="color: #ffd700;">Event Type:</strong> ${eventConfig.event_type === 'season' ? '🏆 Season' : '🎯 Tournament'}<br>`;
+                html += `<strong style="color: #ffd700;">Event Type:</strong> ${eventConfig.type === 'season' ? '🏆 Season' : '🎯 Tournament'}<br>`;
                 html += `<strong style="color: #ffd700;">Start Date:</strong> ${new Date(eventConfig.start_date).toLocaleDateString()}<br>`;
                 if (eventConfig.end_date) {
                     html += `<strong style="color: #ffd700;">End Date:</strong> ${new Date(eventConfig.end_date).toLocaleDateString()}<br>`;
@@ -1764,16 +1786,29 @@
                 html += `<th style="padding: 10px; text-align: right; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Points</th>`;
                 html += `</tr></thead><tbody>`;
 
-                for (let i = 1; i <= 10; i++) {
-                    const points = eventConfig[`place_${i}_points`];
-                    if (points) {
-                        const medal = i === 1 ? '🥇' : i === 2 ? '🥈' : i === 3 ? '🥉' : '';
+                // Show placement points based on event config
+                const placementPoints = [
+                    { place: 1, points: eventConfig.place_1_points, emoji: '🥇' },
+                    { place: 2, points: eventConfig.place_2_points, emoji: '🥈' },
+                    { place: 3, points: eventConfig.place_3_points, emoji: '🥉' },
+                    { place: 4, points: eventConfig.place_4_points, emoji: '' },
+                    { place: 5, points: eventConfig.place_5_points, emoji: '' },
+                    { place: 6, points: eventConfig.place_6_points, emoji: '' },
+                    { place: 7, points: eventConfig.place_7_points, emoji: '' },
+                    { place: 8, points: eventConfig.place_8_points, emoji: '' },
+                    { place: 9, points: eventConfig.place_9_points, emoji: '' },
+                    { place: 10, points: eventConfig.place_10_points, emoji: '' }
+                ];
+
+                placementPoints.forEach(({ place, points, emoji }) => {
+                    if (points !== null && points !== undefined) {
+                        const suffix = place === 1 ? 'st' : place === 2 ? 'nd' : place === 3 ? 'rd' : 'th';
                         html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
-                        html += `<td style="padding: 8px;">${medal} ${i}${i === 1 ? 'st' : i === 2 ? 'nd' : i === 3 ? 'rd' : 'th'} Place</td>`;
+                        html += `<td style="padding: 8px;">${emoji} ${place}${suffix} Place</td>`;
                         html += `<td style="padding: 8px; text-align: right; color: #64ffda; font-weight: bold;">${points}</td>`;
                         html += `</tr>`;
                     }
-                }
+                });
                 html += `</tbody></table>`;
 
                 // Performance Bonuses
@@ -1807,21 +1842,19 @@
                 }
 
                 // Course Tier Multipliers
-                if (courseTiers && courseTiers.length > 0) {
+                if (uniqueTiers && uniqueTiers.length > 0) {
                     html += `<h4 style="color: #ff6600; margin-top: 20px;">🏞️ Course Difficulty Multipliers</h4>`;
                     html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`;
                     html += `<thead><tr style="background: rgba(100, 255, 218, 0.1);">`;
-                    html += `<th style="padding: 10px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Tier</th>`;
+                    html += `<th style="padding: 10px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Difficulty</th>`;
                     html += `<th style="padding: 10px; text-align: center; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Multiplier</th>`;
-                    html += `<th style="padding: 10px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4);">Description</th>`;
                     html += `</tr></thead><tbody>`;
 
-                    courseTiers.forEach(tier => {
+                    uniqueTiers.forEach(tier => {
                         const difficulty = tier.multiplier >= 2.5 ? 'Hardest' : tier.multiplier >= 2.0 ? 'Hard' : tier.multiplier >= 1.5 ? 'Medium' : 'Easy';
                         html += `<tr style="border-bottom: 1px solid rgba(100, 255, 218, 0.1);">`;
                         html += `<td style="padding: 8px;">${difficulty}</td>`;
                         html += `<td style="padding: 8px; text-align: center; color: #ff6600; font-weight: bold; font-size: 1.1em;">${tier.multiplier}x</td>`;
-                        html += `<td style="padding: 8px; font-size: 0.9em; color: rgba(230, 241, 255, 0.8);">${tier.description || 'Standard course difficulty'}</td>`;
                         html += `</tr>`;
                     });
                     html += `</tbody></table>`;
