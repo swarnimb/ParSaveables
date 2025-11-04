@@ -1714,6 +1714,44 @@
             }
         }
 
+        // Test function to debug points system loading
+        async function testPointsSystemFetch(eventId) {
+            console.log('=== Testing Points System Fetch ===');
+            console.log('Event ID:', eventId);
+
+            // Test 1: Fetch event only
+            const { data: event, error: eventError } = await supabase
+                .from('events')
+                .select('*')
+                .eq('id', eventId)
+                .single();
+            console.log('Event data:', event);
+            console.log('Event error:', eventError);
+
+            // Test 2: Fetch points system by ID
+            if (event && event.points_system_id) {
+                const { data: ps, error: psError } = await supabase
+                    .from('points_systems')
+                    .select('*')
+                    .eq('id', event.points_system_id)
+                    .single();
+                console.log('Points system data:', ps);
+                console.log('Points system error:', psError);
+            }
+
+            // Test 3: Fetch with join
+            const { data: joined, error: joinError } = await supabase
+                .from('events')
+                .select(`
+                    *,
+                    points_systems!points_system_id (*)
+                `)
+                .eq('id', eventId)
+                .single();
+            console.log('Joined data:', joined);
+            console.log('Join error:', joinError);
+        }
+
         async function loadPointsSystem() {
             const selectedEventId = getSelectedEventId();
             if (!selectedEventId) return;
