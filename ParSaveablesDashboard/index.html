@@ -1898,7 +1898,8 @@
 
                 // Placement Points
                 html += `<h4 style="color: #ff6600; margin-top: 20px; font-size: 1em;">🏅 Placement Points</h4>`;
-                html += `<table style="width: 90%; border-collapse: collapse; margin: 0 auto 20px auto;">`;
+                html += `<div style="width: 100%; max-width: 500px; margin: 0 auto;">`;
+                html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`;
                 html += `<thead><tr style="background: rgba(100, 255, 218, 0.1);">`;
                 html += `<th style="padding: 8px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Place</th>`;
                 html += `<th style="padding: 8px; text-align: right; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Points</th>`;
@@ -1929,12 +1930,13 @@
                     html += `</tr>`;
                 }
 
-                html += `</tbody></table>`;
+                html += `</tbody></table></div>`;
 
                 // Performance Bonuses
                 if (perfPoints.ace || perfPoints.eagle || perfPoints.birdie || perfPoints.most_birdies) {
                     html += `<h4 style="color: #ff6600; margin-top: 20px; font-size: 1em;">⭐ Performance Bonuses</h4>`;
-                    html += `<table style="width: 90%; border-collapse: collapse; margin: 0 auto 20px auto;">`;
+                    html += `<div style="width: 100%; max-width: 500px; margin: 0 auto;">`;
+                    html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`;
                     html += `<thead><tr style="background: rgba(100, 255, 218, 0.1);">`;
                     html += `<th style="padding: 8px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Achievement</th>`;
                     html += `<th style="padding: 8px; text-align: right; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Bonus</th>`;
@@ -1964,14 +1966,15 @@
                         html += `<td style="padding: 6px; text-align: right; color: #64ffda; font-weight: bold; font-size: 0.9em;">${perfPoints.most_birdies}</td>`;
                         html += `</tr>`;
                     }
-                    html += `</tbody></table>`;
+                    html += `</tbody></table></div>`;
                 }
 
                 // Course Tier Multipliers - Only show if enabled in points system
                 const multiplierEnabled = courseMultiplier && courseMultiplier.enabled !== false;
                 if (multiplierEnabled && uniqueTiers && uniqueTiers.length > 0) {
                     html += `<h4 style="color: #ff6600; margin-top: 20px; font-size: 1em;">🏞️ Course Multipliers</h4>`;
-                    html += `<table style="width: 90%; border-collapse: collapse; margin: 0 auto 20px auto;">`;
+                    html += `<div style="width: 100%; max-width: 500px; margin: 0 auto;">`;
+                    html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`;
                     html += `<thead><tr style="background: rgba(100, 255, 218, 0.1);">`;
                     html += `<th style="padding: 8px; text-align: left; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Difficulty</th>`;
                     html += `<th style="padding: 8px; text-align: center; border-bottom: 2px solid rgba(255, 102, 0, 0.4); font-size: 0.9em;">Multiplier</th>`;
@@ -1984,7 +1987,7 @@
                         html += `<td style="padding: 6px; text-align: center; color: #ff6600; font-weight: bold; font-size: 0.9em;">${tier.multiplier}x</td>`;
                         html += `</tr>`;
                     });
-                    html += `</tbody></table>`;
+                    html += `</tbody></table></div>`;
                     html += `<p style="font-size: 0.75em; color: rgba(230, 241, 255, 0.6); font-style: italic; margin-top: 5px;">* All points multiplied by course tier</p>`;
                 } else if (!multiplierEnabled) {
                     html += `<p style="font-size: 0.85em; color: rgba(230, 241, 255, 0.7); font-style: italic; margin-top: 20px; text-align: center;">Course difficulty multipliers are not applied for this event.</p>`;
