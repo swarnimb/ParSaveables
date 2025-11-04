@@ -1,5 +1,156 @@
 # ParSaveables - Changes Log
 
+## 2025-11-04: Admin Panel & UI Enhancements
+
+### Major Features Added
+
+#### 🔧 Comprehensive Admin Panel
+**New File:** `ParSaveablesDashboard/admin.html`
+
+**Authentication:**
+- Supabase Auth integration for secure admin access
+- Session management and logout functionality
+- Protected routes requiring authentication
+
+**Five Core Features:**
+
+1. **📊 Points Systems Management**
+   - Create, edit, and delete points systems
+   - JSONB configuration editor for rank points, performance bonuses, tie-breaking, course multipliers
+   - View all points systems in clean table format
+   - Supports multiple scoring systems (seasons, tournaments, custom events)
+
+2. **🏞️ Courses Management**
+   - Add, edit, and delete disc golf courses
+   - Set course difficulty tiers (1-4: Beginner, Intermediate, Advanced, Expert)
+   - Configure course multipliers (1.0x - 5.0x)
+   - Toggle active/inactive status
+
+3. **🏆 Events Management**
+   - Create seasons and tournaments
+   - Link events to specific points systems
+   - Set event dates and years
+   - Manage active/inactive events
+
+4. **💾 Data Import/Export**
+   - Export individual tables (points_systems, courses, events, rounds, player_rounds)
+   - Full database backup with timestamped JSON files
+   - Import data from JSON/CSV files
+   - Bulk data management capabilities
+
+5. **👥 User Management**
+   - Framework for inviting admin users (requires backend API implementation)
+   - Role-based access (Admin, Super Admin)
+   - Placeholder for future user administration features
+
+**Design:**
+- Matches main dashboard aesthetic (dark cyber/neon theme)
+- Fully responsive mobile design
+- Circular action buttons (36px × 36px uniform size)
+- Clean table layouts with minimal columns
+- Modal dialogs for create/edit operations
+
+#### 📊 Points System Rules Visual (Main Dashboard)
+**New Visual Card:**
+- Displays scoring rules for selected event
+- Shows placement points (1st-10th + default/participation)
+- Lists performance bonuses (Aces, Eagles, Birdies, Most Birdies)
+- Displays course difficulty multipliers (when enabled)
+- Conditional rendering based on points system configuration
+- Centered tables with consistent 500px max-width on desktop
+- Mobile-optimized with 76% width for proper visibility
+
+**Smart Display Logic:**
+- Shows course multipliers only if `course_multiplier.enabled: true`
+- For tournaments with disabled multipliers: displays message instead of table
+- Supports custom performance bonuses (e.g., Minneapolis "Most Birdies")
+
+#### 🎨 UI/UX Improvements
+
+**Button Standardization:**
+- All header buttons now 36px × 36px circular design
+- Admin (⚙️), Podcast (🎙️), Back (←), Logout (⏻) icons
+- Consistent positioning and alignment across desktop and mobile
+- Reduced from original 60px size for better proportions
+
+**Mobile Optimizations:**
+- Fixed button alignment issues (back/logout horizontal alignment)
+- Points System tables: 76% width, centered, both columns visible
+- Table font sizes reduced for mobile readability (0.65em)
+- Fixed column width ratios (65% labels, 35% values)
+- Eliminated horizontal scrolling issues
+- Background scroll behavior fixes
+
+**Typography:**
+- Admin section headings: 2em → 1.2em (40% reduction)
+- Main title "Control Panel" (removed settings icon)
+- Mobile-responsive font scaling
+
+#### 🗄️ Database Enhancements
+
+**New Points System Added:**
+- **Minneapolis 2024** tournament scoring
+- Rank points: 1st=5, 2nd=4, 3rd=3, 4th=2, 5th=1, default=0
+- Performance: 1 point for "Most Birdies" (no per-birdie/eagle/ace points)
+- Course multipliers disabled
+
+**RLS Policies Created:**
+- Public read access for points_systems and courses tables
+- Authenticated user INSERT/UPDATE/DELETE permissions
+- Properly secured admin operations
+
+**Database Scripts:**
+- `database/fix_points_system_links.sql`: Links events to points systems by name matching
+- Verified foreign key relationships working correctly
+
+### Files Modified
+
+**Main Dashboard:**
+- `ParSaveablesDashboard/index.html`
+  - Added admin button (top-left, 36px circular)
+  - Implemented Points System Rules visual card
+  - Mobile table optimization (76% width, centered)
+  - Chart axis titles removed ("Month", "Points")
+  - Chat message font reduced 25%
+  - All borders/shadows removed from chat section
+
+**New Files Created:**
+- `ParSaveablesDashboard/admin.html` (1373 lines)
+- `database/fix_points_system_links.sql`
+
+### Bug Fixes
+
+**Mobile Issues:**
+- Fixed chat box expansion on mobile (120px → 300px height)
+- Fixed background scroll glitch (removed fixed attachment on mobile)
+- Fixed delete buttons appearing next to logout (CSS selector specificity)
+- Fixed Points System tables overflow and left-alignment
+
+**Desktop Issues:**
+- Removed white border line above chatbot
+- Fixed pun banner spacing and animations
+- Centered all Points System visual tables consistently
+
+### Technical Improvements
+
+**Code Quality:**
+- Comprehensive error handling with detailed console logging
+- Test functions for debugging (e.g., `testPointsSystemFetch`)
+- JSONB config parsing with fallback handling
+- Conditional rendering based on configuration state
+
+**Performance:**
+- Reduced unnecessary queries
+- Optimized table rendering
+- Efficient mobile CSS overrides
+
+### Database Schema Updates
+- No schema changes (used existing tables)
+- Populated points_systems with 3 configurations (Season 2025, Portlandia 2025, Minneapolis 2024)
+- Linked all active events to appropriate points systems
+
+---
+
 ## 2025-11-03: Pun Banner Feature
 
 ### Changes Implemented

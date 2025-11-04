@@ -2,7 +2,16 @@
 
 ## 1. Supabase Database Setup
 
-### Create Tables
+### Create Configuration Tables
+
+Run the migration script `database/migrations/001_add_config_tables.sql` to create:
+- `points_systems`: Scoring configurations (JSONB-based)
+- `courses`: Course tiers and multipliers
+- `events`: Seasons and tournaments with date ranges
+
+Then run `database/seed_data.sql` to populate initial configurations.
+
+### Create Core Tables
 
 **Table: `rounds`**
 ```sql
@@ -49,9 +58,12 @@ CREATE TABLE player_rounds (
 ### Enable Row Level Security (RLS)
 
 ```sql
--- Enable RLS
+-- Enable RLS on all tables
 ALTER TABLE rounds ENABLE ROW LEVEL SECURITY;
 ALTER TABLE player_rounds ENABLE ROW LEVEL SECURITY;
+ALTER TABLE points_systems ENABLE ROW LEVEL SECURITY;
+ALTER TABLE courses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 
 -- Allow public read access
 CREATE POLICY "Allow public read access" ON rounds
@@ -59,6 +71,43 @@ CREATE POLICY "Allow public read access" ON rounds
 
 CREATE POLICY "Allow public read access" ON player_rounds
   FOR SELECT USING (true);
+
+CREATE POLICY "Allow public read access" ON points_systems
+  FOR SELECT USING (true);
+
+CREATE POLICY "Allow public read access" ON courses
+  FOR SELECT USING (true);
+
+CREATE POLICY "Allow public read access" ON events
+  FOR SELECT USING (true);
+
+-- Admin write access (requires authentication)
+CREATE POLICY "Enable insert for authenticated users" ON points_systems
+  FOR INSERT TO authenticated WITH CHECK (true);
+
+CREATE POLICY "Enable update for authenticated users" ON points_systems
+  FOR UPDATE TO authenticated USING (true);
+
+CREATE POLICY "Enable delete for authenticated users" ON points_systems
+  FOR DELETE TO authenticated USING (true);
+
+CREATE POLICY "Enable insert for authenticated users" ON courses
+  FOR INSERT TO authenticated WITH CHECK (true);
+
+CREATE POLICY "Enable update for authenticated users" ON courses
+  FOR UPDATE TO authenticated USING (true);
+
+CREATE POLICY "Enable delete for authenticated users" ON courses
+  FOR DELETE TO authenticated USING (true);
+
+CREATE POLICY "Enable insert for authenticated users" ON events
+  FOR INSERT TO authenticated WITH CHECK (true);
+
+CREATE POLICY "Enable update for authenticated users" ON events
+  FOR UPDATE TO authenticated USING (true);
+
+CREATE POLICY "Enable delete for authenticated users" ON events
+  FOR DELETE TO authenticated USING (true);
 ```
 
 ### Get API Credentials
@@ -126,6 +175,8 @@ n8n start
 
 ## 4. Dashboard Configuration
 
+### Main Dashboard
+
 Edit `ParSaveablesDashboard/index.html`:
 
 ```javascript
@@ -134,6 +185,22 @@ const SUPABASE_URL = 'https://[your-project].supabase.co';
 const SUPABASE_KEY = 'eyJ...'; // Your anon public key
 const N8N_CHATBOT_URL = 'https://[your-n8n]/webhook/chatbot';
 ```
+
+### Admin Panel
+
+Edit `ParSaveablesDashboard/admin.html`:
+
+```javascript
+// Line ~50-51
+const SUPABASE_URL = 'https://[your-project].supabase.co';
+const SUPABASE_KEY = 'eyJ...'; // Your anon public key
+```
+
+**Enable Supabase Authentication:**
+1. Go to Supabase Dashboard > Authentication
+2. Enable Email provider
+3. Create user accounts for administrators
+4. Users must sign in to access admin panel features
 
 ## 5. Testing
 
@@ -146,6 +213,13 @@ const N8N_CHATBOT_URL = 'https://[your-n8n]/webhook/chatbot';
 1. Open `index.html` in browser
 2. Verify data loads
 3. Test chatbot with questions
+4. Verify Points System visual displays correctly
+
+### Test Admin Panel
+1. Open `admin.html` in browser
+2. Sign in with administrator credentials
+3. Test CRUD operations on points systems, courses, and events
+4. Verify data persists correctly
 
 ### Test Chatbot
 ```bash

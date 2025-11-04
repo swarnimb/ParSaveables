@@ -7,6 +7,8 @@ A disc golf amateur season score tracking system with an AI-powered chatbot and 
 - **Automated Scorecard Processing**: Upload UDisc scorecard screenshots to GroupMe, automatically extract and calculate scores
 - **AI Chatbot**: Ask questions about player stats, leaderboards, and course performance
 - **Real-time Dashboard**: View season standings, player statistics, and performance trends
+- **Admin Panel**: Full CRUD interface for managing points systems, courses, events, and data import/export
+- **Points System Visual**: Dynamic display of scoring rules showing placement points, performance bonuses, and course multipliers
 - **Fun Pun Banner**: 200 hilarious disc golf one-liners rotating on the dashboard for entertainment
 - **Configuration-Driven**: Course tiers and points systems stored in database (no code changes needed)
 - **Multi-Event Support**: Separate scoring for seasons and tournaments
@@ -38,7 +40,8 @@ ParSaveables/
 │       ├── calculate-points.js       # Enterprise-grade points calculator
 │       └── load-configuration.js     # Database config loader
 ├── ParSaveablesDashboard/     # Frontend application
-│   └── index.html             # Main dashboard
+│   ├── index.html             # Main dashboard
+│   └── admin.html             # Admin panel
 └── README.md                  # This file
 ```
 
@@ -83,6 +86,14 @@ Use the chatbot to query stats:
 - "What's David's average score?"
 - "Best round at Zilker?"
 
+### Admin Panel
+Access the admin panel at `/admin.html` (requires Supabase authentication):
+- **Points Systems Management**: Create/edit/delete scoring configurations
+- **Courses Management**: Manage course tiers and multipliers
+- **Events Management**: Configure seasons and tournaments
+- **Data Import/Export**: Bulk operations for data management
+- **User Management**: View registered users
+
 ## Database Schema
 
 ### Tables
@@ -103,12 +114,20 @@ See `docs/SETUP.md` for complete schema.
 - **Performance**: Birdie=1, Eagle=3, Ace=5
 - **Course Multiplier**: Applied based on tier (1.0x - 2.5x)
 
-### Tournament Example (Portlandia 2025)
+### Tournament Examples
+
+**Portlandia 2025**
 - **Rank Points**: 1st=15, 2nd=12, 3rd=9, 4th=7, 5th=6, 6th=5, 7th=3
 - **Performance**: Birdie=1, Eagle=5, Ace=10
 - **Course Multiplier**: Disabled (1.0x)
 
-**Adding new tournaments or modifying points?** Just update the database - no code changes needed!
+**Minneapolis 2024**
+- **Rank Points**: 1st=15, 2nd=12, 3rd=9, 4th=7, 5th=6, 6th=5, 7th=3
+- **Performance**: No birdie/eagle/ace points
+- **Special Bonus**: Most birdies in tournament = 1 point
+- **Course Multiplier**: Disabled (1.0x)
+
+**Adding new tournaments or modifying points?** Use the admin panel - no code changes needed!
 
 ## Contributing
 
