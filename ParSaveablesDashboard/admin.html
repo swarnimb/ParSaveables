@@ -15,10 +15,11 @@
         body {
             font-family: 'Rajdhani', 'Orbitron', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #0a0e27 0%, #1a1d35 25%, #2d1b3d 50%, #1a1d35 75%, #0a0e27 100%);
-            background-attachment: fixed;
             min-height: 100vh;
             padding: 20px;
             color: #ffffff;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .container {
@@ -38,7 +39,7 @@
         }
 
         h1 {
-            font-size: 2.5em;
+            font-size: 1.875em;
             color: #ffd700;
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
         }
@@ -376,8 +377,14 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            body {
+                background-attachment: scroll;
+                position: relative;
+                overflow-x: hidden;
+            }
+
             h1 {
-                font-size: 1.8em;
+                font-size: 1.4em;
             }
 
             .back-btn {
@@ -446,9 +453,8 @@
         <!-- Admin Content -->
         <div id="adminContent">
             <header>
-                <button class="back-btn" onclick="window.location.href='index.html'">← Back to Dashboard</button>
-                <h1>⚙️ ParSaveables Admin Panel</h1>
-                <p style="color: #64ffda; margin-top: 10px;">Logged in as: <span id="userEmail"></span></p>
+                <button class="back-btn" onclick="window.location.href='index.html'">←</button>
+                <h1>⚙️ Control Panel</h1>
                 <button class="btn btn-danger" onclick="logout()" style="position: absolute; top: 20px; right: 20px;">Logout</button>
             </header>
 
@@ -743,7 +749,6 @@
                 // Show admin content
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';
-                document.getElementById('userEmail').textContent = email;
 
                 // Load initial data
                 loadPointsSystems();
@@ -765,7 +770,6 @@
             if (session) {
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';
-                document.getElementById('userEmail').textContent = session.user.email;
                 loadPointsSystems();
             }
         });
