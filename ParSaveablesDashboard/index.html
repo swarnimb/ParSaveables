@@ -1728,8 +1728,13 @@
                 const { data: eventConfig, error: configError } = await supabase
                     .from('events')
                     .select(`
-                        *,
-                        points_systems (
+                        id,
+                        name,
+                        type,
+                        start_date,
+                        end_date,
+                        points_system_id,
+                        points_systems!points_system_id (
                             id,
                             name,
                             config,
