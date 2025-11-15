@@ -1,0 +1,169 @@
+import { createClient } from '@supabase/supabase-js';
+import { config } from '../config/index.js';
+import { createLogger } from '../utils/logger.js';
+
+const logger = createLogger('DatabaseService');
+
+/**
+ * Initialize Supabase client
+ * Uses service role key for full database access (bypasses RLS)
+ */
+const supabase = createClient(
+  config.supabase.url,
+  config.supabase.serviceRoleKey
+);
+
+/**
+ * Get all registered players
+ * @returns {Promise<Array>} List of player objects with {id, player_name, active}
+ */
+export async function getRegisteredPlayers() {
+  logger.info('Fetching registered players');
+
+  const { data, error } = await supabase
+    .from('registered_players')
+    .select('*')
+    .eq('active', true);
+
+  if (error) {
+    logger.error('Failed to fetch registered players', error);
+    throw new Error(`Database error: ${error.message}`);
+  }
+
+  logger.info(`Found ${data.length} registered players`);
+  return data;
+}
+
+/**
+ * Find event (season or tournament) by date
+ * Prioritizes tournaments over seasons if both match
+ *
+ * @param {string} dateString - Date in YYYY-MM-DD format
+ * @returns {Promise<Object|null>} Event object or null if not found
+ */
+export async function findEventByDate(dateString) {
+  logger.info('Finding event by date', { date: dateString });
+
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .lte('start_date', dateString)  // start_date <= dateString
+    .gte('end_date', dateString)    // end_date >= dateString
+    .eq('is_active', true)
+    .order('type', { ascending: false }); // 'tournament' comes before 'season'
+
+  if (error) {
+    logger.error('Failed to find event', error);
+    throw new Error(`Database error: ${error.message}`);
+  }
+
+  // Return first match (tournament if exists, otherwise season)
+  const event = data?.[0] || null;
+
+  if (event) {
+    logger.info('Found event', { name: event.name, type: event.type });
+  } else {
+    logger.warn('No event found for date', { date: dateString });
+  }
+
+  return event;
+}
+
+/**
+ * Get all active courses with their tier and multiplier
+ * @returns {Promise<Array>} List of course objects
+ */
+export async function getCourses() {
+  logger.info('Fetching courses');
+
+  const { data, error } = await supabase
+    .from('courses')
+    .select('*')
+    .eq('active', true)
+    .order('tier', { ascending: true });
+
+  if (error) {
+    logger.error('Failed to fetch courses', error);
+    throw new Error(`Database error: ${error.message}`);
+  }
+
+  logger.info(`Found ${data.length} active courses`);
+  return data;
+}
+
+/**
+ * Get points system configuration by ID
+ * @param {number} pointsSystemId - ID from events.points_system_id
+ * @returns {Promise<Object>} Points system with parsed config JSON
+ */
+export async function getPointsSystem(pointsSystemId) {
+  logger.info('Fetching points system', { id: pointsSystemId });
+
+  const { data, error } = await supabase
+    .from('points_systems')
+    .select('*')
+    .eq('id', pointsSystemId)
+    .single();
+
+  if (error) {
+    logger.error('Failed to fetch points system', error);
+    throw new Error(`Database error: ${error.message}`);
+  }
+
+  logger.info('Points system loaded', { name: data.name });
+  return data;
+}
+
+/**
+ * Insert a new round into the database
+ * @param {Object} roundData - Round information
+ * @returns {Promise<Object>} Inserted round with generated ID
+ */
+export async function insertRound(roundData) {
+  logger.info('Inserting round', { course: roundData.course_name, date: roundData.date });
+
+  const { data, error } = await supabase
+    .from('rounds')
+    .insert(roundData)
+    .select()
+    .single();
+
+  if (error) {
+    logger.error('Failed to insert round', error);
+    throw new Error(`Database error: ${error.message}`);
+  }
+
+  logger.info('Round inserted', { id: data.id });
+  return data;
+}
+
+/**
+ * Insert multiple player rounds in a single transaction
+ * @param {Array<Object>} playerRounds - Array of player round objects
+ * @returns {Promise<Array>} Inserted player rounds
+ */
+export async function insertPlayerRounds(playerRounds) {
+  logger.info('Inserting player rounds', { count: playerRounds.length });
+
+  const { data, error } = await supabase
+    .from('player_rounds')
+    .insert(playerRounds)
+    .select();
+
+  if (error) {
+    logger.error('Failed to insert player rounds', error);
+    throw new Error(`Database error: ${error.message}`);
+  }
+
+  logger.info(`Inserted ${data.length} player rounds`);
+  return data;
+}
+
+export default {
+  getRegisteredPlayers,
+  findEventByDate,
+  getCourses,
+  getPointsSystem,
+  insertRound,
+  insertPlayerRounds
+};
