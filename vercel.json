@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "ParSaveablesDashboard/index.html",
+      "src": "public/index.html",
       "use": "@vercel/static"
     },
     {
@@ -20,7 +20,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "ParSaveablesDashboard/$1"
+      "dest": "public/$1"
     }
   ],
   "crons": [
