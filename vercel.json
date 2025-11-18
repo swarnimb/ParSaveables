@@ -11,12 +11,23 @@
       "config": {
         "maxDuration": 60
       }
+    },
+    {
+      "src": "src/api/chatbot.js",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30
+      }
     }
   ],
   "routes": [
     {
       "src": "/api/processScorecard",
       "dest": "src/api/processScorecard.js"
+    },
+    {
+      "src": "/api/chatbot",
+      "dest": "src/api/chatbot.js"
     },
     {
       "src": "/(.*)",

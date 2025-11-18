@@ -40,34 +40,52 @@ Dashboard (Static Site)
 ```
 ParSaveables/
 ├── .claude/                    # Claude Code context files
-│   └── REFACTOR_CONTEXT.md     # Development session context
-├── database/                   # Database migrations & seed data
-│   ├── migrations/             # Schema evolution
-│   ├── seed_data.sql           # Initial configuration
-│   └── import_2025_final.sql   # Historical data
+│   └── claude.md               # Development session context
+├── database/                   # Database scripts (organized by purpose)
+│   ├── migrations/             # Versioned schema changes
+│   │   ├── 001_add_config_tables.sql
+│   │   └── 002_add_podcast_tables.sql
+│   ├── seeds/                  # Repeatable initial configuration
+│   │   └── seed_data.sql
+│   ├── historical/             # One-time historical data imports
+│   │   ├── import_2025_final.sql
+│   │   ├── minneapolis_2024_data.sql
+│   │   └── 2025_Season.csv
+│   └── fixes/                  # Archived one-off corrections
+│       ├── clean_courses.sql
+│       └── fix_points_system_links.sql
 ├── docs/                       # Documentation
-│   ├── DEPLOYMENT.md           # Vercel deployment guide
-│   └── PODCAST_SYSTEM.md       # Podcast feature docs
+│   └── DEPLOYMENT.md           # Vercel deployment guide
+├── podcast/                    # Automated podcast generator
+│   └── README.md               # Podcast system documentation
 ├── public/                     # Frontend static assets
-│   ├── index.html              # Main dashboard
-│   └── admin.html              # Admin panel
+│   ├── index.html              # Main dashboard (leaderboard, chatbot)
+│   └── admin.html              # Admin panel (CRUD operations)
 ├── src/                        # Backend serverless code
 │   ├── api/                    # API endpoints (orchestrators)
-│   │   └── processScorecard.js # Main 12-step workflow
-│   ├── services/               # Business logic (microservices)
-│   │   ├── emailService.js     # Gmail API integration
-│   │   ├── visionService.js    # Claude Vision extraction
+│   │   ├── processScorecard.js # Main 12-step scorecard workflow
+│   │   └── chatbot.js          # AI chatbot for dashboard queries
+│   ├── services/               # Business logic (8 microservices)
+│   │   ├── databaseService.js  # Supabase CRUD operations
+│   │   ├── visionService.js    # Claude Vision API (scorecard extraction)
 │   │   ├── scoringService.js   # Stats calculation & ranking
-│   │   ├── eventService.js     # Event assignment
+│   │   ├── eventService.js     # Event assignment (season/tournament)
 │   │   ├── playerService.js    # Name validation (fuzzy matching)
 │   │   ├── configService.js    # Configuration loader
-│   │   ├── pointsService.js    # Points calculation
-│   │   └── databaseService.js  # Supabase operations
+│   │   ├── pointsService.js    # Points calculation with multipliers
+│   │   └── emailService.js     # Gmail API integration
 │   ├── config/                 # Environment configuration
-│   ├── utils/                  # Shared utilities (logger)
+│   │   └── index.js            # Load and validate env variables
+│   ├── utils/                  # Shared utilities
+│   │   └── logger.js           # Timestamped logging factory
 │   └── tests/                  # Unit tests (Node.js test runner)
+│       ├── chatbot.test.js
+│       ├── processScorecard.test.js
+│       └── [8 service test files]
 ├── .env.example                # Environment variables template
+├── .gitignore                  # Git exclusions (secrets, node_modules)
 ├── package.json                # Dependencies & npm scripts
+├── package-lock.json           # Locked dependency versions
 ├── vercel.json                 # Vercel deployment config
 └── README.md                   # This file
 ```
@@ -200,8 +218,12 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for complete guide including Gmail 
 
 ## API Endpoints
 
-- `POST /api/processScorecard` - Process new scorecards (manual trigger or cron)
-- Cron: Every 30 minutes
+- `POST /api/processScorecard` - Process new scorecards from Gmail (manual trigger or cron)
+  - Cron: Every 30 minutes
+  - 12-step workflow: email → vision → scoring → database
+- `POST /api/chatbot` - AI chatbot queries about stats, leaderboards, and courses
+  - Returns conversational answers using Claude Chat API
+  - Auto-detects query type (leaderboard, player stats, course info, recent rounds)
 
 ## Performance
 
