@@ -80,9 +80,40 @@ Use null for any field not visible. Return valid JSON only.`;
  * @throws {Error} If API call fails or response is invalid
  */
 export async function extractScorecardData(imageUrl) {
-  logger.info('Extracting scorecard data from image', { imageUrl });
+  logger.info('Extracting scorecard data from image');
 
   try {
+    // Parse data URL to extract base64 data
+    let imageSource;
+
+    if (imageUrl.startsWith('data:')) {
+      // Data URL format: data:image/jpeg;base64,/9j/4AAQSkZJRg...
+      const matches = imageUrl.match(/^data:(image\/[^;]+);base64,(.+)$/);
+
+      if (!matches) {
+        throw new Error('Invalid data URL format');
+      }
+
+      const mediaType = matches[1];  // e.g., 'image/jpeg'
+      const base64Data = matches[2]; // Base64 string without prefix
+
+      imageSource = {
+        type: 'base64',
+        media_type: mediaType,
+        data: base64Data
+      };
+
+      logger.info('Using base64 image data', { mediaType, dataLength: base64Data.length });
+    } else {
+      // Regular URL
+      imageSource = {
+        type: 'url',
+        url: imageUrl
+      };
+
+      logger.info('Using image URL', { url: imageUrl });
+    }
+
     const message = await anthropic.messages.create({
       model: config.anthropic.model,
       max_tokens: 4096,
@@ -93,10 +124,7 @@ export async function extractScorecardData(imageUrl) {
           content: [
             {
               type: 'image',
-              source: {
-                type: 'url',
-                url: imageUrl
-              }
+              source: imageSource
             },
             {
               type: 'text',
