@@ -112,7 +112,7 @@ TEST_SCORECARD_IMAGE_URL=https://example.com/scorecard.png
 
 **Build Settings:**
 - Build Command: (leave empty)
-- Output Directory: `ParSaveablesDashboard`
+- Output Directory: `public`
 - Install Command: `npm install`
 
 **Root Directory:** `.` (root of repository)
