@@ -4,9 +4,9 @@
 
 **Last Updated:** 2025-11-18
 
-**Branch:** `claude/cross-chat-context-01FUU29HUVAF5nUwTgNfHenV`
+**Branch:** `claude/review-project-docs-01EbeAEgEJfTBAiR2azFHu3E`
 
-**Status:** 7/8 services complete, orchestrators pending
+**Status:** 8/8 services complete, orchestrator complete, chatbot pending
 
  
 
@@ -16,13 +16,13 @@
 
 ## Quick Start (New Session)
 
- 
 
-1. **Verify branch:** `git checkout claude/cross-chat-context-01FUU29HUVAF5nUwTgNfHenV`
+
+1. **Verify branch:** `git checkout claude/review-project-docs-01EbeAEgEJfTBAiR2azFHu3E`
 
 2. **Check progress:** Review "Build Status" section below
 
-3. **Continue:** Start with emailService.js
+3. **Continue:** Build chatbot.js (final component)
 
 4. **Reference:** See "What's Been Built" for completed code patterns
 
@@ -82,9 +82,9 @@
 
  
 
-### ✅ Complete (7 services)
+### ✅ Complete (8 services + orchestrator)
 
- 
+
 
 **1. Infrastructure**
 
@@ -96,7 +96,7 @@
 
 - `src/utils/logger.js` - Timestamped logging
 
- 
+
 
 **2. Services**
 
@@ -114,25 +114,37 @@
 
 - `pointsService.js` (168 lines) - Calculate final points
 
- 
+- `emailService.js` (478 lines) - Gmail API integration
 
-**3. Tests** - All 7 services have comprehensive test files
 
- 
 
-**Total Code:** 1,228 lines
+**3. Orchestrator**
 
- 
+- `src/api/processScorecard.js` (491 lines) - Main 12-step workflow
 
-### ❌ Pending (3 components)
 
- 
 
-1. **emailService.js** - Gmail API integration (NEXT)
+**4. Deployment**
 
-2. **src/api/processScorecard.js** - Main orchestrator
+- `vercel.json` (35 lines) - Vercel serverless config with cron
 
-3. **src/api/chatbot.js** - Chatbot endpoint
+- `docs/DEPLOYMENT.md` (317 lines) - Updated for Vercel architecture
+
+
+
+**5. Tests** - All 8 services have comprehensive test files
+
+
+
+**Total Code:** 2,197 lines
+
+
+
+### ❌ Pending (1 component)
+
+
+
+1. **src/api/chatbot.js** - Chatbot endpoint for dashboard (NEXT)
 
  
 
@@ -616,167 +628,9 @@ player_rounds (id, round_id, player_name, rank, total_strokes, total_score,
 
 ## Next Steps - What to Build
 
- 
 
-### 1. emailService.js (PRIORITY 1 - NEXT)
 
- 
-
-**Purpose:** Gmail API integration to trigger workflow
-
- 
-
-**Functions Needed:**
-
-```javascript
-
-async function checkForNewEmails()
-
-// Poll Gmail inbox for unread emails
-
-// Filter for emails with image attachments
-
-// Return array of {emailId, imageUrl, receivedDate}
-
- 
-
-async function extractImageUrl(email)
-
-// Get attachment URL from email message
-
-// Handle both inline images and attachments
-
-// Return public-accessible image URL
-
- 
-
-async function markAsProcessed(emailId)
-
-// Mark email as read
-
-// Optionally label as "Processed"
-
- 
-
-async function sendErrorNotification(emailId, error)
-
-// Email user if processing failed
-
-// Include error details and original scorecard info
-
-```
-
- 
-
-**Gmail API Setup:**
-
-- OAuth2 flow with refresh token
-
-- Required scopes: `gmail.readonly`, `gmail.modify`
-
-- Credentials: `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN`
-
-- Library: `googleapis` (already in package.json)
-
- 
-
-**Test Strategy:**
-
-- Mock Gmail API responses
-
-- Test with sample email data structure
-
-- Verify OAuth token refresh logic
-
- 
-
-### 2. src/api/processScorecard.js (PRIORITY 2)
-
- 
-
-**Purpose:** Main orchestrator tying all services together
-
- 
-
-**Single Function:**
-
-```javascript
-
-export async function processNewScorecards()
-
-```
-
- 
-
-**Workflow (12 steps):**
-
-```javascript
-
-1. emailService.checkForNewEmails()
-
-2. For each email with image:
-
-   3. emailService.extractImageUrl(email)
-
-   4. visionService.extractScorecardData(imageUrl)
-
-   5. Check if valid scorecard (min 4 players)
-
-   6. scoringService.processScorecard(data) // stats + ranking
-
-   7. eventService.assignEvent(date)
-
-   8. playerService.validatePlayers(players)
-
-   9. configService.loadConfiguration(event, courseName)
-
-   10. pointsService.calculatePoints(players, config)
-
-   11. databaseService.insertRound(roundData)
-
-   12. databaseService.insertPlayerRounds(playerData)
-
-   13. emailService.markAsProcessed(emailId)
-
-   14. On error: emailService.sendErrorNotification(emailId, error)
-
-```
-
- 
-
-**Error Handling:**
-
-- Wrap each step in try/catch
-
-- Log all errors with context
-
-- Continue processing other emails if one fails
-
-- Send notification email on any failure
-
- 
-
-**Return Value:**
-
-```javascript
-
-{
-
-  processed: number,      // Successfully processed
-
-  failed: number,         // Failed processing
-
-  skipped: number,        // Invalid scorecards
-
-  errors: Array<Object>   // Error details
-
-}
-
-```
-
- 
-
-### 3. src/api/chatbot.js (PRIORITY 3)
+### 1. src/api/chatbot.js (PRIORITY 1 - NEXT)
 
  
 
@@ -1210,9 +1064,9 @@ console.log('\n🧪 Running serviceName tests...\n');
 
 ### Branches
 
-- `main` - Production code (HTML dashboard, old n8n docs)
+- `main` - Production code (HTML dashboard)
 
-- `claude/cross-chat-context-01FUU29HUVAF5nUwTgNfHenV` - Current refactor work
+- `claude/review-project-docs-01EbeAEgEJfTBAiR2azFHu3E` - Current refactor work (8/8 services + orchestrator complete)
 
  
 
@@ -1336,7 +1190,7 @@ throw new Error('Player "John Doe" not in registry. Add via admin panel.');
 
 1. ✅ Read this file (`REFACTOR_CONTEXT.md`)
 
-2. ✅ Checkout branch: `claude/cross-chat-context-01FUU29HUVAF5nUwTgNfHenV`
+2. ✅ Checkout branch: `claude/review-project-docs-01EbeAEgEJfTBAiR2azFHu3E`
 
 3. ✅ Review "Build Status" to see what's complete
 
@@ -1346,7 +1200,7 @@ throw new Error('Player "John Doe" not in registry. Add via admin panel.');
 
 6. ✅ Use "Common Patterns" for consistency
 
-7. ✅ Commit after each service complete
+7. ✅ Commit after each component complete
 
  
 
@@ -1370,8 +1224,8 @@ throw new Error('Player "John Doe" not in registry. Add via admin panel.');
 
 **Last Updated:** 2025-11-18
 
-**Next Action:** Build `emailService.js` with Gmail API integration
+**Next Action:** Build `src/api/chatbot.js` - Dashboard AI assistant endpoint
 
-**Current Progress:** 7/8 services complete (87%)
+**Current Progress:** 8/8 services complete, orchestrator complete - only chatbot.js remains
 
  
