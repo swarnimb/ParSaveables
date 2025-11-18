@@ -1,451 +1,430 @@
-# 🎙️ Chain Reactions - ParSaveables Podcast Generator
+# ParSaveables - Podcast System Documentation
 
-Automated podcast generation system for the "Chain Reactions" disc golf podcast. Generates professional-quality episodes from tournament data using AI script generation and text-to-speech.
+## Overview
 
-## 📋 Features
+The ParSaveables Podcast System is an automated podcast generator that creates AI-powered disc golf commentary podcasts featuring two hosts: Hyzer and Annie. The system fetches tournament and season data from Supabase, generates conversational scripts using Claude AI, converts them to audio using text-to-speech services, and publishes episodes to GitHub Releases.
 
-- **🤖 AI-Powered Scripts**: Claude AI generates engaging, funny scripts with sports commentary energy
-- **🎤 Natural Audio**: Google Cloud Text-to-Speech with Neural2 voices (free tier: 1M chars/month)
-- **🎵 Professional Mixing**: FFmpeg integration for intro/outro music with crossfades
-- **📤 Automatic Hosting**: Uploads to GitHub releases for free MP3 hosting
-- **💾 Database Integration**: Fetches all data from Supabase, saves episode metadata
-- **💰 Cost Tracking**: Logs API usage and costs for each episode
+**Podcast Name:** Chain Reactions
+**Tagline:** The world of heavy bags, curses, and pocket beers
 
-## 🎯 Episode Types
+## Architecture
 
-### Season Recap (10 minutes)
-Comprehensive review of full season including tournaments:
-- Minneapolis 2024 tournament recap
-- Full Season 2025 standings and highlights
-- Portlandia 2025 tournament recap
-- Player spotlights, fun facts, memorable moments
+### Components
 
-### Monthly Recap (5 minutes)
-Quick roundup of month's activity:
-- Rounds played and courses visited
-- Leaderboard changes
-- Notable performances
-- Preview of upcoming events
+1. **Data Fetcher** (`lib/data-fetcher.js`)
+   - Connects to Supabase database
+   - Fetches season and tournament data
+   - Retrieves player stats, round information, course details
 
-## 🚀 Quick Start
+2. **Script Generator** (`lib/dialogue-script-generator.js`)
+   - Uses Claude AI (Anthropic) to generate natural dialogue scripts
+   - Creates conversational banter between Hyzer and Annie
+   - Formats output as structured dialogue (SPEAKER: text)
 
-### Prerequisites
+3. **Audio Generators**
+   - **ElevenLabs TTS** (`lib/elevenlabs-audio-generator.js`) - Premium human-like voices
+   - **Google Cloud TTS** (`lib/google-audio-generator.js`) - Fallback option
 
-1. **Node.js** 18.0.0 or higher
-2. **FFmpeg** installed on system ([Download](https://ffmpeg.org/download.html))
-3. **Google Cloud Account** (free tier) with Text-to-Speech API enabled
-4. **GitHub Personal Access Token** with `repo` permissions
-5. **Supabase** credentials (service role key)
-6. **Anthropic API Key** (for Claude AI)
+4. **Audio Mixer** (`lib/audio-mixer.js`)
+   - Uses FFmpeg to combine intro music, dialogue, and outro music
+   - Handles fades, transitions, and volume ducking
+   - Exports final MP3 podcast episode
 
-### Installation
+5. **GitHub Uploader** (`lib/github-uploader.js`)
+   - Creates GitHub releases for each episode
+   - Uploads MP3 files as release assets
+   - Generates episode metadata and show notes
+
+### Workflow Scripts
+
+- `generate-podcast.js` - Full automated workflow (data → script → audio → upload)
+- `generate-dialogue-podcast.js` - Dialogue-focused generation
+- `generate-from-existing-script.js` - Generate audio from manually edited scripts
+- Test scripts: `test-script-generation.js`, `test-audio-generation.js`, `test-data-fetcher.js`
+
+## Voice Configuration
+
+### ElevenLabs (Primary - Free Tier)
+
+**Character Limit:** 10,000 characters/month (free tier)
+
+**Selected Voices:**
+- **Hyzer:** Andriy Tkachenko (`hWHihsTve3RbzG4PHDBQ`) - Sports commentary energy
+- **Annie:** Cat (`54Cze5LrTSyLgbO6Fhlc`) - Sarcastic/witty personality
+
+**Voice Settings:**
+```javascript
+{
+  stability: 0.5,        // 0-1: Lower = more variable/expressive
+  similarity_boost: 0.75, // 0-1: Higher = closer to original voice
+  style: 0.5,            // 0-1: Exaggeration of speaking style
+  use_speaker_boost: true
+}
+```
+
+**Features:**
+- Character usage tracking
+- Progress saving (resume interrupted generations)
+- Retry logic (3 attempts per segment)
+- Automatic character limit warnings
+
+### Google Cloud TTS (Fallback)
+
+**Voices:**
+- **Hyzer:** `en-US-Neural2-J` (MALE)
+- **Annie:** `en-US-Neural2-F` (FEMALE)
+
+**Features:**
+- SSML support for prosody, emphasis, pauses
+- No character limits
+- More robotic than ElevenLabs
+
+### Provider Switching
+
+Set in `.env`:
+```bash
+TTS_PROVIDER=elevenlabs  # or 'google'
+```
+
+## Audio Production
+
+### Music Assets
+
+Located in `podcast/assets/`:
+- `intro-music.mp3` - Opening theme (12 seconds by default)
+- `outro-music.mp3` - Closing theme (15 seconds by default)
+
+### Audio Mixing Strategies
+
+**1. Simple Concatenate (Current Default)**
+```
+Intro (12s, fades out over 10s) → Voice (delayed 8s to overlap) → Outro (15s)
+```
+
+**2. Full Mix (Alternative)**
+```
+Intro (full volume → fade) → Voice (clean) → Outro (fade in)
+```
+
+**3. Music Bed (Not Currently Used)**
+```
+Voice (100%) + Background music (20%) throughout
+```
+
+### FFmpeg Configuration
+
+**Path (Windows):** `C:\ffmpeg\ffmpeg-8.0-essentials_build\bin\ffmpeg.exe`
+
+**Output Settings:**
+- Codec: MP3 (libmp3lame)
+- Bitrate: 128 kbps
+- Sample Rate: 44.1 kHz
+- Channels: Stereo
+
+## Configuration
+
+### Environment Variables (.env)
+
+```bash
+# Supabase
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Claude AI
+ANTHROPIC_API_KEY=your_anthropic_api_key
+
+# Text-to-Speech
+TTS_PROVIDER=elevenlabs
+ELEVENLABS_API_KEY=your_elevenlabs_api_key
+ELEVENLABS_HYZER_VOICE=hWHihsTve3RbzG4PHDBQ
+ELEVENLABS_ANNIE_VOICE=54Cze5LrTSyLgbO6Fhlc
+
+# Google Cloud TTS (optional)
+GOOGLE_APPLICATION_CREDENTIALS=./google-cloud-credentials.json
+
+# GitHub
+GITHUB_TOKEN=your_github_token
+GITHUB_OWNER=your_username
+GITHUB_REPO=ParSaveables
+
+# Audio Settings
+INTRO_DURATION_SECONDS=12
+OUTRO_DURATION_SECONDS=15
+INTRO_MUSIC_PATH=./assets/intro-music.mp3
+OUTRO_MUSIC_PATH=./assets/outro-music.mp3
+
+# Podcast Metadata
+PODCAST_SHOW_NAME=Par Saveables
+PODCAST_TAGLINE=The world of heavy bags, curses, and pocket beers
+```
+
+### NPM Scripts
+
+```bash
+# Full generation workflows
+npm run generate                 # Auto-detect event type
+npm run generate:season          # Force season recap
+npm run generate:monthly         # Monthly recap
+npm run generate:dialogue        # Dialogue podcast
+
+# Generate from existing script (skip AI generation)
+npm run generate:existing
+
+# Testing
+npm run test:script             # Test script generation only
+npm run test:audio              # Test audio generation only
+npm run test:data               # Test data fetcher only
+```
+
+## Usage Examples
+
+### Generate Podcast from Scratch
 
 ```bash
 cd podcast
-npm install
+npm run generate
 ```
 
-### Configuration
+**Steps:**
+1. Fetches data from Supabase
+2. Generates dialogue script with Claude AI
+3. Converts script to audio (ElevenLabs or Google)
+4. Mixes audio with intro/outro music
+5. Uploads to GitHub Releases
 
-1. Copy `.env.example` to `.env`:
+### Generate from Manually Edited Script
+
 ```bash
-cp .env.example .env
+# 1. Edit the script file
+# podcast/output/Par-Saveables-EP01-Script.txt
+
+# 2. Generate audio from edited script
+npm run generate:existing
 ```
 
-2. Fill in credentials in `.env`:
-```env
-# Required
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-ANTHROPIC_API_KEY=sk-ant-your-api-key
-GITHUB_TOKEN=ghp_your-github-token
-GITHUB_OWNER=your-github-username
+**Use Case:** When you want to manually tweak the AI-generated script before creating audio.
 
-# Optional (has defaults)
-GOOGLE_APPLICATION_CREDENTIALS=./google-cloud-credentials.json
-INTRO_MUSIC_PATH=./assets/intro-music.mp3
-OUTRO_MUSIC_PATH=./assets/outro-music.mp3
-```
-
-3. Setup Google Cloud credentials:
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Create project → Enable Text-to-Speech API
-   - Create service account → Download JSON key
-   - Save as `google-cloud-credentials.json` in podcast folder
-
-4. Download intro/outro music (see `MUSIC_SOURCES.md` for recommendations)
-
-### Test Installation
+### Test Components Individually
 
 ```bash
 # Test data fetching
-node test-data-fetcher.js
+npm run test:data
 
-# Should output:
-# ✅ All 5 tests passed!
-# Data fetcher is working correctly. Ready to generate podcasts!
+# Test script generation (no audio)
+npm run test:script
+
+# Test audio generation (with existing script)
+npm run test:audio
 ```
 
-## 📖 Usage
+## Character Usage Tracking (ElevenLabs)
 
-### Generate Season Recap (Episode 1)
+The system automatically tracks character usage to stay within the free tier limit:
 
-```bash
-npm run generate:season
+```
+Generating 45 segments...
+  [1/45] HYZER: Welcome back to Par Saveables... (67 chars)
+  [2/45] ANNIE: Thanks Hyzer! Today we're breaking down... (82 chars)
+  ...
 
-# Or with custom year:
-node generate-podcast.js --type=season --year=2025
+✓ Generated 45 audio segments
+📊 Total characters used: 6,100/10,000 (61%)
+💡 Remaining: 3,900 characters (~28 segments)
 ```
 
-**Output:**
-- Script saved to database (`podcast_scripts` table)
-- MP3 generated: `output/Chain-Reactions-Episode-1-2025-Season-Recap.mp3`
-- Uploaded to GitHub: `https://github.com/user/ParSaveables/releases/tag/podcast-ep1`
-- Metadata saved to database (`podcast_episodes` table)
+**Estimate:** A 7-minute episode typically uses 6,000-7,000 characters, allowing 1-2 episodes per month on free tier.
 
-### Generate Monthly Recap
+## Dashboard Integration
 
-```bash
-npm run generate:monthly
+### Podcast Button & Modal
 
-# Or with specific month:
-node generate-podcast.js --type=monthly --month=9 --year=2025
+The ParSaveables dashboard now includes a podcast player:
+
+**Location:** Header navigation bar (🎙️ Podcasts button)
+
+**Features:**
+- Fetches episodes from GitHub Releases API
+- Displays episode list in scrollable modal
+- Inline HTML5 audio player for each episode
+- Glassmorphism design matching dashboard aesthetic
+- Mobile responsive
+
+**Implementation:**
+```javascript
+// Fetch from GitHub Releases
+fetch('https://api.github.com/repos/owner/ParSaveables/releases')
+
+// Filter releases with .mp3 assets
+const podcastReleases = releases.filter(release =>
+  release.assets.some(asset => asset.name.endsWith('.mp3'))
+);
+
+// Create player for each episode
+const audioPlayer = document.createElement('audio');
+audioPlayer.controls = true;
+audioPlayer.src = audioUrl;
 ```
 
-## 🏗️ Project Structure
+**CSS Highlights:**
+- Modal: `backdrop-filter: blur(10px)` for glassmorphism
+- Episodes: Hover effect with `transform: translateX(5px)`
+- Responsive: Max height `80vh` with scrollable content
+
+## Output Files
+
+### Directory Structure
 
 ```
 podcast/
-├── lib/
-│   ├── data-fetcher.js       # Supabase queries
-│   ├── script-generator.js   # Claude AI script generation
-│   ├── audio-generator.js    # Google TTS audio creation
-│   ├── audio-mixer.js        # FFmpeg mixing
-│   └── github-uploader.js    # GitHub release upload
-├── assets/
-│   ├── intro-music.mp3       # 20-second intro
-│   └── outro-music.mp3       # 15-second outro
-├── output/                   # Final MP3 files
-├── temp/                     # Temporary working files
-├── generate-podcast.js       # Main orchestrator
-├── test-data-fetcher.js      # Data fetching tests
-├── package.json
-├── .env                      # Configuration (create from .env.example)
-├── .env.example              # Template
-├── MUSIC_SOURCES.md          # Music download guide
-└── README.md                 # This file
+├── output/
+│   ├── Par-Saveables-EP01-Script.txt          # Generated dialogue script
+│   ├── Par-Saveables-Episode-1-*.mp3          # Final podcast audio
+│   └── episode-metadata.json                  # Episode info
+├── temp/
+│   ├── dialogue-voice.mp3                     # TTS output (before mixing)
+│   ├── segment-000-HYZER.mp3                  # Individual audio segments
+│   ├── segment-001-ANNIE.mp3
+│   └── elevenlabs-progress.json               # Progress tracker
+└── assets/
+    ├── intro-music.mp3
+    └── outro-music.mp3
 ```
 
-## 🎵 Audio Configuration
+### GitHub Release Structure
 
-### Voice Settings (`.env`)
+**Release Title:** `Podcast Episode 1: Season Recap`
 
-```env
-TTS_VOICE_NAME=en-US-Neural2-J    # Male, energetic
-TTS_VOICE_GENDER=MALE
-TTS_SPEAKING_RATE=1.0             # Normal speed
-TTS_PITCH=0.0                     # Normal pitch
+**Assets:**
+- `Par-Saveables-EP01-2025-Season-Recap.mp3` (audio file)
+
+**Description:**
+```markdown
+# 🎙️ Episode 1: 2025 Season Spectacular
+
+The complete 2025 Par Saveables season recap! Hyzer and Annie break down
+Minneapolis 2024, the full season, and the dramatic Portlandia 2025 tournament.
+
+🎙️ Featuring: Pocket beer controversies, scoring format drama, and the
+biggest controversy that shall not be named!
+
+🏆 Season Winner: Player Name (123 pts)
+
+The world of heavy bags, curses, and pocket beers!
+
+---
+Duration: 7:32
+Generated: 2025-10-31
 ```
 
-**Available Voices:** [Google Cloud TTS Voices](https://cloud.google.com/text-to-speech/docs/voices)
+## Known Issues & Workarounds
 
-Recommended alternatives:
-- `en-US-Neural2-D` - Male, deep voice
-- `en-US-Neural2-A` - Female, clear
-- `en-US-Neural2-I` - Male, casual
+### Issue 1: ElevenLabs Voice Selection
+**Problem:** User didn't like the initial voice pairing (Andriy/Cat)
+**Status:** Waiting for credit refresh to test new voices
+**Workaround:** Use `generate-from-existing-script.js` to regenerate audio without using script generation credits
 
-### Music Setup
-
-See `MUSIC_SOURCES.md` for detailed guide on downloading royalty-free music.
-
-**Quick Option**: Start with voice-only (no music files), add later:
-```bash
-# Will generate voice-only if music files not found
-npm run generate:season
-```
-
-## 💰 Cost Breakdown
-
-### Per Episode Costs
-
-| Service | Season Recap (10 min) | Monthly Recap (5 min) | Free Tier |
-|---------|----------------------|---------------------|-----------|
-| Claude AI (Script) | $0.50 | $0.25 | ❌ Pay per use |
-| Google TTS (Audio) | $0.00 | $0.00 | ✅ 1M chars/month |
-| FFmpeg (Mixing) | $0.00 | $0.00 | ✅ Free forever |
-| GitHub (Hosting) | $0.00 | $0.00 | ✅ Free forever |
-| **Total** | **$0.50** | **$0.25** | |
-
-### Annual Costs (13 episodes)
-
-- 1 season recap: $0.50
-- 12 monthly recaps: $3.00
-- **Total: ~$3.50/year**
-
-All costs logged to `podcast_generation_logs` table for tracking.
-
-## 🗄️ Database Tables
-
-### podcast_episodes
-Stores published episode metadata:
-```sql
-- episode_number: INTEGER (unique)
-- title: TEXT
-- description: TEXT
-- type: TEXT (season_recap, monthly_recap)
-- audio_url: TEXT (GitHub download URL)
-- duration_seconds: INTEGER
-- file_size_mb: DECIMAL
-- published_at: TIMESTAMP
-- is_published: BOOLEAN
-```
-
-### podcast_scripts
-Stores AI-generated scripts:
-```sql
-- episode_id: INTEGER (FK to podcast_episodes)
-- script_text: TEXT
-- word_count: INTEGER
-- estimated_duration_minutes: INTEGER
-- generated_by: TEXT (AI model)
-- status: TEXT (draft, approved)
-```
-
-### podcast_generation_logs
-Tracks generation process:
-```sql
-- episode_id: INTEGER
-- stage: TEXT (script_generation, audio_generation, upload, complete)
-- success: BOOLEAN
-- api_costs: JSONB
-- error_message: TEXT
-```
-
-## 🐛 Troubleshooting
-
-### "Missing required environment variables"
-
-**Solution:** Check `.env` file has all required values:
-```bash
-cat .env | grep -E "SUPABASE_URL|ANTHROPIC_API_KEY|GITHUB_TOKEN"
-```
-
-### "FFmpeg not found"
-
-**Solution:** Install FFmpeg:
-- **Mac**: `brew install ffmpeg`
-- **Windows**: Download from [ffmpeg.org](https://ffmpeg.org/download.html), add to PATH
-- **Linux**: `sudo apt-get install ffmpeg`
-
-Test: `ffmpeg -version`
-
-### "Google Cloud credentials not found"
-
-**Solution:**
-1. Download service account JSON from Google Cloud Console
-2. Save as `google-cloud-credentials.json` in podcast folder
-3. Or set absolute path in `.env`:
-   ```env
-   GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/credentials.json
-   ```
-
-### "Tournament not found: Minneapolis 2024"
-
-**Solution:** Check database has event with this name:
-```sql
-SELECT * FROM events WHERE name ILIKE '%Minneapolis%';
-```
-
-Update `generate-podcast.js` line 189 with correct event name.
-
-### "No rounds found for month"
-
-**Normal:** Some months have no rounds. Podcast generation will skip gracefully.
-
-### Music files not found
-
-**Non-blocking:** System will generate voice-only podcast. See `MUSIC_SOURCES.md` to add music later.
-
-## 📊 Testing
-
-### Test Data Fetching
-
-```bash
-node test-data-fetcher.js
-```
-
-**Expected output:**
-```
-✅ All 5 tests passed!
-  ✓ Registered players
-  ✓ Minneapolis 2024 tournament
-  ✓ Season 2025
-  ✓ Portlandia 2025 tournament
-  ✓ Monthly data
-```
-
-### Dry Run (Skip Upload)
-
-Generate podcast without uploading to GitHub:
-```bash
-node generate-podcast.js --type=season --skip-upload
-```
-
-## 🎓 How It Works
-
-### Full Pipeline
-
-```
-1. Fetch Data (Supabase)
-   ↓
-2. Generate Script (Claude AI)
-   ↓ (~30 seconds)
-3. Convert to Audio (Google TTS)
-   ↓ (~60 seconds)
-4. Mix with Music (FFmpeg)
-   ↓ (~10 seconds)
-5. Upload to GitHub (Releases)
-   ↓ (~30 seconds)
-6. Save Metadata (Supabase)
-   ↓
-7. Complete! (Total: ~2-3 minutes)
-```
-
-### Script Generation
-
-Claude AI receives:
-- Tournament data (winners, rounds, stats)
-- Season leaderboard (top 10 scoring)
-- Player achievements (aces, eagles, birdies)
-- Course information (most played, difficulty tiers)
-
-Generates:
-- Cold open with hook
-- Structured segments
-- Natural conversational flow
-- Disc golf puns and humor
-- Sports commentary energy
-
-### Audio Production
-
-Google TTS converts script to speech:
-- Neural2 voice for natural sound
-- SSML markup for pauses and emphasis
-- Speaking rate and pitch adjustments
-
-FFmpeg mixes:
-- 20-second intro music with fade-in
-- Voice audio
-- 15-second outro music with fade-out
-- Crossfades between segments
-- Volume normalization
-
-## 🚀 Deployment
-
-### GitHub Actions (Optional)
-
-Automate monthly podcasts with GitHub Actions:
-
-`.github/workflows/monthly-podcast.yml`:
-```yaml
-name: Generate Monthly Podcast
-on:
-  schedule:
-    - cron: '0 0 1 * *'  # First day of month
-  workflow_dispatch:  # Manual trigger
-
-jobs:
-  generate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - name: Install FFmpeg
-        run: sudo apt-get install -y ffmpeg
-      - name: Install dependencies
-        run: cd podcast && npm install
-      - name: Generate podcast
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: cd podcast && npm run generate:monthly
-```
-
-Add secrets in GitHub: Settings > Secrets > Actions
-
-## 🤝 Contributing
-
-### Adding New Episode Types
-
-1. Create new script template in `lib/script-generator.js`
-2. Add data fetching logic in `lib/data-fetcher.js`
-3. Update `generate-podcast.js` with new type
-4. Add npm script to `package.json`
-
-### Improving Scripts
-
-Edit prompts in `lib/script-generator.js`:
-- Line 45: Season recap prompt
-- Line 150: Monthly recap prompt
-
-### Custom Voices
-
-Browse voices: https://cloud.google.com/text-to-speech/docs/voices
-
-Test voice:
+### Issue 2: FFmpeg Path (Windows)
+**Problem:** FFmpeg must be manually installed on Windows
+**Solution:** Hardcoded path in `audio-mixer.js` and `elevenlabs-audio-generator.js`
 ```javascript
-import { listVoices } from './lib/audio-generator.js';
-const voices = await listVoices('./google-cloud-credentials.json');
-console.log(voices.filter(v => v.languageCode === 'en-US'));
+const ffmpegPath = 'C:\\ffmpeg\\ffmpeg-8.0-essentials_build\\bin\\ffmpeg.exe';
 ```
 
-## 📝 License
+### Issue 3: GitHub Asset Naming Conflicts
+**Problem:** Cannot upload same filename to existing release
+**Solution:** Append version suffix (e.g., `-v2`, `-v3`, `-ElevenLabs-v3`)
 
-MIT - Part of ParSaveables project
+## Future Enhancements
 
-## 🆘 Support
+Planned but not implemented:
+- [ ] Voice cloning for custom character voices (requires paid tier)
+- [ ] Automatic episode scheduling and publishing
+- [ ] RSS feed generation for podcast apps
+- [ ] Sound effects library (crowd reactions, disc throws)
+- [ ] Multi-episode season packs
+- [ ] Listener question integration
+- [ ] Transcription generation
+- [ ] Analytics dashboard (downloads, listeners)
 
-**Issues?**
-1. Check troubleshooting section above
-2. Run tests: `node test-data-fetcher.js`
-3. Enable debug mode: `DEBUG=true` in `.env`
-4. Check logs in `podcast_generation_logs` table
+## Legal & Ethical Considerations
 
-**Questions?**
-- Review this README
-- Check code comments in `lib/` files
-- See `MUSIC_SOURCES.md` for music help
+### Celebrity Voice Impersonation
+**Not Supported:** The system does not support celebrity voice cloning (e.g., Samuel L. Jackson, Cardi B)
 
-## 🎉 Next Steps
+**Reasons:**
+1. **Terms of Service:** ElevenLabs TOS prohibits impersonation without consent
+2. **Legal:** Right of publicity laws protect celebrity voices
+3. **Ethical:** Unauthorized voice cloning is deceptive
 
-1. **Generate first episode:**
-   ```bash
-   npm run generate:season
-   ```
+**Alternative:** Use personality-matched pre-made voices from free library
 
-2. **Share with league:**
-   - Post GitHub release URL to GroupMe
-   - Add to dashboard (optional)
+### Voice Cloning (User Voices)
+**Requires Paid Tier:** Voice cloning (Starter plan: $5/month minimum)
 
-3. **Setup monthly automation:**
-   - Add GitHub Actions workflow
-   - Or create manual reminder
+**Use Cases:**
+- Cloning your own voice (with consent)
+- Cloning voices of participants who've given written consent
 
-4. **Iterate on script quality:**
-   - Listen to first episode
-   - Adjust prompts in `script-generator.js`
-   - Regenerate if needed
+## Troubleshooting
+
+### Error: "ElevenLabs character limit exceeded"
+**Solution:** Switch to Google TTS fallback or wait for monthly credit refresh
+```bash
+# In .env
+TTS_PROVIDER=google
+```
+
+### Error: "FFmpeg not found"
+**Solution:** Install FFmpeg and update path in configuration
+```bash
+# Windows (with Chocolatey)
+choco install ffmpeg
+
+# Mac
+brew install ffmpeg
+
+# Linux
+apt-get install ffmpeg
+```
+
+### Error: "Script file not found"
+**Solution:** Run full generation first, then use `generate:existing`
+```bash
+npm run generate          # Creates script
+# Edit script manually
+npm run generate:existing # Uses edited script
+```
+
+### Audio Quality Issues
+**Solutions:**
+1. Increase bitrate in `audio-mixer.js`: Change `'-b:a', '128k'` to `'192k'`
+2. Use higher quality music assets (44.1 kHz, 320 kbps)
+3. Switch to ElevenLabs if using Google TTS
+
+## Dependencies
+
+```json
+{
+  "@elevenlabs/elevenlabs-js": "^2.20.1",
+  "@google-cloud/text-to-speech": "^5.0.1",
+  "@octokit/rest": "^20.0.2",
+  "@supabase/supabase-js": "^2.39.0",
+  "axios": "^1.6.2",
+  "dotenv": "^16.3.1",
+  "fluent-ffmpeg": "^2.1.2",
+  "fs-extra": "^11.2.0"
+}
+```
+
+**Node Version:** >=18.0.0
+
+## Resources
+
+- [ElevenLabs API Documentation](https://elevenlabs.io/docs)
+- [Google Cloud TTS Documentation](https://cloud.google.com/text-to-speech/docs)
+- [FFmpeg Documentation](https://ffmpeg.org/documentation.html)
+- [GitHub Releases API](https://docs.github.com/en/rest/releases)
 
 ---
 
-**Ready to generate your first podcast?** 🚀
-
-```bash
-npm run generate:season
-```
-
-Let's get this disc on the chains! ⛓️🥏
+*Last updated: 2025-10-31*
