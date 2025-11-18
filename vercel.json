@@ -1,0 +1,35 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "ParSaveablesDashboard/index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "src/api/processScorecard.js",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 60
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/processScorecard",
+      "dest": "src/api/processScorecard.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "ParSaveablesDashboard/$1"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/processScorecard",
+      "schedule": "*/30 * * * *"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
