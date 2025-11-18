@@ -55,6 +55,7 @@ ParSaveables/
 │       ├── clean_courses.sql
 │       └── fix_points_system_links.sql
 ├── docs/                       # Documentation
+│   ├── ARCHITECTURE.md         # System architecture documentation
 │   └── DEPLOYMENT.md           # Vercel deployment guide
 ├── podcast/                    # Automated podcast generator
 │   └── README.md               # Podcast system documentation
@@ -125,7 +126,7 @@ ParSaveables/
    vercel deploy
    ```
 
-See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for complete deployment instructions.
+See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for complete deployment instructions and [ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed system architecture.
 
 ## Workflow (12 Steps)
 
