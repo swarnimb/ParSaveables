@@ -199,12 +199,35 @@ async function processSingleEmail(email, options = {}) {
 
   // Step 7: Validate players
   logger.info('Step 7: Validating players');
-  const playerValidation = await playerService.validatePlayers(
-    processedData.rankedPlayers
-  );
+  let playerValidation;
+
+  try {
+    playerValidation = await playerService.validatePlayers(
+      processedData.rankedPlayers
+    );
+
+    // Log what we got back for debugging
+    logger.info('Player validation result', {
+      hasMatched: !!playerValidation?.matched,
+      hasUnmatched: !!playerValidation?.unmatched,
+      hasWarnings: !!playerValidation?.warnings,
+      hasStats: !!playerValidation?.stats,
+      matchedCount: playerValidation?.matched?.length || 0,
+      unmatchedCount: playerValidation?.unmatched?.length || 0,
+      warningsCount: playerValidation?.warnings?.length || 0
+    });
+  } catch (error) {
+    logger.error('Error validating players', error);
+    throw new Error(`Player validation failed: ${error.message}`);
+  }
+
+  // Defensive check for expected structure
+  if (!playerValidation || typeof playerValidation !== 'object') {
+    throw new Error('Player validation returned invalid result');
+  }
 
   // Log warnings for fuzzy matches and unmatched players
-  if (playerValidation.warnings.length > 0) {
+  if (playerValidation.warnings && playerValidation.warnings.length > 0) {
     logger.warn('Player validation warnings', {
       count: playerValidation.warnings.length,
       warnings: playerValidation.warnings
@@ -212,7 +235,7 @@ async function processSingleEmail(email, options = {}) {
   }
 
   // Use matched players only
-  const validPlayers = playerValidation.matched;
+  const validPlayers = playerValidation.matched || [];
 
   if (validPlayers.length === 0) {
     throw new Error('No registered players found in scorecard');
