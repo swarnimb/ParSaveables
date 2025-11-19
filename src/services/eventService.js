@@ -1,5 +1,7 @@
 import * as db from './databaseService.js';
 import { createLogger } from '../utils/logger.js';
+import { validateISODate } from '../utils/validation.js';
+import { BusinessLogicError } from '../utils/errors.js';
 
 const logger = createLogger('EventService');
 
@@ -15,11 +17,8 @@ const logger = createLogger('EventService');
 export async function assignEvent(dateString) {
   logger.info('Assigning event for date', { date: dateString });
 
-  // Validate date format
-  if (!dateString || !/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-    logger.error('Invalid date format', { date: dateString });
-    throw new Error(`Invalid date format: ${dateString}. Expected YYYY-MM-DD`);
-  }
+  // Validate date format using shared utility
+  validateISODate(dateString, 'scorecard date');
 
   // Find matching event from database (tournaments or specific date ranges)
   let event = await db.findEventByDate(dateString);
@@ -29,30 +28,26 @@ export async function assignEvent(dateString) {
     const currentYear = new Date().getFullYear(); // Get current year (e.g., 2025)
     const seasonName = `${currentYear}`;
 
-    logger.info('No specific event found, defaulting to current year season', { 
+    logger.info('No specific event found, attempting fallback to current year season', {
       scorecardDate: dateString,
       currentYear,
-      seasonName 
+      seasonName
     });
-
-    throw new Error(
-      `No event found for date ${dateString}. Tried "${seasonName}" (current year season) but it doesn't exist. ` +
-      'Please create a season in the admin panel.'
-    );
 
     // Try to find the season for current year
     event = await db.findEventByName(seasonName);
 
     if (!event) {
-      // Still no event found
-      logger.error('No event or season found', { 
-        date: dateString, 
+      // Still no event found - no fallback available
+      logger.error('No event or season found', {
+        date: dateString,
         triedSeason: seasonName,
         currentYear
       });
-      throw new Error(
+      throw new BusinessLogicError(
         `No event found for date ${dateString}. Tried "${seasonName}" (current year) but it doesn't exist. ` +
-        'Please create a season in the admin panel.'
+        'Please create a season in the admin panel.',
+        'NO_EVENT_FOUND'
       );
     }
 
@@ -65,9 +60,10 @@ export async function assignEvent(dateString) {
       eventId: event.id,
       eventName: event.name
     });
-    throw new Error(
+    throw new BusinessLogicError(
       `Event "${event.name}" does not have a points system configured. ` +
-      'Please link a points system in the admin panel.'
+      'Please link a points system in the admin panel.',
+      'MISSING_POINTS_SYSTEM'
     );
   }
 

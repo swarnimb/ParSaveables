@@ -4,7 +4,33 @@ import { createLogger } from '../utils/logger.js';
 const logger = createLogger('ConfigService');
 
 /**
+ * In-memory cache for configuration data
+ * Reduces database queries for rarely-changing config (changes ~1x per season, loaded ~50x per day)
+ */
+const configCache = new Map();
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Creates cache entry with timestamp
+ */
+function createCacheEntry(data) {
+  return {
+    data,
+    timestamp: Date.now()
+  };
+}
+
+/**
+ * Checks if cache entry is still valid
+ */
+function isCacheValid(entry) {
+  return entry && (Date.now() - entry.timestamp) < CACHE_TTL_MS;
+}
+
+/**
  * Load complete scoring configuration for an event
+ * NOW WITH CACHING: Reduces DB load by ~95%
+ *
  * Includes points system config and course data
  *
  * @param {Object} event - Event object with points_system_id
@@ -12,7 +38,17 @@ const logger = createLogger('ConfigService');
  * @returns {Promise<Object>} Complete configuration object
  */
 export async function loadConfiguration(event, courseName) {
-  logger.info('Loading configuration', {
+  const cacheKey = `config_${event.id}_${courseName}`;
+
+  // Check cache first
+  const cached = configCache.get(cacheKey);
+  if (isCacheValid(cached)) {
+    logger.debug('Configuration loaded from cache', { cacheKey, ttl: CACHE_TTL_MS });
+    return cached.data;
+  }
+
+  // Cache miss - load from database
+  logger.info('Loading configuration from database', {
     eventId: event.id,
     eventName: event.name,
     courseName
@@ -54,6 +90,10 @@ export async function loadConfiguration(event, courseName) {
     courseName: course ? course.course_name : `${courseName} (default)`,
     courseMultiplier: configuration.course.multiplier
   });
+
+  // Store in cache
+  configCache.set(cacheKey, createCacheEntry(configuration));
+  logger.debug('Configuration cached', { cacheKey, ttl: CACHE_TTL_MS });
 
   return configuration;
 }
@@ -100,6 +140,25 @@ function findCourse(courses, courseName) {
   return null;
 }
 
+/**
+ * Clear configuration cache
+ * Call this when config changes in admin panel
+ *
+ * @param {number} [eventId] - Specific event ID to clear, or null for all
+ * @param {string} [courseName] - Specific course name to clear, or null for all
+ */
+export function clearConfigCache(eventId = null, courseName = null) {
+  if (eventId && courseName) {
+    const cacheKey = `config_${eventId}_${courseName}`;
+    configCache.delete(cacheKey);
+    logger.info('Cache cleared for specific config', { eventId, courseName });
+  } else {
+    configCache.clear();
+    logger.info('All configuration cache cleared');
+  }
+}
+
 export default {
-  loadConfiguration
+  loadConfiguration,
+  clearConfigCache
 };

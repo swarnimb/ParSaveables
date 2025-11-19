@@ -1,6 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { config } from '../config/index.js';
 import { createLogger } from '../utils/logger.js';
+import { retryWithBackoff, isRetryableError } from '../utils/retry.js';
+import { ExternalAPIError, ValidationError } from '../utils/errors.js';
 
 const logger = createLogger('VisionService');
 
@@ -91,7 +93,7 @@ export async function extractScorecardData(imageUrl) {
       const matches = imageUrl.match(/^data:(image\/[^;]+);base64,(.+)$/);
 
       if (!matches) {
-        throw new Error('Invalid data URL format');
+        throw new ValidationError('Invalid data URL format', 'imageUrl');
       }
 
       const mediaType = matches[1];  // e.g., 'image/jpeg'
@@ -114,26 +116,35 @@ export async function extractScorecardData(imageUrl) {
       logger.info('Using image URL', { url: imageUrl });
     }
 
-    const message = await anthropic.messages.create({
-      model: config.anthropic.model,
-      max_tokens: 4096,
-      temperature: 0.3, // Lower = more deterministic
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: imageSource
-            },
-            {
-              type: 'text',
-              text: SCORECARD_EXTRACTION_PROMPT
-            }
-          ]
-        }
-      ]
-    });
+    // Call Claude Vision API with retry logic for resilience
+    const message = await retryWithBackoff(
+      () => anthropic.messages.create({
+        model: config.anthropic.model,
+        max_tokens: 4096,
+        temperature: 0.3, // Lower = more deterministic
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'image',
+                source: imageSource
+              },
+              {
+                type: 'text',
+                text: SCORECARD_EXTRACTION_PROMPT
+              }
+            ]
+          }
+        ]
+      }),
+      {
+        maxRetries: 3,
+        initialDelay: 2000,  // 2s, 4s, 8s backoff
+        shouldRetry: isRetryableError,
+        context: 'Claude Vision API'
+      }
+    );
 
     // Extract text from Claude response
     const responseText = message.content[0].text;
@@ -159,7 +170,7 @@ try {
     response: responseText,
     error: parseError.message
   });
-  throw new Error('Invalid JSON response from Claude Vision API');
+  throw new ExternalAPIError('Anthropic Vision', 'Invalid JSON response from Claude Vision API', parseError);
 }
 
     // Check if scorecard is valid
@@ -192,7 +203,7 @@ try {
       error: error.message,
       stack: error.stack
     });
-    throw new Error(`Vision API error: ${error.message}`);
+    throw new ExternalAPIError('Anthropic Vision', error.message, error);
   }
 }
 

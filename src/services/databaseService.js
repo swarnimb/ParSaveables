@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { config } from '../config/index.js';
 import { createLogger } from '../utils/logger.js';
+import { executeQuery, executeQueryOptional, executeQuerySingle } from '../utils/databaseHelpers.js';
 
 const logger = createLogger('DatabaseService');
 
@@ -20,15 +21,13 @@ const supabase = createClient(
 export async function getRegisteredPlayers() {
   logger.info('Fetching registered players');
 
-  const { data, error } = await supabase
-    .from('registered_players')
-    .select('*')
-    .eq('active', true);
-
-  if (error) {
-    logger.error('Failed to fetch registered players', error);
-    throw new Error(`Database error: ${error.message}`);
-  }
+  const data = await executeQuery(
+    () => supabase
+      .from('registered_players')
+      .select('*')
+      .eq('active', true),
+    'Failed to fetch registered players'
+  );
 
   logger.info(`Found ${data.length} registered players`);
   return data;
@@ -44,18 +43,16 @@ export async function getRegisteredPlayers() {
 export async function findEventByDate(dateString) {
   logger.info('Finding event by date', { date: dateString });
 
-  const { data, error } = await supabase
-    .from('events')
-    .select('*')
-    .lte('start_date', dateString)  // start_date <= dateString
-    .gte('end_date', dateString)    // end_date >= dateString
-    .eq('is_active', true)
-    .order('type', { ascending: false }); // 'tournament' comes before 'season'
-
-  if (error) {
-    logger.error('Failed to find event', error);
-    throw new Error(`Database error: ${error.message}`);
-  }
+  const data = await executeQuery(
+    () => supabase
+      .from('events')
+      .select('*')
+      .lte('start_date', dateString)  // start_date <= dateString
+      .gte('end_date', dateString)    // end_date >= dateString
+      .eq('is_active', true)
+      .order('type', { ascending: false }), // 'tournament' comes before 'season'
+    'Failed to find event by date'
+  );
 
   // Return first match (tournament if exists, otherwise season)
   const event = data?.[0] || null;
@@ -77,25 +74,22 @@ export async function findEventByDate(dateString) {
 export async function findEventByName(eventName) {
   logger.info('Finding event by name', { name: eventName });
 
-  const { data, error } = await supabase
-    .from('events')
-    .select('*')
-    .eq('name', eventName)
-    .eq('is_active', true)
-    .single();
+  const event = await executeQueryOptional(
+    () => supabase
+      .from('events')
+      .select('*')
+      .eq('name', eventName)
+      .eq('is_active', true),
+    'Failed to find event by name'
+  );
 
-  if (error) {
-    if (error.code === 'PGRST116') {
-      // No rows returned - not an error, just not found
-      logger.warn('No event found with name', { name: eventName });
-      return null;
-    }
-    logger.error('Failed to find event by name', error);
-    throw new Error(`Database error: ${error.message}`);
+  if (event) {
+    logger.info('Found event', { name: event.name, type: event.type });
+  } else {
+    logger.warn('No event found with name', { name: eventName });
   }
 
-  logger.info('Found event', { name: data.name, type: data.type });
-  return data;
+  return event;
 }
 
 /**
@@ -105,16 +99,14 @@ export async function findEventByName(eventName) {
 export async function getCourses() {
   logger.info('Fetching courses');
 
-  const { data, error } = await supabase
-    .from('courses')
-    .select('*')
-    .eq('active', true)
-    .order('tier', { ascending: true });
-
-  if (error) {
-    logger.error('Failed to fetch courses', error);
-    throw new Error(`Database error: ${error.message}`);
-  }
+  const data = await executeQuery(
+    () => supabase
+      .from('courses')
+      .select('*')
+      .eq('active', true)
+      .order('tier', { ascending: true }),
+    'Failed to fetch courses'
+  );
 
   logger.info(`Found ${data.length} active courses`);
   return data;
@@ -128,16 +120,13 @@ export async function getCourses() {
 export async function getPointsSystem(pointsSystemId) {
   logger.info('Fetching points system', { id: pointsSystemId });
 
-  const { data, error } = await supabase
-    .from('points_systems')
-    .select('*')
-    .eq('id', pointsSystemId)
-    .single();
-
-  if (error) {
-    logger.error('Failed to fetch points system', error);
-    throw new Error(`Database error: ${error.message}`);
-  }
+  const data = await executeQuerySingle(
+    () => supabase
+      .from('points_systems')
+      .select('*')
+      .eq('id', pointsSystemId),
+    'Failed to fetch points system'
+  );
 
   logger.info('Points system loaded', { name: data.name });
   return data;
@@ -151,16 +140,13 @@ export async function getPointsSystem(pointsSystemId) {
 export async function insertRound(roundData) {
   logger.info('Inserting round', { course: roundData.course_name, date: roundData.date });
 
-  const { data, error } = await supabase
-    .from('rounds')
-    .insert(roundData)
-    .select()
-    .single();
-
-  if (error) {
-    logger.error('Failed to insert round', error);
-    throw new Error(`Database error: ${error.message}`);
-  }
+  const data = await executeQuerySingle(
+    () => supabase
+      .from('rounds')
+      .insert(roundData)
+      .select(),
+    'Failed to insert round'
+  );
 
   logger.info('Round inserted', { id: data.id });
   return data;
@@ -174,15 +160,13 @@ export async function insertRound(roundData) {
 export async function insertPlayerRounds(playerRounds) {
   logger.info('Inserting player rounds', { count: playerRounds.length });
 
-  const { data, error } = await supabase
-    .from('player_rounds')
-    .insert(playerRounds)
-    .select();
-
-  if (error) {
-    logger.error('Failed to insert player rounds', error);
-    throw new Error(`Database error: ${error.message}`);
-  }
+  const data = await executeQuery(
+    () => supabase
+      .from('player_rounds')
+      .insert(playerRounds)
+      .select(),
+    'Failed to insert player rounds'
+  );
 
   logger.info(`Inserted ${data.length} player rounds`);
   return data;

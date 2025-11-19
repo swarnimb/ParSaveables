@@ -9,12 +9,14 @@ import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { config } from '../config/index.js';
 import { createLogger } from '../utils/logger.js';
+import { retryWithBackoff, isRetryableError } from '../utils/retry.js';
+import { ValidationError } from '../utils/errors.js';
 
 const logger = createLogger('Chatbot');
 
 // Initialize clients
-const anthropic = new Anthropic({ apiKey: config.anthropicApiKey });
-const supabase = createClient(config.supabaseUrl, config.supabaseServiceRoleKey);
+const anthropic = new Anthropic({ apiKey: config.anthropic.apiKey });
+const supabase = createClient(config.supabase.url, config.supabase.serviceRoleKey);
 
 /**
  * Determine query type from user question
@@ -84,8 +86,8 @@ async function getLeaderboardData() {
 
   const currentSeason = events[0];
 
-  // Get all rounds for this season with player stats
-  const { data: rounds, error: roundsError } = await supabase
+  // Get all rounds for this season with player stats (limit to prevent loading thousands of rows)
+  const { data: rounds, error: roundsError} = await supabase
     .from('rounds')
     .select(`
       id,
@@ -101,7 +103,8 @@ async function getLeaderboardData() {
         final_total
       )
     `)
-    .order('date', { ascending: false });
+    .order('date', { ascending: false})
+    .limit(100);  // Reasonable limit for leaderboard calculation
 
   if (roundsError) {
     throw new Error(`Failed to fetch rounds: ${roundsError.message}`);
@@ -272,15 +275,24 @@ ${JSON.stringify(context, null, 2)}
 
 Please answer the question based on the context data provided.`;
 
-  const response = await anthropic.messages.create({
-    model: 'claude-3-5-sonnet-20241022',
-    max_tokens: 500,
-    system: systemPrompt,
-    messages: [{
-      role: 'user',
-      content: userPrompt
-    }]
-  });
+  // Call Claude Chat API with retry logic for resilience
+  const response = await retryWithBackoff(
+    () => anthropic.messages.create({
+      model: config.anthropic.model,
+      max_tokens: 500,
+      system: systemPrompt,
+      messages: [{
+        role: 'user',
+        content: userPrompt
+      }]
+    }),
+    {
+      maxRetries: 3,
+      initialDelay: 1000,  // 1s, 2s, 4s backoff
+      shouldRetry: isRetryableError,
+      context: 'Claude Chat API'
+    }
+  );
 
   return response.content[0].text;
 }
@@ -290,7 +302,7 @@ Please answer the question based on the context data provided.`;
  */
 export async function handleChatbotQuery(question) {
   if (!question || typeof question !== 'string' || question.trim().length === 0) {
-    throw new Error('Question is required');
+    throw new ValidationError('Question is required and must be a non-empty string', 'question');
   }
 
   logger.info('Processing chatbot query', { question });
