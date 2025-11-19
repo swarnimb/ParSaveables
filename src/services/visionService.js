@@ -29,7 +29,7 @@ If VALID, extract ALL data and return ONLY valid JSON (no markdown, no code bloc
   "valid": true,
   "courseName": "Extract from line 1 OR line 2 (see rules below)",
   "layoutName": "Layout name if visible on line 2",
-  "date": "YYYY-MM-DD format from bottom section",
+  "date": "YYYY-MM-DD format from bottom section. IMPORTANT: the year most probably will not be visible on the scorecard, use ${new Date().getFullYear()} as the year.",
   "time": "Time from bottom section (e.g., '2:30 PM')",
   "location": "Location/city from bottom section",
   "temperature": "Temperature from bottom section (e.g., '75°F')",
@@ -139,17 +139,28 @@ export async function extractScorecardData(imageUrl) {
     const responseText = message.content[0].text;
     logger.debug('Claude Vision response received', { length: responseText.length });
 
-    // Parse JSON response
-    let scorecardData;
-    try {
-      scorecardData = JSON.parse(responseText);
-    } catch (parseError) {
-      logger.error('Failed to parse Claude response as JSON', {
-        response: responseText,
-        error: parseError.message
-      });
-      throw new Error('Invalid JSON response from Claude Vision API');
+    // Parse JSON response - strip markdown code blocks if present
+let scorecardData;
+try {
+  // Remove markdown code blocks (```json ... ``` or ``` ... ```)
+  let cleanedText = responseText.trim();
+  
+  if (cleanedText.startsWith('```')) {
+    // Extract content between code fences
+    const match = cleanedText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    if (match) {
+      cleanedText = match[1].trim();
     }
+  }
+  
+  scorecardData = JSON.parse(cleanedText);
+} catch (parseError) {
+  logger.error('Failed to parse Claude response as JSON', {
+    response: responseText,
+    error: parseError.message
+  });
+  throw new Error('Invalid JSON response from Claude Vision API');
+}
 
     // Check if scorecard is valid
     if (!scorecardData.valid) {
