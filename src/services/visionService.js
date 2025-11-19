@@ -29,7 +29,7 @@ If VALID, extract ALL data and return ONLY valid JSON (no markdown, no code bloc
   "valid": true,
   "courseName": "Extract from line 1 OR line 2 (see rules below)",
   "layoutName": "Layout name if visible on line 2",
-  "date": "YYYY-MM-DD format from bottom section",
+  "date": "YYYY-MM-DD format from bottom section. IMPORTANT: the year most probably will not be visible on the scorecard, use ${new Date().getFullYear()} as the year.",
   "time": "Time from bottom section (e.g., '2:30 PM')",
   "location": "Location/city from bottom section",
   "temperature": "Temperature from bottom section (e.g., '75°F')",
@@ -80,9 +80,40 @@ Use null for any field not visible. Return valid JSON only.`;
  * @throws {Error} If API call fails or response is invalid
  */
 export async function extractScorecardData(imageUrl) {
-  logger.info('Extracting scorecard data from image', { imageUrl });
+  logger.info('Extracting scorecard data from image');
 
   try {
+    // Parse data URL to extract base64 data
+    let imageSource;
+
+    if (imageUrl.startsWith('data:')) {
+      // Data URL format: data:image/jpeg;base64,/9j/4AAQSkZJRg...
+      const matches = imageUrl.match(/^data:(image\/[^;]+);base64,(.+)$/);
+
+      if (!matches) {
+        throw new Error('Invalid data URL format');
+      }
+
+      const mediaType = matches[1];  // e.g., 'image/jpeg'
+      const base64Data = matches[2]; // Base64 string without prefix
+
+      imageSource = {
+        type: 'base64',
+        media_type: mediaType,
+        data: base64Data
+      };
+
+      logger.info('Using base64 image data', { mediaType, dataLength: base64Data.length });
+    } else {
+      // Regular URL
+      imageSource = {
+        type: 'url',
+        url: imageUrl
+      };
+
+      logger.info('Using image URL', { url: imageUrl });
+    }
+
     const message = await anthropic.messages.create({
       model: config.anthropic.model,
       max_tokens: 4096,
@@ -93,10 +124,7 @@ export async function extractScorecardData(imageUrl) {
           content: [
             {
               type: 'image',
-              source: {
-                type: 'url',
-                url: imageUrl
-              }
+              source: imageSource
             },
             {
               type: 'text',
@@ -111,17 +139,28 @@ export async function extractScorecardData(imageUrl) {
     const responseText = message.content[0].text;
     logger.debug('Claude Vision response received', { length: responseText.length });
 
-    // Parse JSON response
-    let scorecardData;
-    try {
-      scorecardData = JSON.parse(responseText);
-    } catch (parseError) {
-      logger.error('Failed to parse Claude response as JSON', {
-        response: responseText,
-        error: parseError.message
-      });
-      throw new Error('Invalid JSON response from Claude Vision API');
+    // Parse JSON response - strip markdown code blocks if present
+let scorecardData;
+try {
+  // Remove markdown code blocks (```json ... ``` or ``` ... ```)
+  let cleanedText = responseText.trim();
+  
+  if (cleanedText.startsWith('```')) {
+    // Extract content between code fences
+    const match = cleanedText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    if (match) {
+      cleanedText = match[1].trim();
     }
+  }
+  
+  scorecardData = JSON.parse(cleanedText);
+} catch (parseError) {
+  logger.error('Failed to parse Claude response as JSON', {
+    response: responseText,
+    error: parseError.message
+  });
+  throw new Error('Invalid JSON response from Claude Vision API');
+}
 
     // Check if scorecard is valid
     if (!scorecardData.valid) {

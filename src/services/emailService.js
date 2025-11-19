@@ -173,7 +173,7 @@ function extractAttachments(parts, messageId) {
  * @param {string} attachmentId - Attachment ID from Gmail API
  * @returns {Promise<string>} Image URL or base64 data URL
  */
-export async function extractImageUrl(messageId, attachmentId) {
+export async function extractImageUrl(messageId, attachmentId, mimeType = 'image/jpeg') {
   logger.info('Extracting image URL', { messageId, attachmentId });
 
   try {
@@ -192,7 +192,7 @@ export async function extractImageUrl(messageId, attachmentId) {
     const base64Data = data.replace(/-/g, '+').replace(/_/g, '/');
 
     // Return as data URL (works directly with Claude Vision API)
-    const dataUrl = `data:image/png;base64,${base64Data}`;
+    const dataUrl = `data:${mimeType};base64,${base64Data}`;
 
     logger.info('Image URL extracted', {
       messageId,
@@ -241,7 +241,7 @@ export async function getImageAttachments(email) {
   // Download each image
   const images = await Promise.all(
     imageAttachments.map(async (attachment) => {
-      const imageUrl = await extractImageUrl(email.id, attachment.attachmentId);
+      const imageUrl = await extractImageUrl(email.id, attachment.attachmentId, attachment.mimeType);
 
       return {
         filename: attachment.filename,

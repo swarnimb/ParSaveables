@@ -21,15 +21,42 @@ export async function assignEvent(dateString) {
     throw new Error(`Invalid date format: ${dateString}. Expected YYYY-MM-DD`);
   }
 
-  // Find matching event from database
-  const event = await db.findEventByDate(dateString);
+  // Find matching event from database (tournaments or specific date ranges)
+  let event = await db.findEventByDate(dateString);
 
   if (!event) {
-    logger.error('No active event found for date', { date: dateString });
+    // No specific event found - fallback to Season based on CURRENT year
+    const currentYear = new Date().getFullYear(); // Get current year (e.g., 2025)
+    const seasonName = `${currentYear}`;
+
+    logger.info('No specific event found, defaulting to current year season', { 
+      scorecardDate: dateString,
+      currentYear,
+      seasonName 
+    });
+
     throw new Error(
-      `No active season or tournament found for date ${dateString}. ` +
-      'Please create an event in the admin panel that covers this date range.'
+      `No event found for date ${dateString}. Tried "${seasonName}" (current year season) but it doesn't exist. ` +
+      'Please create a season in the admin panel.'
     );
+
+    // Try to find the season for current year
+    event = await db.findEventByName(seasonName);
+
+    if (!event) {
+      // Still no event found
+      logger.error('No event or season found', { 
+        date: dateString, 
+        triedSeason: seasonName,
+        currentYear
+      });
+      throw new Error(
+        `No event found for date ${dateString}. Tried "${seasonName}" (current year) but it doesn't exist. ` +
+        'Please create a season in the admin panel.'
+      );
+    }
+
+    logger.info('Assigned to current year season', { season: seasonName });
   }
 
   // Validate event has points system linked

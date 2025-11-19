@@ -70,6 +70,35 @@ export async function findEventByDate(dateString) {
 }
 
 /**
+ * Find event by name
+ * @param {string} eventName - Event name (e.g., "Season 2025")
+ * @returns {Promise<Object|null>} Event object or null if not found
+ */
+export async function findEventByName(eventName) {
+  logger.info('Finding event by name', { name: eventName });
+
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .eq('name', eventName)
+    .eq('is_active', true)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      // No rows returned - not an error, just not found
+      logger.warn('No event found with name', { name: eventName });
+      return null;
+    }
+    logger.error('Failed to find event by name', error);
+    throw new Error(`Database error: ${error.message}`);
+  }
+
+  logger.info('Found event', { name: data.name, type: data.type });
+  return data;
+}
+
+/**
  * Get all active courses with their tier and multiplier
  * @returns {Promise<Array>} List of course objects
  */
@@ -162,6 +191,7 @@ export async function insertPlayerRounds(playerRounds) {
 export default {
   getRegisteredPlayers,
   findEventByDate,
+  findEventByName,
   getCourses,
   getPointsSystem,
   insertRound,
