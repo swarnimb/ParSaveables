@@ -243,8 +243,8 @@ async function processSingleEmail(email, options = {}) {
 
   logger.info('Players validated', {
     matched: validPlayers.length,
-    unmatched: playerValidation.unmatched.length,
-    fuzzyMatches: playerValidation.stats.fuzzyMatches
+    unmatched: playerValidation.unmatched?.length || 0,
+    fuzzyMatches: playerValidation.stats?.fuzzyMatches || 0
   });
 
   // Step 8: Load configuration
