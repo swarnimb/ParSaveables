@@ -58,7 +58,7 @@ ParSaveables/
 │   ├── ARCHITECTURE.md         # System architecture documentation
 │   ├── DEPLOYMENT.md           # Vercel deployment guide
 │   ├── TESTING.md              # Testing guide (end-to-end workflow tests)
-│   └── NEXT-STEPS.md           # User guide for testing workflow
+│   └── ROADMAP.md              # Feature roadmap and future improvements
 ├── podcast/                    # Automated podcast generator
 │   └── README.md               # Podcast system documentation
 ├── public/                     # Frontend static assets
@@ -128,7 +128,7 @@ ParSaveables/
    vercel deploy
    ```
 
-See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for deployment instructions, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for system architecture, and [docs/TESTING.md](docs/TESTING.md) for testing guide.
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for deployment instructions, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for system architecture, [docs/TESTING.md](docs/TESTING.md) for testing guide, and [docs/ROADMAP.md](docs/ROADMAP.md) for planned features and improvements.
 
 ## Workflow (12 Steps)
 
