@@ -278,7 +278,13 @@ async function processSingleEmail(email, options = {}) {
   // 10a: Insert round
   const roundData = {
     date: scorecardData.date,
+    time: scorecardData.time || null,
     course_name: scorecardData.courseName,
+    layout_name: scorecardData.layoutName || null,
+    location: scorecardData.location || null,
+    temperature: scorecardData.temperature || null,
+    wind: scorecardData.wind || null,
+    course_multiplier: configuration.course.multiplier,
     event_id: event.id,
     event_type: event.type
   };
@@ -289,25 +295,22 @@ async function processSingleEmail(email, options = {}) {
   // 10b: Insert player rounds
   const playerRoundsData = playersWithPoints.map(player => ({
     round_id: round.id,
-    player_name: player.registeredName || player.name, // Use registered name
+    player_name: player.registeredName || player.name,
     rank: player.rank,
+    total_strokes: player.totalStrokes,
     total_score: player.totalScore,
-    score_relative_to_par: player.relativeToPar,
     aces: player.aces || 0,
     eagles: player.eagles || 0,
     birdies: player.birdies || 0,
     pars: player.pars || 0,
     bogeys: player.bogeys || 0,
     double_bogeys: player.doubleBogeys || 0,
-    worse: player.worse || 0,
     rank_points: player.points.rankPoints,
     birdie_points: player.points.birdiePoints,
     eagle_points: player.points.eaglePoints,
     ace_points: player.points.acePoints,
     raw_total: player.points.rawTotal,
-    course_multiplier_applied: player.points.courseMultiplier !== 1.0,
-    final_total: player.points.finalTotal,
-    event_id: event.id
+    final_total: player.points.finalTotal
   }));
 
   const playerRounds = await db.insertPlayerRounds(playerRoundsData);
@@ -421,7 +424,13 @@ export async function processSingleScorecard(imageUrl, options = {}) {
   // Step 8: Store in Supabase
   const roundData = {
     date: scorecardData.date,
+    time: scorecardData.time || null,
     course_name: scorecardData.courseName,
+    layout_name: scorecardData.layoutName || null,
+    location: scorecardData.location || null,
+    temperature: scorecardData.temperature || null,
+    wind: scorecardData.wind || null,
+    course_multiplier: configuration.course.multiplier,
     event_id: event.id,
     event_type: event.type
   };
