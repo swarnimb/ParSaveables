@@ -307,8 +307,7 @@ async function processSingleEmail(email, options = {}) {
     raw_total: player.points.rawTotal,
     course_multiplier_applied: player.points.courseMultiplier !== 1.0,
     final_total: player.points.finalTotal,
-    event_id: event.id,
-    points_system_id: event.points_system_id
+    event_id: event.id
   }));
 
   const playerRounds = await db.insertPlayerRounds(playerRoundsData);
@@ -449,8 +448,7 @@ export async function processSingleScorecard(imageUrl, options = {}) {
     raw_total: player.points.rawTotal,
     course_multiplier_applied: player.points.courseMultiplier !== 1.0,
     final_total: player.points.finalTotal,
-    event_id: event.id,
-    points_system_id: event.points_system_id
+    event_id: event.id
   }));
 
   const playerRounds = await db.insertPlayerRounds(playerRoundsData);
