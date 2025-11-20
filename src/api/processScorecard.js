@@ -310,7 +310,9 @@ async function processSingleEmail(email, options = {}) {
     eagle_points: player.points.eaglePoints,
     ace_points: player.points.acePoints,
     raw_total: player.points.rawTotal,
-    final_total: player.points.finalTotal
+    final_total: player.points.finalTotal,
+    hole_by_hole: player.holeByHole,
+    event_id: event.id
   }));
 
   const playerRounds = await db.insertPlayerRounds(playerRoundsData);
@@ -330,7 +332,7 @@ async function processSingleEmail(email, options = {}) {
         courseName: scorecardData.courseName,
         eventName: event.name,
         playerCount: validPlayers.length,
-        dashboardUrl: 'https://parsaveables.vercel.app'
+        dashboardUrl: 'https://par-saveables.vercel.app'
       });
     } catch (error) {
       logger.error('Failed to send success notification', {

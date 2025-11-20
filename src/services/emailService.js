@@ -426,7 +426,7 @@ export async function sendSuccessNotification(recipient, details) {
     `To: ${recipient}`,
     'Content-Type: text/html; charset=utf-8',
     'MIME-Version: 1.0',
-    `Subject: ✅ ParSaveables Scorecard Processed Successfully`,
+    `Subject: ParSaveables Scorecard Processed Successfully`,
     '',
     '<html><body>',
     '<h2>Scorecard Successfully Processed! 🎯</h2>',
