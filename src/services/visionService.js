@@ -71,6 +71,8 @@ PLAYER NAME RULES:
 - If name ends with "..." it's truncated
 - Common truncations: "Intern..." → "Intern Line Cook", "Jabba..." → "Jabba the Putt"
 - Extract the full visible portion before "..."
+- If you see a bird emoji (🦅) or bird image instead of a text name, use "Bird" as the player name
+- Bird emoji/image is visually distinct from text - detect and replace with "Bird"
 
 Use null for any field not visible. Return valid JSON only.`;
 

@@ -11,6 +11,9 @@ const logger = createLogger('PlayerService');
  * @returns {string} Normalized name
  */
 function normalizeName(name) {
+  if (!name || typeof name !== 'string') {
+    return '';
+  }
   return name
     .toLowerCase()
     .trim()
@@ -120,7 +123,13 @@ export async function validatePlayers(scorecardPlayers) {
     let bestScore = 0;
 
     for (const registeredPlayer of registeredPlayers) {
-      const score = calculateSimilarity(inputName, registeredPlayer.player_name);
+      // Skip emoji-only names unless exact match
+      const registeredName = registeredPlayer.player_name;
+      if (registeredName && registeredName.trim().length <= 2 && inputName !== registeredName) {
+        continue;
+      }
+
+      const score = calculateSimilarity(inputName, registeredName);
 
       if (score > bestScore) {
         bestScore = score;
