@@ -1079,6 +1079,24 @@
         let availableEvents = []; // Store all events
         let currentEventPlayers = []; // Store players for currently selected event
 
+        // Full registered players list (master registry)
+        const REGISTERED_PLAYERS = [
+            'Intern Line Cook',
+            'Jabba the Putt',
+            'Food Zaddy',
+            'Jaguar',
+            'Shogun',
+            'BigBirdie',
+            'Butter Cookie',
+            'Cobra',
+            'Bird',
+            'Fireball',
+            'Ace Brook',
+            'ScarletSpeedster',
+            'Zombie',
+            'Cougar'
+        ];
+
         // Display name mapper - converts database names to display names
         function getDisplayName(dbName) {
             if (dbName === 'Bird') return '🦅';
@@ -1086,6 +1104,7 @@
         }
 
         // Check if a player is in the current event (case-insensitive)
+        // Uses event-specific player list for dashboard filtering
         function isRegisteredPlayer(playerName) {
             if (currentEventPlayers.length === 0) return true; // If no players set, show all
             return currentEventPlayers.some(registeredName =>
