@@ -1,10 +1,89 @@
 # Testing Guide
 
-## End-to-End Workflow Testing
+## Complete Testing Strategy
 
-### Manual Workflow Test
+Test the entire system in 3 phases:
 
-Test the entire scorecard processing workflow with a real UDisc scorecard image.
+1. **Email Service Test** - Gmail API integration (Steps 1-2)
+2. **Workflow Test** - Scorecard processing without email (Steps 3-12)
+3. **Full Integration** - Email → Processing → Database (Steps 1-12)
+
+---
+
+## Phase 1: Email Service Test
+
+Tests Gmail API integration: OAuth2, inbox polling, attachment extraction.
+
+**What it tests:**
+1. ✅ Gmail OAuth2 authentication
+2. ✅ Inbox polling for unread emails with attachments
+3. ✅ Image attachment extraction as data URLs
+4. ✅ Email marking as read (dry run)
+5. ✅ Notification email sending (dry run)
+
+### How to Run
+
+```bash
+npm run test:email
+```
+
+**Prerequisites:**
+- Valid `.env` with Gmail credentials (`GMAIL_*` variables)
+- OAuth2 refresh token configured
+- Gmail API enabled in Google Cloud Console
+
+**Safe Mode:** Does NOT mark emails or send notifications by default.
+
+### Example Output
+
+```
+================================================================================
+🧪 MANUAL EMAIL SERVICE TEST
+================================================================================
+
+STEP 1: Initialize Gmail OAuth2 client
+✅ Gmail client initialized successfully!
+
+STEP 2: Poll inbox for unread emails with attachments
+✅ Found 2 unread email(s) with attachments
+
+STEP 3: Extract image attachments from first email
+   Email ID: 18c4a2b3f8e91d20
+   From: player@example.com
+   Subject: Round at Zilker Park
+   Date: 2025-11-19
+
+✅ Extracted 1 attachment(s)
+   1. scorecard.jpg (image/jpeg)
+      Size: 234567 bytes
+      Data URL preview: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...
+
+STEP 4: Mark email as read (DRY RUN)
+⚠️  This is a TEST - we will NOT mark the email as read.
+
+STEP 5: Send notification email (DRY RUN)
+⚠️  This is a TEST - we will NOT send a test email.
+
+================================================================================
+✅ EMAIL SERVICE TEST COMPLETED!
+================================================================================
+
+📊 Summary:
+   ✓ Gmail OAuth2 authentication: PASS
+   ✓ Inbox polling: PASS
+   ✓ Unread emails found: 2
+   ✓ Attachments extracted: 1
+   ✓ Email marking: READY (dry run)
+   ✓ Email sending: READY (dry run)
+
+🎉 Gmail integration is working correctly!
+```
+
+---
+
+## Phase 2: Workflow Test
+
+Test scorecard processing workflow with a local image (bypasses email).
 
 **What it tests:**
 1. ✅ Vision extraction (Claude Vision API)
@@ -16,23 +95,23 @@ Test the entire scorecard processing workflow with a real UDisc scorecard image.
 7. ✅ Points calculation
 8. ✅ Data preparation for database
 
-**Safe Mode:** The test does NOT insert into the database by default (dry run).
+**Safe Mode:** Does NOT insert into database by default (dry run).
 
 ### How to Run
 
 **Option 1: Local Image File**
 ```bash
-node src/tests/manual-test-workflow.js path/to/scorecard.jpg
+npm run test:workflow path/to/scorecard.jpg
 ```
 
 **Option 2: Remote Image URL**
 ```bash
-node src/tests/manual-test-workflow.js https://example.com/scorecard.png
+npm run test:workflow https://example.com/scorecard.png
 ```
 
 **Option 3: Data URL (base64)**
 ```bash
-node src/tests/manual-test-workflow.js "data:image/jpeg;base64,/9j/4AAQ..."
+npm run test:workflow "data:image/jpeg;base64,/9j/4AAQ..."
 ```
 
 ### Example Output
