@@ -34,12 +34,7 @@
       "dest": "public/$1"
     }
   ],
-  "crons": [
-    {
-      "path": "/api/processScorecard",
-      "schedule": "0 12 * * *"
-    }
-  ],
+  "crons": [],
   "env": {
     "NODE_ENV": "production"
   }

@@ -952,6 +952,11 @@
                 ⚙️
             </button>
 
+            <!-- Process Scorecards Button (Top Center) -->
+            <button id="processScorecards" onclick="processNewScorecards()" style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); padding: 10px 20px; font-size: 0.9em; border-radius: 12px; border: 2px solid #00ff88; background: linear-gradient(135deg, #00cc66 0%, #00ff88 100%); color: #0a0e27; cursor: pointer; font-weight: 700; transition: all 0.3s; box-shadow: 0 0 20px rgba(0, 255, 136, 0.6); text-transform: uppercase; letter-spacing: 1px;" title="Process new scorecard emails">
+                📧 Process Scorecards
+            </button>
+
             <!-- Podcast Button (Top Right) -->
             <button id="podcastsBtn" onclick="openPodcastModal()" style="position: absolute; top: 20px; right: 20px; padding: 0; font-size: 1.08em; border-radius: 50%; border: 2px solid #64ffda; background: linear-gradient(135deg, #0066ff 0%, #00ccff 100%); color: white; cursor: pointer; transition: all 0.3s; box-shadow: 0 0 20px rgba(0, 204, 255, 0.6); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
                 🎙️
@@ -2303,6 +2308,57 @@
                 banner.style.animation = 'slideDown 0.6s ease-out';
                 displayPun();
             }, 10);
+        }
+
+        // Process new scorecards from Gmail
+        async function processNewScorecards() {
+            const button = document.getElementById('processScorecards');
+            const originalText = button.innerHTML;
+
+            try {
+                // Disable button and show loading state
+                button.disabled = true;
+                button.innerHTML = '⏳ Processing...';
+                button.style.opacity = '0.7';
+                button.style.cursor = 'not-allowed';
+
+                // Call the API endpoint
+                const response = await fetch('/api/processScorecard', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        maxEmails: 10,
+                        skipNotifications: false
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const stats = result.results.stats;
+                    alert(`✅ Processing Complete!\n\n` +
+                          `Emails checked: ${stats.emailsChecked}\n` +
+                          `Successfully processed: ${stats.successful}\n` +
+                          `Failed: ${stats.failed}\n` +
+                          `Skipped: ${stats.skipped}`);
+
+                    // Reload data to show new scorecards
+                    await loadAllData();
+                } else {
+                    alert(`❌ Processing failed: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error processing scorecards:', error);
+                alert(`❌ Error: ${error.message}`);
+            } finally {
+                // Re-enable button
+                button.disabled = false;
+                button.innerHTML = originalText;
+                button.style.opacity = '1';
+                button.style.cursor = 'pointer';
+            }
         }
 
         // Initialize: Load events first, then load data
