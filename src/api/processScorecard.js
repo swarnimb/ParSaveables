@@ -300,14 +300,8 @@ async function processSingleEmail(email, options = {}) {
     bogeys: player.bogeys || 0,
     double_bogeys: player.doubleBogeys || 0,
     worse: player.worse || 0,
-    rank_points: player.points.rankPoints,
-    birdie_points: player.points.birdiePoints,
-    eagle_points: player.points.eaglePoints,
-    ace_points: player.points.acePoints,
-    performance_points: player.points.performancePoints,
-    raw_total_points: player.points.rawTotal,
     course_multiplier_applied: player.points.courseMultiplier !== 1.0,
-    final_total_points: player.points.finalTotal,
+    final_total: player.points.finalTotal,
     event_id: event.id,
     points_system_id: event.points_system_id
   }));
@@ -443,14 +437,8 @@ export async function processSingleScorecard(imageUrl, options = {}) {
     bogeys: player.bogeys || 0,
     double_bogeys: player.doubleBogeys || 0,
     worse: player.worse || 0,
-    rank_points: player.points.rankPoints,
-    birdie_points: player.points.birdiePoints,
-    eagle_points: player.points.eaglePoints,
-    ace_points: player.points.acePoints,
-    performance_points: player.points.performancePoints,
-    raw_total_points: player.points.rawTotal,
     course_multiplier_applied: player.points.courseMultiplier !== 1.0,
-    final_total_points: player.points.finalTotal,
+    final_total: player.points.finalTotal,
     event_id: event.id,
     points_system_id: event.points_system_id
   }));
