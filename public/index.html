@@ -1077,22 +1077,7 @@
         let availableSeasons = [];
         let currentTab = 'seasons'; // Track current tab
         let availableEvents = []; // Store all events
-
-        // Registered players list
-        const REGISTERED_PLAYERS = [
-            'Intern Line Cook',
-            'Jabba the Putt',
-            'Food Zaddy',
-            'Jaguar',
-            'Shogun',
-            'BigBirdie',
-            'Butter Cookie',
-            'Cobra',
-            'Bird',
-            'Fireball',
-            'Ace Brook',
-            'ScarletSpeedster'
-        ];
+        let currentEventPlayers = []; // Store players for currently selected event
 
         // Display name mapper - converts database names to display names
         function getDisplayName(dbName) {
@@ -1100,19 +1085,43 @@
             return dbName;
         }
 
-        // Check if a player name is registered (case-insensitive)
+        // Check if a player is in the current event (case-insensitive)
         function isRegisteredPlayer(playerName) {
-            return REGISTERED_PLAYERS.some(registeredName =>
+            if (currentEventPlayers.length === 0) return true; // If no players set, show all
+            return currentEventPlayers.some(registeredName =>
                 registeredName.toLowerCase() === playerName.toLowerCase()
             );
         }
 
-        // Get the canonical registered player name (with correct casing)
+        // Get the canonical player name from current event players (with correct casing)
         function getCanonicalPlayerName(playerName) {
-            const match = REGISTERED_PLAYERS.find(registeredName =>
+            const match = currentEventPlayers.find(registeredName =>
                 registeredName.toLowerCase() === playerName.toLowerCase()
             );
             return match || playerName;
+        }
+
+        // Load players for selected event
+        async function loadEventPlayers() {
+            const selectedEventId = getSelectedEventId();
+            if (!selectedEventId) {
+                currentEventPlayers = [];
+                return;
+            }
+
+            const { data: event, error } = await supabase
+                .from('events')
+                .select('players')
+                .eq('id', selectedEventId)
+                .single();
+
+            if (error || !event || !event.players) {
+                currentEventPlayers = [];
+                return;
+            }
+
+            // Parse JSONB array to JavaScript array
+            currentEventPlayers = Array.isArray(event.players) ? event.players : [];
         }
 
         // Podcast Modal Functions
@@ -1369,6 +1378,8 @@
         }
 
         async function loadAllData() {
+            // Load event players first, then load all data
+            await loadEventPlayers();
             await Promise.all([
                 loadLeaderboard(),
                 loadBirdieLeaders(),
