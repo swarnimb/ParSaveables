@@ -280,8 +280,7 @@ async function processSingleEmail(email, options = {}) {
     date: scorecardData.date,
     course_name: scorecardData.courseName,
     event_id: event.id,
-    event_type: event.type,
-    course_multiplier_applied: configuration.course.multiplier !== 1.0
+    event_type: event.type
   };
 
   const round = await db.insertRound(roundData);
@@ -426,8 +425,7 @@ export async function processSingleScorecard(imageUrl, options = {}) {
     date: scorecardData.date,
     course_name: scorecardData.courseName,
     event_id: event.id,
-    event_type: event.type,
-    course_multiplier_applied: configuration.course.multiplier !== 1.0
+    event_type: event.type
   };
 
   const round = await db.insertRound(roundData);
