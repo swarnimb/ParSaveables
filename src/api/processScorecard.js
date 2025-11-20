@@ -193,8 +193,8 @@ async function processSingleEmail(email, options = {}) {
   const processedData = scoringService.processScorecard(scorecardData);
 
   logger.info('Scorecard processed', {
-    playerCount: processedData.rankedPlayers.length,
-    topPlayer: processedData.rankedPlayers[0]?.name
+    playerCount: processedData.players.length,
+    topPlayer: processedData.players[0]?.name
   });
 
   // Step 7: Validate players
@@ -203,7 +203,7 @@ async function processSingleEmail(email, options = {}) {
 
   try {
     playerValidation = await playerService.validatePlayers(
-      processedData.rankedPlayers
+      processedData.players
     );
 
     // Log what we got back for debugging
@@ -400,7 +400,7 @@ export async function processSingleScorecard(imageUrl, options = {}) {
 
   // Step 5: Validate players
   const playerValidation = await playerService.validatePlayers(
-    processedData.rankedPlayers
+    processedData.players
   );
 
   const validPlayers = playerValidation.matched;

@@ -28,7 +28,7 @@ Enterprise-grade serverless disc golf scorecard processing system with automated
 ```
 Gmail Inbox
     ↓ (OAuth2)
-Vercel Serverless Function (Cron: every 30 min)
+Vercel Serverless Function (Cron: daily at 12pm UTC)
     ↓
 8 Microservices → Supabase PostgreSQL
     ↓
@@ -234,7 +234,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for complete guide including Gmail 
 ## API Endpoints
 
 - `POST /api/processScorecard` - Process new scorecards from Gmail (manual trigger or cron)
-  - Cron: Every 30 minutes
+  - Cron: Daily at 12pm UTC
   - 12-step workflow: email → vision → scoring → database
 - `POST /api/chatbot` - AI chatbot queries about stats, leaderboards, and courses
   - Returns conversational answers using Claude Chat API
