@@ -56,7 +56,9 @@ ParSaveables/
 │       └── fix_points_system_links.sql
 ├── docs/                       # Documentation
 │   ├── ARCHITECTURE.md         # System architecture documentation
-│   └── DEPLOYMENT.md           # Vercel deployment guide
+│   ├── DEPLOYMENT.md           # Vercel deployment guide
+│   ├── TESTING.md              # Testing guide (end-to-end workflow tests)
+│   └── NEXT-STEPS.md           # User guide for testing workflow
 ├── podcast/                    # Automated podcast generator
 │   └── README.md               # Podcast system documentation
 ├── public/                     # Frontend static assets
@@ -126,7 +128,7 @@ ParSaveables/
    vercel deploy
    ```
 
-See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for complete deployment instructions and [ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed system architecture.
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for deployment instructions, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for system architecture, and [docs/TESTING.md](docs/TESTING.md) for testing guide.
 
 ## Workflow (12 Steps)
 
@@ -179,6 +181,18 @@ Assigns season or tournament based on scorecard date. Prioritizes tournaments ov
 - **Enterprise-Grade**: Production-ready code from day one
 
 ## Testing
+
+### End-to-End Workflow Testing
+
+Test the entire scorecard processing workflow with a real UDisc image:
+
+```bash
+npm run test:workflow path/to/scorecard.jpg    # Test complete workflow
+```
+
+See [docs/TESTING.md](docs/TESTING.md) and [docs/NEXT-STEPS.md](docs/NEXT-STEPS.md) for detailed testing guide.
+
+### Unit Tests
 
 All 8 services have comprehensive test files using Node.js built-in test runner:
 
