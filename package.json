@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test src/tests/**/*.test.js",
+    "test:workflow": "node src/tests/manual-test-workflow.js",
     "dev": "node --watch src/api/processScorecard.js"
   },
   "dependencies": {
