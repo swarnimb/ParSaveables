@@ -281,7 +281,7 @@ async function processSingleEmail(email, options = {}) {
     course_name: scorecardData.courseName,
     event_id: event.id,
     event_type: event.type,
-    course_multiplier: configuration.course.multiplier
+    course_multiplier_applied: configuration.course.multiplier !== 1.0
   };
 
   const round = await db.insertRound(roundData);
@@ -307,7 +307,7 @@ async function processSingleEmail(email, options = {}) {
     ace_points: player.points.acePoints,
     performance_points: player.points.performancePoints,
     raw_total_points: player.points.rawTotal,
-    course_multiplier: player.points.courseMultiplier,
+    course_multiplier_applied: player.points.courseMultiplier !== 1.0,
     final_total_points: player.points.finalTotal,
     event_id: event.id,
     points_system_id: event.points_system_id
@@ -427,7 +427,7 @@ export async function processSingleScorecard(imageUrl, options = {}) {
     course_name: scorecardData.courseName,
     event_id: event.id,
     event_type: event.type,
-    course_multiplier: configuration.course.multiplier
+    course_multiplier_applied: configuration.course.multiplier !== 1.0
   };
 
   const round = await db.insertRound(roundData);
@@ -451,7 +451,7 @@ export async function processSingleScorecard(imageUrl, options = {}) {
     ace_points: player.points.acePoints,
     performance_points: player.points.performancePoints,
     raw_total_points: player.points.rawTotal,
-    course_multiplier: player.points.courseMultiplier,
+    course_multiplier_applied: player.points.courseMultiplier !== 1.0,
     final_total_points: player.points.finalTotal,
     event_id: event.id,
     points_system_id: event.points_system_id
