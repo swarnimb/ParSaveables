@@ -39,73 +39,73 @@ export async function getEventsByType(type) {
 
 /**
  * Get leaderboard for a specific event
+ * Uses TOP 10 SCORES only (best 10 rounds count toward total)
  */
 export async function getLeaderboard(eventId) {
+    // Get event details (for player filtering)
+    const { data: event, error: eventError } = await supabase
+        .from('events')
+        .select('players')
+        .eq('id', eventId)
+        .single();
+
+    if (eventError) throw eventError;
+
+    const eventPlayers = event.players || [];
+
     // Get rounds for this event
     const { data: rounds, error: roundsError } = await supabase
         .from('rounds')
-        .select(`
-            id,
-            event_id,
-            player_rounds (
-                player_name,
-                rank,
-                total_score,
-                birdies,
-                eagles,
-                aces,
-                pars,
-                bogeys,
-                final_total
-            )
-        `)
+        .select('id')
         .eq('event_id', eventId);
 
     if (roundsError) throw roundsError;
 
-    // Aggregate player stats across all rounds
-    const playerStats = {};
+    const roundIds = rounds.map(r => r.id);
+    if (roundIds.length === 0) return [];
 
-    rounds.forEach(round => {
-        round.player_rounds.forEach(pr => {
-            if (!playerStats[pr.player_name]) {
-                playerStats[pr.player_name] = {
-                    name: pr.player_name,
-                    totalPoints: 0,
-                    rounds: 0,
-                    wins: 0,
-                    birdies: 0,
-                    eagles: 0,
-                    aces: 0,
-                    pars: 0,
-                    bogeys: 0,
-                    avgScore: 0,
-                    scores: []
-                };
-            }
+    // Get player_rounds for these rounds
+    const { data: playerRounds, error: prError } = await supabase
+        .from('player_rounds')
+        .select('player_name, final_total, rank, total_score, birdies, eagles, aces, pars, bogeys, round_id')
+        .in('round_id', roundIds);
 
-            const stats = playerStats[pr.player_name];
-            stats.totalPoints += pr.final_total || 0;
-            stats.rounds += 1;
-            stats.birdies += pr.birdies || 0;
-            stats.eagles += pr.eagles || 0;
-            stats.aces += pr.aces || 0;
-            stats.pars += pr.pars || 0;
-            stats.bogeys += pr.bogeys || 0;
-            stats.scores.push(pr.total_score);
+    if (prError) throw prError;
 
-            if (pr.rank === 1) {
-                stats.wins += 1;
-            }
-        });
+    // Group rounds by player
+    const playerAllRounds = {};
+    playerRounds.forEach(pr => {
+        // Only include players in this event's player list
+        if (!eventPlayers.includes(pr.player_name)) return;
+
+        if (!playerAllRounds[pr.player_name]) {
+            playerAllRounds[pr.player_name] = [];
+        }
+        playerAllRounds[pr.player_name].push(pr);
     });
 
-    // Calculate averages and format data
-    const leaderboard = Object.values(playerStats).map(player => {
-        const totalScore = player.scores.reduce((sum, score) => sum + score, 0);
-        player.avgScore = player.rounds > 0 ? (totalScore / player.rounds).toFixed(1) : 0;
-        delete player.scores; // Don't need raw scores in output
-        return player;
+    // Calculate stats using TOP 10 SCORES
+    const leaderboard = Object.entries(playerAllRounds).map(([name, rounds]) => {
+        // Sort by points descending and take top 10
+        const sortedRounds = rounds.sort((a, b) => (b.final_total || 0) - (a.final_total || 0));
+        const top10 = sortedRounds.slice(0, 10);
+
+        const totalPoints = top10.reduce((sum, r) => sum + (r.final_total || 0), 0);
+        const totalScore = top10.reduce((sum, r) => sum + r.total_score, 0);
+
+        return {
+            name,
+            totalPoints,
+            rounds: rounds.length, // Total rounds played
+            countedRounds: top10.length, // Rounds that count (max 10)
+            wins: rounds.filter(r => r.rank === 1).length,
+            birdies: rounds.reduce((sum, r) => sum + (r.birdies || 0), 0),
+            eagles: rounds.reduce((sum, r) => sum + (r.eagles || 0), 0),
+            aces: rounds.reduce((sum, r) => sum + (r.aces || 0), 0),
+            pars: rounds.reduce((sum, r) => sum + (r.pars || 0), 0),
+            bogeys: rounds.reduce((sum, r) => sum + (r.bogeys || 0), 0),
+            avgScore: top10.length > 0 ? (totalScore / top10.length).toFixed(1) : 0
+        };
     });
 
     // Sort by total points (descending)
