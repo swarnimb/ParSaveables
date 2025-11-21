@@ -753,11 +753,22 @@ button {
     height: calc(100vh - 120px - 60px); /* Minus header and nav */
     overflow: hidden;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Carousel indicators (dots) - positioned at top */
+.carousel-indicators {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: center;
+    padding: var(--spacing-xs) 0;
+    z-index: 10;
 }
 
 .stats-carousel {
     display: flex;
-    height: 100%;
+    flex: 1;
     width: 100%;
     touch-action: pan-y;
     will-change: transform;
@@ -767,7 +778,7 @@ button {
     min-width: 100%;
     width: 100%;
     height: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: 0 var(--spacing-md);
     display: flex;
     flex-direction: column;
 }
@@ -775,7 +786,6 @@ button {
 .stat-card-header {
     text-align: center;
     margin-bottom: var(--spacing-sm);
-    padding-top: var(--spacing-xs);
 }
 
 .stat-card-title {
@@ -790,6 +800,7 @@ button {
     width: 100%;
     display: flex;
     flex-direction: column;
+    max-height: 70%; /* Reduce chart size by 30% */
 }
 
 .stat-card-placeholder {
@@ -802,18 +813,6 @@ button {
     justify-content: center;
     color: var(--color-text-tertiary);
     font-size: var(--font-size-lg);
-    margin-bottom: var(--spacing-xl);
-}
-
-/* Carousel indicators (dots) */
-.carousel-indicators {
-    position: absolute;
-    bottom: var(--spacing-lg);
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: var(--spacing-sm);
-    z-index: 10;
 }
 
 .indicator-dot {

@@ -233,6 +233,18 @@ function renderStatsPage(container) {
     carousel.className = 'stats-carousel';
     carousel.id = 'statsCarousel';
 
+    // Add position indicators (dots) - create first
+    const indicators = document.createElement('div');
+    indicators.className = 'carousel-indicators';
+    indicators.id = 'carouselIndicators';
+
+    statCards.forEach((_, index) => {
+        const dot = document.createElement('div');
+        dot.className = `indicator-dot ${index === 0 ? 'active' : ''}`;
+        dot.dataset.index = index;
+        indicators.appendChild(dot);
+    });
+
     // Create cards
     statCards.forEach((card, index) => {
         const cardElement = document.createElement('div');
@@ -248,21 +260,9 @@ function renderStatsPage(container) {
         carousel.appendChild(cardElement);
     });
 
-    container.appendChild(carousel);
-
-    // Add position indicators (dots)
-    const indicators = document.createElement('div');
-    indicators.className = 'carousel-indicators';
-    indicators.id = 'carouselIndicators';
-
-    statCards.forEach((_, index) => {
-        const dot = document.createElement('div');
-        dot.className = `indicator-dot ${index === 0 ? 'active' : ''}`;
-        dot.dataset.index = index;
-        indicators.appendChild(dot);
-    });
-
+    // Add indicators first, then carousel
     container.appendChild(indicators);
+    container.appendChild(carousel);
 
     // Initialize swipe handling
     initStatsCarousel(carousel, statCards.length);
