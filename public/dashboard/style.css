@@ -256,7 +256,7 @@ button {
 
 .podium-place.rank-2,
 .podium-place.rank-3 {
-    margin-top: 15px;
+    padding-top: 35px;
 }
 
 .podium-avatar-container {
@@ -269,6 +269,7 @@ button {
 .podium-place.rank-2 .podium-avatar-container,
 .podium-place.rank-3 .podium-avatar-container {
     height: 70px;
+    margin-top: -20px;
 }
 
 .podium-name-container {
