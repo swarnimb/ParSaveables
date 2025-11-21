@@ -216,28 +216,58 @@ function renderHomePage(container) {
  */
 function renderStatsPage(container) {
     container.innerHTML = '';
+    container.className = 'stats-page';
 
-    const title = document.createElement('h2');
-    title.style.marginBottom = '24px';
-    title.textContent = '📊 Performance Stats';
-    container.appendChild(title);
-
-    // Placeholder charts
-    const charts = [
-        { title: 'Points Progression', description: 'Track points over time' },
-        { title: 'Player Comparison', description: 'Compare top players' },
-        { title: 'Performance Distribution', description: 'Birdies, eagles, aces breakdown' }
+    // Stat cards data
+    const statCards = [
+        { title: 'Top Performers', icon: '🏆', description: 'Most Total Points' },
+        { title: 'Most Birdies', icon: '🐦', description: 'Best Birdie Leaders' },
+        { title: 'Most Eagles', icon: '🦅', description: 'Eagle Champions' },
+        { title: 'Most Aces', icon: '🎯', description: 'Hole-in-One Kings' },
+        { title: 'Most Wins', icon: '👑', description: 'Round Winners' },
+        { title: 'Best Average', icon: '📊', description: 'Highest Avg Score' }
     ];
 
-    charts.forEach(chart => {
-        const chartContainer = document.createElement('div');
-        chartContainer.className = 'chart-container';
-        chartContainer.innerHTML = `
-            <div class="chart-title">${chart.title}</div>
-            <div class="chart-placeholder">${chart.description}</div>
+    // Create swipeable carousel
+    const carousel = document.createElement('div');
+    carousel.className = 'stats-carousel';
+    carousel.id = 'statsCarousel';
+
+    // Create cards
+    statCards.forEach((card, index) => {
+        const cardElement = document.createElement('div');
+        cardElement.className = 'stat-card';
+        cardElement.innerHTML = `
+            <div class="stat-card-header">
+                <span class="stat-card-icon">${card.icon}</span>
+                <h2 class="stat-card-title">${card.title}</h2>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-description">${card.description}</div>
+                <div class="stat-card-placeholder">Coming soon...</div>
+            </div>
         `;
-        container.appendChild(chartContainer);
+        carousel.appendChild(cardElement);
     });
+
+    container.appendChild(carousel);
+
+    // Add position indicators (dots)
+    const indicators = document.createElement('div');
+    indicators.className = 'carousel-indicators';
+    indicators.id = 'carouselIndicators';
+
+    statCards.forEach((_, index) => {
+        const dot = document.createElement('div');
+        dot.className = `indicator-dot ${index === 0 ? 'active' : ''}`;
+        dot.dataset.index = index;
+        indicators.appendChild(dot);
+    });
+
+    container.appendChild(indicators);
+
+    // Initialize swipe handling
+    initStatsCarousel(carousel, statCards.length);
 }
 
 /**
@@ -380,6 +410,95 @@ async function handleProcessScorecard() {
  */
 function showError(message) {
     alert(message);
+}
+
+/**
+ * Initialize stats carousel with swipe handling
+ */
+function initStatsCarousel(carousel, totalCards) {
+    let currentIndex = 0;
+    let startX = 0;
+    let currentX = 0;
+    let isDragging = false;
+    let startTime = 0;
+
+    const updateCarousel = (index, animate = true) => {
+        currentIndex = Math.max(0, Math.min(index, totalCards - 1));
+        const offset = -currentIndex * 100;
+
+        if (animate) {
+            carousel.style.transition = 'transform 0.3s ease-out';
+        } else {
+            carousel.style.transition = 'none';
+        }
+
+        carousel.style.transform = `translateX(${offset}%)`;
+
+        // Update indicators
+        const indicators = document.querySelectorAll('.indicator-dot');
+        indicators.forEach((dot, i) => {
+            dot.classList.toggle('active', i === currentIndex);
+        });
+    };
+
+    const handleTouchStart = (e) => {
+        startX = e.touches[0].clientX;
+        currentX = startX;
+        isDragging = true;
+        startTime = Date.now();
+        carousel.style.transition = 'none';
+    };
+
+    const handleTouchMove = (e) => {
+        if (!isDragging) return;
+
+        currentX = e.touches[0].clientX;
+        const diff = currentX - startX;
+        const offset = -currentIndex * 100 + (diff / window.innerWidth) * 100;
+
+        carousel.style.transform = `translateX(${offset}%)`;
+    };
+
+    const handleTouchEnd = (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+
+        const diff = currentX - startX;
+        const duration = Date.now() - startTime;
+        const velocity = Math.abs(diff) / duration;
+
+        // Swipe threshold: 50px or fast swipe (velocity > 0.3)
+        if (Math.abs(diff) > 50 || velocity > 0.3) {
+            if (diff > 0 && currentIndex > 0) {
+                // Swipe right - go to previous
+                updateCarousel(currentIndex - 1);
+            } else if (diff < 0 && currentIndex < totalCards - 1) {
+                // Swipe left - go to next
+                updateCarousel(currentIndex + 1);
+            } else {
+                // Snap back
+                updateCarousel(currentIndex);
+            }
+        } else {
+            // Snap back to current
+            updateCarousel(currentIndex);
+        }
+    };
+
+    // Touch events
+    carousel.addEventListener('touchstart', handleTouchStart, { passive: true });
+    carousel.addEventListener('touchmove', handleTouchMove, { passive: true });
+    carousel.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    // Click on indicator dots
+    document.querySelectorAll('.indicator-dot').forEach(dot => {
+        dot.addEventListener('click', () => {
+            updateCarousel(parseInt(dot.dataset.index));
+        });
+    });
+
+    // Initialize position
+    updateCarousel(0, false);
 }
 
 // Start app when DOM is ready
