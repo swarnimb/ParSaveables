@@ -2,8 +2,8 @@
  * Main Application - Orchestrates the dashboard
  */
 
-import { initSupabase, getEvents, getEventsByType, getLeaderboard, getActiveEvent, processScorecard } from './data.js';
-import { createEventSelector, createPodium, createPlayerList, createLoadingState, createEmptyState } from './components.js';
+import { initSupabase, getEvents, getEventsByType, getLeaderboard, getActiveEvent, processScorecard } from '/dashboard/data.js';
+import { createEventSelector, createPodium, createPlayerList, createLoadingState, createEmptyState } from '/dashboard/components.js';
 
 // Supabase configuration
 const SUPABASE_URL = 'https://bcovevbtcdsgzbrieiin.supabase.co';
