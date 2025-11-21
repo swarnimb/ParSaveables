@@ -99,13 +99,9 @@ export function createPodium(topThree, onPlayerClick, expandedIds) {
         // Get initials from player name
         const initials = getInitials(player.name);
 
-        // Disc icon (🥏 emoji styled with rank color)
-        const discIcon = '🥏';
-
         place.innerHTML = `
             <div class="podium-avatar-container">
                 <div class="podium-disc rank-${actualRank}">
-                    ${discIcon}
                     <div class="podium-rank">${actualRank}</div>
                 </div>
             </div>

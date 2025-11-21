@@ -2,14 +2,15 @@
 
 **Quick Start for New Claude Code Sessions**
 
-Last Updated: 2025-11-19
+Last Updated: 2025-11-21
 
 ---
 
 ## TL;DR - Start Here
 
-**System Status:** ✅ **FULLY OPERATIONAL**
+**System Status:** ✅ **FULLY OPERATIONAL - NEW MOBILE DASHBOARD LIVE**
 - Production deployment on Vercel
+- New mobile-first dashboard at `/dashboard/`
 - Manual trigger via dashboard button
 - Event-based player filtering active
 - All 8 services + 2 API endpoints working
@@ -37,12 +38,22 @@ Last Updated: 2025-11-19
 4. 12-step workflow processes and stores data
 5. Dashboard auto-refreshes to show new data
 
-### Recent Changes (Nov 19, 2025)
+### Recent Changes (Nov 21, 2025)
+**Mobile Dashboard UI Overhaul:**
+- Built new mobile-first dashboard at `/public/dashboard/`
+- 5 files: index.html, style.css, app.js, components.js, data.js
+- Forest background image with semi-transparent cards
+- Top 3 podium with gold/silver/bronze metallic disc graphics
+- Event selector (Season/Tournament toggle)
+- Expandable stats for all players (overall stats, not just top 10)
+- Bottom navigation with iPhone-style notch design
+- Removed chatbot functionality to preserve API credits
+
+**Previous (Nov 19, 2025):**
 - Added manual trigger button to dashboard
 - Removed automatic cron job (was daily at 12pm UTC)
 - Implemented event-based player filtering
 - Players shown on dashboard now filtered by `events.players` column
-- Reorganized documentation into ROADMAP.md
 
 ---
 
@@ -64,8 +75,17 @@ Last Updated: 2025-11-19
 - `/api/chatbot` - AI chatbot for dashboard queries
 
 ### Frontend (Static HTML/CSS/JS)
-- `public/index.html` - Main dashboard (~2700 lines, needs refactoring)
-- `public/admin.html` - Admin panel (~1500 lines, needs refactoring)
+**New Mobile Dashboard (Nov 2025):**
+- `public/dashboard/index.html` - Dashboard shell (55 lines)
+- `public/dashboard/style.css` - Complete styling with CSS variables (~700 lines)
+- `public/dashboard/app.js` - Main orchestrator, routing, state (360 lines)
+- `public/dashboard/components.js` - Reusable UI components (265 lines)
+- `public/dashboard/data.js` - Supabase queries, leverages backend (161 lines)
+- `public/dashboard/forest-bg.jpg` - Background image
+
+**Legacy Dashboards:**
+- `public/index.html` - Old desktop dashboard (~2700 lines, deprecated)
+- `public/admin.html` - Admin panel (~1500 lines, still in use)
 
 ### Database (Supabase PostgreSQL)
 **Configuration Tables:**

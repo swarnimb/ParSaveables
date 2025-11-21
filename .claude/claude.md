@@ -2,9 +2,9 @@
 
 **Quick Start:** Read `docs/SESSION-HANDOFF.md` for complete current state
 
-**Last Updated:** 2025-11-19
+**Last Updated:** 2025-11-21
 
-**Status:** ✅ Production Ready - Fully Operational System
+**Status:** ✅ Production Ready - New Mobile Dashboard Live
 
 ---
 
@@ -85,13 +85,22 @@ Before proposing file structure:
 - `docs/TESTING.md` - Testing procedures
 - `README.md` - Project overview
 
-## Recent Changes (Nov 19, 2025)
+## Recent Changes (Nov 21, 2025)
 
-- Added manual trigger button to dashboard
+**Mobile Dashboard UI Overhaul:**
+- Built new mobile-first dashboard (`/public/dashboard/`) with 5 files total
+- Forest background image with semi-transparent cards
+- Top 3 players shown with metallic gold/silver/bronze disc graphics
+- Podium display (2-1-3 arrangement) with expandable stats
+- Event selector (Season/Tournament toggle)
+- Stats calculated from overall performance (not just top 10)
+- Bottom navigation with iPhone-style notch design
+- Removed chatbot to preserve API credits
+
+**Previous (Nov 19, 2025):**
+- Added manual trigger button
 - Removed automatic cron jobs
 - Implemented event-based player filtering
-- Reorganized documentation (merged NEXT-STEPS + FUTURE-IMPROVEMENTS → ROADMAP)
-- Cleaned up temporary files
 
 ---
 
