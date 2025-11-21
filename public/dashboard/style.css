@@ -800,7 +800,7 @@ button {
     width: 100%;
     display: flex;
     flex-direction: column;
-    max-height: 70%; /* Reduce chart size by 30% */
+    max-height: 56%; /* Reduced by 30% + 20% = 50% total reduction */
 }
 
 .stat-card-placeholder {

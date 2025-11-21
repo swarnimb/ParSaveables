@@ -218,6 +218,15 @@ function renderStatsPage(container) {
     container.innerHTML = '';
     container.className = 'stats-page';
 
+    // Event selector (reuse from home page)
+    const eventSelector = createEventSelector(
+        state.currentEvents,
+        state.eventType,
+        state.selectedEventId,
+        handleStatsEventChange
+    );
+    container.appendChild(eventSelector);
+
     // Stat cards data
     const statCards = [
         { title: 'Top Performers', description: 'Most Total Points' },
@@ -227,11 +236,6 @@ function renderStatsPage(container) {
         { title: 'Most Wins', description: 'Round Winners' },
         { title: 'Best Average', description: 'Highest Avg Score' }
     ];
-
-    // Create swipeable carousel
-    const carousel = document.createElement('div');
-    carousel.className = 'stats-carousel';
-    carousel.id = 'statsCarousel';
 
     // Add position indicators (dots) - create first
     const indicators = document.createElement('div');
@@ -244,6 +248,13 @@ function renderStatsPage(container) {
         dot.dataset.index = index;
         indicators.appendChild(dot);
     });
+
+    container.appendChild(indicators);
+
+    // Create swipeable carousel
+    const carousel = document.createElement('div');
+    carousel.className = 'stats-carousel';
+    carousel.id = 'statsCarousel';
 
     // Create cards
     statCards.forEach((card, index) => {
@@ -260,8 +271,6 @@ function renderStatsPage(container) {
         carousel.appendChild(cardElement);
     });
 
-    // Add indicators first, then carousel
-    container.appendChild(indicators);
     container.appendChild(carousel);
 
     // Initialize swipe handling
@@ -361,6 +370,42 @@ async function handleEventChange(type, eventId) {
         }
 
         renderHomePage(content);
+    } catch (error) {
+        console.error('Failed to change event:', error);
+        showError('Failed to load event data');
+    }
+}
+
+/**
+ * Handle event type/selection change for stats page
+ */
+async function handleStatsEventChange(type, eventId) {
+    // Show loading
+    const content = document.getElementById('content');
+    content.innerHTML = '';
+    content.appendChild(createLoadingState());
+
+    try {
+        // Update type if changed
+        if (type !== state.eventType) {
+            state.eventType = type;
+            state.currentEvents = await getEventsByType(type);
+
+            // Select first event of new type
+            if (state.currentEvents.length > 0) {
+                state.selectedEventId = state.currentEvents[0].id;
+            }
+        } else if (eventId) {
+            // Just update selected event
+            state.selectedEventId = eventId;
+        }
+
+        // Load leaderboard for new event (for stats calculations)
+        if (state.selectedEventId) {
+            state.leaderboard = await getLeaderboard(state.selectedEventId);
+        }
+
+        renderStatsPage(content);
     } catch (error) {
         console.error('Failed to change event:', error);
         showError('Failed to load event data');
