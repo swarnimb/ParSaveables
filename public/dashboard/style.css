@@ -277,7 +277,7 @@ button {
    =================================== */
 .podium-section {
     margin-bottom: var(--spacing-lg);
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
     background: var(--color-bg-secondary);
     border-radius: var(--border-radius-lg);
     border: 1px solid var(--color-border);
@@ -287,7 +287,7 @@ button {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--spacing-md);
-    padding: var(--spacing-md) 0;
+    padding: 0;
 }
 
 .podium-place {
@@ -301,11 +301,11 @@ button {
 
 .podium-place.rank-2,
 .podium-place.rank-3 {
-    padding-top: 35px;
+    padding-top: 31.5px;
 }
 
 .podium-avatar-container {
-    height: 67.5px;
+    height: 60.75px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -313,19 +313,19 @@ button {
 
 .podium-place.rank-2 .podium-avatar-container,
 .podium-place.rank-3 .podium-avatar-container {
-    height: 52.5px;
-    margin-top: -20px;
+    height: 47.25px;
+    margin-top: -18px;
 }
 
 .podium-name-container {
-    min-height: 40px;
+    min-height: 36px;
     display: flex;
     align-items: flex-start;
     justify-content: center;
 }
 
 .podium-stats-container {
-    min-height: 50px;
+    min-height: 45px;
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -361,90 +361,90 @@ button {
 }
 
 .podium-disc {
-    width: 52.5px;
-    height: 52.5px;
+    width: 47.25px;
+    height: 47.25px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    border: 3px solid rgba(0, 0, 0, 0.3);
+    border: 2.7px solid rgba(0, 0, 0, 0.3);
 }
 
 .podium-disc.rank-1 {
-    width: 67.5px;
-    height: 67.5px;
+    width: 60.75px;
+    height: 60.75px;
     background: radial-gradient(circle at 30% 30%, #ffd700, #ffed4e 25%, #ffa500 50%, #ff8c00 75%, #b8860b);
     box-shadow:
-        0 0 30px rgba(255, 215, 0, 0.8),
-        0 4px 15px rgba(0, 0, 0, 0.5),
-        inset 0 2px 5px rgba(255, 255, 255, 0.6),
-        inset 0 -2px 5px rgba(0, 0, 0, 0.3);
+        0 0 27px rgba(255, 215, 0, 0.8),
+        0 3.6px 13.5px rgba(0, 0, 0, 0.5),
+        inset 0 1.8px 4.5px rgba(255, 255, 255, 0.6),
+        inset 0 -1.8px 4.5px rgba(0, 0, 0, 0.3);
 }
 
 .podium-disc.rank-2 {
     background: radial-gradient(circle at 30% 30%, #f5f5f5, #e8e8e8 25%, #c0c0c0 50%, #a8a8a8 75%, #808080);
     box-shadow:
-        0 0 20px rgba(192, 192, 192, 0.7),
-        0 4px 12px rgba(0, 0, 0, 0.4),
-        inset 0 2px 5px rgba(255, 255, 255, 0.6),
-        inset 0 -2px 5px rgba(0, 0, 0, 0.3);
+        0 0 18px rgba(192, 192, 192, 0.7),
+        0 3.6px 10.8px rgba(0, 0, 0, 0.4),
+        inset 0 1.8px 4.5px rgba(255, 255, 255, 0.6),
+        inset 0 -1.8px 4.5px rgba(0, 0, 0, 0.3);
 }
 
 .podium-disc.rank-3 {
     background: radial-gradient(circle at 30% 30%, #f4a460, #d2691e 25%, #cd7f32 50%, #b8732e 75%, #8b4513);
     box-shadow:
-        0 0 20px rgba(205, 127, 50, 0.7),
-        0 4px 12px rgba(0, 0, 0, 0.4),
-        inset 0 2px 5px rgba(255, 255, 255, 0.4),
-        inset 0 -2px 5px rgba(0, 0, 0, 0.3);
+        0 0 18px rgba(205, 127, 50, 0.7),
+        0 3.6px 10.8px rgba(0, 0, 0, 0.4),
+        inset 0 1.8px 4.5px rgba(255, 255, 255, 0.4),
+        inset 0 -1.8px 4.5px rgba(0, 0, 0, 0.3);
 }
 
 .podium-rank-number {
-    font-size: 24px;
+    font-size: 21.6px;
     font-weight: 900;
     color: rgba(0, 0, 0, 0.7);
-    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+    text-shadow: 0 0.9px 1.8px rgba(255, 255, 255, 0.5);
 }
 
 .podium-disc.rank-1 .podium-rank-number {
-    font-size: 32px;
+    font-size: 28.8px;
 }
 
 .podium-name {
-    font-size: var(--font-size-sm);
+    font-size: 10.8px;
     font-weight: 600;
     color: var(--color-text-primary);
     text-align: center;
-    max-width: 90px;
+    max-width: 81px;
     line-height: var(--line-height-tight);
     word-wrap: break-word;
 }
 
 .podium-name.rank-1-name {
-    font-size: 16.1px;
+    font-size: 14.49px;
 }
 
 .podium-stats {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: 1.8px;
 }
 
 .podium-points {
-    font-size: var(--font-size-sm);
+    font-size: 10.8px;
     font-weight: 700;
     color: var(--color-accent);
     line-height: 1;
 }
 
 .podium-place.rank-1 .podium-points {
-    font-size: 16.1px;
+    font-size: 14.49px;
 }
 
 .podium-rounds {
-    font-size: var(--font-size-xs);
+    font-size: 9px;
     color: var(--color-text-secondary);
     line-height: 1;
 }
