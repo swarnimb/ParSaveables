@@ -20,9 +20,31 @@ const state = {
     expandedPlayers: new Set()
 };
 
+// Disc golf jokes/puns
+const discGolfJokes = [
+    "I'm having a disc-traction free day! 🥏",
+    "Keep calm and throw on! 🎯",
+    "Life is full of obstacles... just like my putting line 🥏",
+    "Every throw is a chance to be pargeous! ⛓️",
+    "Disc golf: where the chains call your name 🔗",
+    "I came, I threw, I chained! ⛓️",
+    "My favorite exercise? Running for my disc 🏃‍♂️",
+    "Throwing plastic at trees since... well, today! 🌲",
+    "Par for the course? More like par-ty time! 🎉",
+    "Keep your friends close and your discs closer 🥏",
+    "When life gives you trees, ace through them! 🌲",
+    "Disc golf: cheaper than therapy, just as frustrating 😅",
+    "I've got 99 problems and they're all in the rough 🌿",
+    "Stay calm and crush chains ⛓️",
+    "Warning: May spontaneously throw discs 🥏"
+];
+
 // Initialize app
 async function init() {
     console.log('Initializing ParSaveables Dashboard...');
+
+    // Show random joke
+    showRandomJoke();
 
     // Initialize Supabase
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -36,6 +58,15 @@ async function init() {
 
     // Render home page
     renderCurrentPage();
+}
+
+/**
+ * Show random disc golf joke in banner
+ */
+function showRandomJoke() {
+    const jokeElement = document.getElementById('discGolfJoke');
+    const randomJoke = discGolfJokes[Math.floor(Math.random() * discGolfJokes.length)];
+    jokeElement.textContent = randomJoke;
 }
 
 /**

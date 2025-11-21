@@ -94,56 +94,77 @@ button {
 }
 
 /* ===================================
-   TOP HEADER
+   TOP BANNER (Joke + Admin)
+   =================================== */
+.top-banner {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    padding: var(--spacing-sm) var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: calc(var(--z-index-header) + 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.disc-golf-joke {
+    flex: 1;
+    font-size: var(--font-size-sm);
+    color: #ffffff;
+    font-weight: 500;
+    line-height: 1.4;
+    padding-right: var(--spacing-sm);
+}
+
+.admin-menu-btn {
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.hamburger-line {
+    width: 20px;
+    height: 2px;
+    background: #ffffff;
+    border-radius: 2px;
+    transition: all 0.3s;
+}
+
+.admin-menu-btn:active .hamburger-line {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+/* ===================================
+   LOGO HEADER
    =================================== */
 #header {
     position: sticky;
-    top: 0;
+    top: 40px;
     background: var(--color-bg-primary);
     border-bottom: 1px solid var(--color-border);
     padding: var(--spacing-md);
-    padding-bottom: var(--spacing-lg);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: var(--z-index-header);
 }
 
-.admin-icon {
-    position: absolute;
-    left: var(--spacing-md);
-    top: 50%;
-    transform: translateY(-50%);
-    width: 40px;
-    height: 40px;
-    font-size: var(--font-size-xl);
-    color: var(--color-text-tertiary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s;
-}
-
-.admin-icon:active {
-    color: var(--color-accent);
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-}
-
-.logo-icon {
-    font-size: var(--font-size-2xl);
-}
-
-.logo h1 {
+.main-title {
     font-size: 24px;
     font-weight: 700;
     letter-spacing: 1px;
     font-family: 'Georgia', 'Times New Roman', serif;
     color: var(--color-accent);
+    margin: 0;
 }
 
 /* ===================================
