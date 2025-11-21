@@ -166,11 +166,10 @@ button {
 }
 
 .main-title {
-    font-size: 28px;
-    font-weight: 400;
+    font-size: 24px;
+    font-weight: 700;
     letter-spacing: 1px;
-    font-family: 'Bebas Neue', 'Arial Black', sans-serif;
-    text-transform: none;
+    font-family: 'Georgia', 'Times New Roman', serif;
     color: var(--color-accent);
     margin: 0;
 }
