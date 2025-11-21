@@ -84,28 +84,38 @@ export async function getLeaderboard(eventId) {
         playerAllRounds[pr.player_name].push(pr);
     });
 
-    // Calculate stats using TOP 10 SCORES
+    // Calculate stats using TOP 10 SCORES for ranking, but keep overall stats for display
     const leaderboard = Object.entries(playerAllRounds).map(([name, rounds]) => {
         // Sort by points descending and take top 10
         const sortedRounds = rounds.sort((a, b) => (b.final_total || 0) - (a.final_total || 0));
         const top10 = sortedRounds.slice(0, 10);
 
+        // Top 10 stats (for ranking)
         const totalPoints = top10.reduce((sum, r) => sum + (r.final_total || 0), 0);
-        const totalScore = top10.reduce((sum, r) => sum + r.total_score, 0);
+
+        // Overall stats (for dropdown display)
+        const totalScore = rounds.reduce((sum, r) => sum + r.total_score, 0);
+        const totalWins = rounds.filter(r => r.rank === 1).length;
+        const totalTopThreeFinishes = rounds.filter(r => r.rank <= 3).length;
+        const totalBirdies = rounds.reduce((sum, r) => sum + (r.birdies || 0), 0);
+        const totalEagles = rounds.reduce((sum, r) => sum + (r.eagles || 0), 0);
+        const totalAces = rounds.reduce((sum, r) => sum + (r.aces || 0), 0);
+        const totalPars = rounds.reduce((sum, r) => sum + (r.pars || 0), 0);
+        const totalBogeys = rounds.reduce((sum, r) => sum + (r.bogeys || 0), 0);
 
         return {
             name,
-            totalPoints,
+            totalPoints, // Top 10 only (for ranking)
             rounds: rounds.length, // Total rounds played
-            countedRounds: top10.length, // Rounds that count (max 10)
-            wins: top10.filter(r => r.rank === 1).length,
-            topThreeFinishes: top10.filter(r => r.rank <= 3).length,
-            birdies: top10.reduce((sum, r) => sum + (r.birdies || 0), 0),
-            eagles: top10.reduce((sum, r) => sum + (r.eagles || 0), 0),
-            aces: top10.reduce((sum, r) => sum + (r.aces || 0), 0),
-            pars: top10.reduce((sum, r) => sum + (r.pars || 0), 0),
-            bogeys: top10.reduce((sum, r) => sum + (r.bogeys || 0), 0),
-            avgScore: top10.length > 0 ? (totalScore / top10.length).toFixed(1) : 0
+            countedRounds: top10.length, // Rounds that count toward points (max 10)
+            wins: totalWins, // Overall
+            topThreeFinishes: totalTopThreeFinishes, // Overall
+            birdies: totalBirdies, // Overall
+            eagles: totalEagles, // Overall
+            aces: totalAces, // Overall
+            pars: totalPars, // Overall
+            bogeys: totalBogeys, // Overall
+            avgScore: rounds.length > 0 ? (totalScore / rounds.length).toFixed(1) : 0 // Overall average
         };
     });
 
