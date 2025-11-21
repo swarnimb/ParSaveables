@@ -325,10 +325,10 @@ button {
     font-size: var(--font-size-base);
     font-weight: 600;
     color: var(--color-text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    text-align: center;
     max-width: 90px;
+    line-height: var(--line-height-tight);
+    word-wrap: break-word;
 }
 
 .podium-points {
