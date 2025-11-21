@@ -99,7 +99,10 @@ export function createPodium(topThree, onPlayerClick) {
                 <div class="podium-rank">${actualRank}</div>
             </div>
             <div class="podium-name">${player.name}</div>
-            <div class="podium-points">${player.totalPoints} pts</div>
+            <div class="podium-stats">
+                <div class="podium-points">${player.totalPoints} pts</div>
+                <div class="podium-rounds">${player.countedRounds} rounds</div>
+            </div>
         `;
 
         podium.appendChild(place);
