@@ -94,7 +94,6 @@ export async function getLeaderboard(eventId) {
         const totalPoints = top10.reduce((sum, r) => sum + (r.final_total || 0), 0);
 
         // Overall stats (for dropdown display)
-        const totalScore = rounds.reduce((sum, r) => sum + (r.total_score || 0), 0);
         const totalWins = rounds.filter(r => r.rank === 1).length;
         const totalTopThreeFinishes = rounds.filter(r => r.rank <= 3).length;
         const totalBirdies = rounds.reduce((sum, r) => sum + (r.birdies || 0), 0);
@@ -102,6 +101,10 @@ export async function getLeaderboard(eventId) {
         const totalAces = rounds.reduce((sum, r) => sum + (r.aces || 0), 0);
         const totalPars = rounds.reduce((sum, r) => sum + (r.pars || 0), 0);
         const totalBogeys = rounds.reduce((sum, r) => sum + (r.bogeys || 0), 0);
+
+        // Calculate average points (final_total) across all rounds
+        const totalPointsAllRounds = rounds.reduce((sum, r) => sum + (r.final_total || 0), 0);
+        const avgScore = rounds.length > 0 ? (totalPointsAllRounds / rounds.length).toFixed(1) : '-';
 
         return {
             name,
@@ -115,7 +118,7 @@ export async function getLeaderboard(eventId) {
             aces: totalAces, // Overall
             pars: totalPars, // Overall
             bogeys: totalBogeys, // Overall
-            avgScore: rounds.length > 0 && totalScore > 0 ? (totalScore / rounds.length).toFixed(1) : '-' // Overall average
+            avgScore: avgScore // Overall average points per round
         };
     });
 
