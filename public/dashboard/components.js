@@ -111,7 +111,7 @@ export function createPodium(topThree, onPlayerClick, expandedIds) {
             <div class="podium-stats-container">
                 <div class="podium-stats">
                     <div class="podium-points">${player.totalPoints} pts</div>
-                    <div class="podium-rounds">${player.countedRounds} rounds</div>
+                    <div class="podium-rounds">${player.rounds} rounds</div>
                 </div>
             </div>
         `;
