@@ -136,20 +136,20 @@ export function createPodium(topThree, onPlayerClick, expandedIds) {
                     <span class="stat-value">${expandedPlayer.wins}</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">Avg Score</span>
-                    <span class="stat-value">${expandedPlayer.avgScore}</span>
+                    <span class="stat-label">Birdies</span>
+                    <span class="stat-value">${expandedPlayer.birdies}</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-label">Podiums</span>
                     <span class="stat-value">${expandedPlayer.topThreeFinishes || 0}</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">Birdies</span>
-                    <span class="stat-value">${expandedPlayer.birdies}</span>
-                </div>
-                <div class="stat-item">
                     <span class="stat-label">Eagles</span>
                     <span class="stat-value">${expandedPlayer.eagles}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Avg Score</span>
+                    <span class="stat-value">${expandedPlayer.avgScore}</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-label">Aces</span>
@@ -210,20 +210,20 @@ function createPlayerRow(player, isExpanded, onPlayerClick) {
                     <span class="stat-value">${player.wins}</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">Avg Score</span>
-                    <span class="stat-value">${player.avgScore}</span>
+                    <span class="stat-label">Birdies</span>
+                    <span class="stat-value">${player.birdies}</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-label">Podiums</span>
                     <span class="stat-value">${player.topThreeFinishes || 0}</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">Birdies</span>
-                    <span class="stat-value">${player.birdies}</span>
-                </div>
-                <div class="stat-item">
                     <span class="stat-label">Eagles</span>
                     <span class="stat-value">${player.eagles}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Avg Score</span>
+                    <span class="stat-value">${player.avgScore}</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-label">Aces</span>
