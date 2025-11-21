@@ -414,7 +414,7 @@ button {
 }
 
 .podium-name {
-    font-size: 12.42px;
+    font-size: var(--font-size-base);
     font-weight: 600;
     color: var(--color-text-primary);
     text-align: center;
@@ -424,7 +424,7 @@ button {
 }
 
 .podium-name.rank-1-name {
-    font-size: 16.66px;
+    font-size: 16.8px;
 }
 
 .podium-stats {
@@ -435,18 +435,18 @@ button {
 }
 
 .podium-points {
-    font-size: 12.42px;
+    font-size: var(--font-size-lg);
     font-weight: 700;
     color: var(--color-accent);
     line-height: 1;
 }
 
 .podium-place.rank-1 .podium-points {
-    font-size: 16.66px;
+    font-size: 19.2px;
 }
 
 .podium-rounds {
-    font-size: 9px;
+    font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
     line-height: 1;
 }
