@@ -224,13 +224,13 @@ When you identify a new feature or improvement:
 ## Completed Features
 
 ### Manual Scorecard Processing Trigger
-**Completed:** 2025-01-19
+**Completed:** 2025-11-19
 **Description:** Added dashboard button to manually trigger scorecard processing instead of relying on cron jobs.
 
 ### Event-Based Player Filtering
-**Completed:** 2025-01-19
+**Completed:** 2025-11-19
 **Description:** Dashboard now filters leaderboards by event-specific player lists from `events.players` column.
 
 ---
 
-**Last Updated:** 2025-01-19
+**Last Updated:** 2025-11-19
