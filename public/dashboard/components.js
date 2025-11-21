@@ -106,7 +106,7 @@ export function createPodium(topThree, onPlayerClick, expandedIds) {
                 </div>
             </div>
             <div class="podium-name-container">
-                <div class="podium-name">${player.name}</div>
+                <div class="podium-name">${formatPlayerName(player.name)}</div>
             </div>
             <div class="podium-stats-container">
                 <div class="podium-stats">
@@ -194,7 +194,7 @@ function createPlayerRow(player, isExpanded, onPlayerClick) {
                 <span class="rank-movement same">${movement}</span>
             </div>
             <div class="player-info">
-                <div class="player-name">${player.name}</div>
+                <div class="player-name">${formatPlayerName(player.name)}</div>
                 <div class="player-meta">${player.rounds} rounds</div>
             </div>
             <div class="player-points">${player.totalPoints}</div>
@@ -259,11 +259,21 @@ export function createEmptyState(message, icon = '📭') {
 }
 
 /**
+ * Helper: Format player name for display (replace "Bird" with emoji)
+ */
+function formatPlayerName(name) {
+    if (name === 'Bird') {
+        return '🦅';
+    }
+    return name;
+}
+
+/**
  * Helper: Get initials from name
  */
 function getInitials(name) {
     // Handle emoji names like "Bird 🦅"
-    if (name.includes('🦅')) return '🦅';
+    if (name.includes('🦅') || name === 'Bird') return '🦅';
 
     const parts = name.trim().split(' ');
     if (parts.length === 1) {
