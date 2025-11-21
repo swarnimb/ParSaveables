@@ -218,116 +218,6 @@
             transform: rotate(180deg);
         }
 
-        .chat-section {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 250, 252, 0.98) 100%);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: none;
-            margin-bottom: 25px;
-            margin-top: 5px;
-            margin-left: auto;
-            margin-right: auto;
-            max-width: 800px;
-            transition: all 0.3s ease;
-            min-height: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chat-section.expanded {
-            padding: 20px;
-            min-height: 450px;
-        }
-
-        .chat-box {
-            height: 0;
-            overflow: hidden;
-            border: none;
-            border-radius: 10px;
-            padding: 0;
-            margin-bottom: 0;
-            background: rgba(10, 25, 47, 0.6);
-            transition: all 0.3s ease;
-        }
-
-        .chat-box.visible {
-            height: 350px;
-            overflow-y: auto;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .message {
-            margin-bottom: 10px;
-            padding: 8px 12px;
-            border-radius: 8px;
-            max-width: 80%;
-            animation: fadeIn 0.3s;
-            font-size: 0.675em;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .user-message {
-            background: linear-gradient(135deg, #64ffda 0%, #00d9ff 100%);
-            color: #0a192f;
-            margin-left: auto;
-            text-align: right;
-            font-weight: 500;
-        }
-        
-        .bot-message {
-            background: rgba(100, 255, 218, 0.1);
-            border: none;
-            color: #e6f1ff;
-            white-space: pre-wrap;
-        }
-        
-        .chat-input-container {
-            display: flex;
-            gap: 8px;
-        }
-        
-        #chatInput {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9em;
-            background: rgba(10, 25, 47, 0.6);
-            color: #e6f1ff;
-        }
-        
-        #chatInput::placeholder {
-            color: rgba(230, 241, 255, 0.5);
-        }
-        
-        #sendBtn {
-            background: linear-gradient(135deg, #64ffda 0%, #00d9ff 100%);
-            color: #0a192f;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        
-        #sendBtn:hover {
-            transform: translateY(-2px);
-            box-shadow: none;
-        }
-        
-        #sendBtn:disabled {
-            background: #555;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
         .row {
             margin-bottom: 20px;
         }
@@ -768,14 +658,6 @@
                 font-size: 0.85em;
             }
 
-            .chat-box.visible {
-                height: 300px;
-            }
-
-            .chat-section.expanded {
-                min-height: 380px;
-            }
-
             /* Fix mobile line graph height */
             .chart-container {
                 height: 300px !important;
@@ -1001,14 +883,6 @@
             <button class="pun-refresh" onclick="refreshPun()" title="Get another pun">🔄</button>
         </div>
 
-        <div class="chat-section" id="chatSection">
-            <div class="chat-box" id="chatBox"></div>
-            <div class="chat-input-container">
-                <input type="text" id="chatInput" placeholder="Ask a question about stats..." onkeypress="handleKeyPress(event)">
-                <button id="sendBtn" onclick="sendMessage()">Send</button>
-            </div>
-        </div>
-
         <div class="row row-1">
             <div class="card">
                 <h2 id="leaderboardTitle">🏆 Season Leaderboard</h2>
@@ -1070,7 +944,6 @@
     <script>
         const SUPABASE_URL = 'https://bcovevbtcdsgzbrieiin.supabase.co';  // e.g., 'https://xxxxx.supabase.co'
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjb3ZldmJ0Y2RzZ3picmllaWluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MzA3OTEsImV4cCI6MjA3NjIwNjc5MX0.etzrLL8yw4n_NUdYnr_bdcrKphW67dYln8CjR54NSLA';  // Long string starting with 'eyJ...'
-        const CHATBOT_API_URL = '/api/chatbot';  // Vercel serverless function endpoint
 
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let monthlyTrendChart;
@@ -2056,54 +1929,6 @@
                     <p style="font-size: 0.8em; margin-top: 10px;">Debug: ${error.message}</p>
                 </div>`;
             }
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') sendMessage();
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const question = input.value.trim();
-            if (!question) return;
-
-            const chatBox = document.getElementById('chatBox');
-            const chatSection = document.getElementById('chatSection');
-            chatBox.classList.add('visible');
-            chatSection.classList.add('expanded');
-
-            addMessage(question, 'user');
-            input.value = '';
-
-            const sendBtn = document.getElementById('sendBtn');
-            sendBtn.disabled = true;
-            sendBtn.textContent = 'Thinking...';
-
-            try {
-                const response = await fetch(CHATBOT_API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question })
-                });
-                const data = await response.json();
-                addMessage(data.answer || 'Sorry, I could not process that question.', 'bot');
-            } catch (error) {
-                console.error('Chat error:', error);
-                addMessage('Error: Could not connect to chatbot.', 'bot');
-            }
-
-            sendBtn.disabled = false;
-            sendBtn.textContent = 'Send';
-        }
-
-        function addMessage(text, type) {
-            const chatBox = document.getElementById('chatBox');
-            const message = document.createElement('div');
-            message.className = `message ${type}-message`;
-            message.style.whiteSpace = 'pre-wrap';
-            message.textContent = text;
-            chatBox.appendChild(message);
-            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
         // Pun system - 200 hilarious disc golf one-liners
