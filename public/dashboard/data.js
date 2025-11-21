@@ -99,6 +99,7 @@ export async function getLeaderboard(eventId) {
             rounds: rounds.length, // Total rounds played
             countedRounds: top10.length, // Rounds that count (max 10)
             wins: rounds.filter(r => r.rank === 1).length,
+            topThreeFinishes: rounds.filter(r => r.rank <= 3).length,
             birdies: rounds.reduce((sum, r) => sum + (r.birdies || 0), 0),
             eagles: rounds.reduce((sum, r) => sum + (r.eagles || 0), 0),
             aces: rounds.reduce((sum, r) => sum + (r.aces || 0), 0),

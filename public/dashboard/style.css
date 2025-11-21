@@ -239,9 +239,8 @@ button {
 }
 
 .podium {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: var(--spacing-md);
     padding: var(--spacing-md) 0;
 }
@@ -253,12 +252,37 @@ button {
     gap: var(--spacing-sm);
     cursor: pointer;
     transition: transform 0.2s;
-    padding-top: 0;
 }
 
 .podium-place.rank-2,
 .podium-place.rank-3 {
-    padding-top: 15px;
+    margin-top: 15px;
+}
+
+.podium-avatar-container {
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.podium-place.rank-2 .podium-avatar-container,
+.podium-place.rank-3 .podium-avatar-container {
+    height: 70px;
+}
+
+.podium-name-container {
+    min-height: 40px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.podium-stats-container {
+    min-height: 50px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
 }
 
 .podium-place:active {
@@ -461,7 +485,8 @@ button {
     display: none;
 }
 
-.player-row.expanded .player-details {
+.player-row.expanded .player-details,
+.podium-place.expanded .player-details {
     display: block;
 }
 

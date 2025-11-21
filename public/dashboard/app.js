@@ -168,7 +168,7 @@ function renderHomePage(container) {
     // Podium (top 3)
     const topThree = state.leaderboard.slice(0, 3);
     if (topThree.length > 0) {
-        const podium = createPodium(topThree, handlePlayerClick);
+        const podium = createPodium(topThree, handlePlayerClick, state.expandedPlayers);
         container.appendChild(podium);
     }
 

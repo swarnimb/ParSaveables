@@ -68,7 +68,7 @@ export function createEventSelector(events, currentType, currentEventId, onEvent
 /**
  * Create podium for top 3 players
  */
-export function createPodium(topThree, onPlayerClick) {
+export function createPodium(topThree, onPlayerClick, expandedIds) {
     const section = document.createElement('div');
     section.className = 'podium-section';
 
@@ -86,22 +86,59 @@ export function createPodium(topThree, onPlayerClick) {
         if (!player) return;
 
         const actualRank = player.rank;
+        const isExpanded = expandedIds.has(player.name);
         const place = document.createElement('div');
-        place.className = `podium-place rank-${actualRank}`;
+        place.className = `podium-place rank-${actualRank} ${isExpanded ? 'expanded' : ''}`;
         place.addEventListener('click', () => onPlayerClick(player));
 
         // Get initials from player name
         const initials = getInitials(player.name);
 
+        const topThreeFinishes = player.rounds; // Will need to calculate actual top 3s
+
         place.innerHTML = `
-            <div class="podium-avatar">
-                ${initials}
-                <div class="podium-rank">${actualRank}</div>
+            <div class="podium-avatar-container">
+                <div class="podium-avatar">
+                    ${initials}
+                    <div class="podium-rank">${actualRank}</div>
+                </div>
             </div>
-            <div class="podium-name">${player.name}</div>
-            <div class="podium-stats">
-                <div class="podium-points">${player.totalPoints} pts</div>
-                <div class="podium-rounds">${player.countedRounds} rounds</div>
+            <div class="podium-name-container">
+                <div class="podium-name">${player.name}</div>
+            </div>
+            <div class="podium-stats-container">
+                <div class="podium-stats">
+                    <div class="podium-points">${player.totalPoints} pts</div>
+                    <div class="podium-rounds">${player.countedRounds} rounds</div>
+                </div>
+            </div>
+            <div class="player-details" style="display: none; margin-top: 12px;">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">Wins</span>
+                        <span class="stat-value">${player.wins}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Avg Score</span>
+                        <span class="stat-value">${player.avgScore}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Podiums</span>
+                        <span class="stat-value">${player.topThreeFinishes || 0}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Birdies</span>
+                        <span class="stat-value">${player.birdies}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Eagles</span>
+                        <span class="stat-value">${player.eagles}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Aces</span>
+                        <span class="stat-value">${player.aces}</span>
+                    </div>
+                </div>
             </div>
         `;
 
@@ -156,20 +193,16 @@ function createPlayerRow(player, isExpanded, onPlayerClick) {
         <div class="player-details">
             <div class="stats-grid">
                 <div class="stat-item">
-                    <span class="stat-label">Total Points</span>
-                    <span class="stat-value">${player.totalPoints}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Rounds</span>
-                    <span class="stat-value">${player.rounds}</span>
+                    <span class="stat-label">Wins</span>
+                    <span class="stat-value">${player.wins}</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-label">Avg Score</span>
                     <span class="stat-value">${player.avgScore}</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">Wins</span>
-                    <span class="stat-value">${player.wins}</span>
+                    <span class="stat-label">Podiums</span>
+                    <span class="stat-value">${player.topThreeFinishes || 0}</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-label">Birdies</span>
@@ -182,10 +215,6 @@ function createPlayerRow(player, isExpanded, onPlayerClick) {
                 <div class="stat-item">
                     <span class="stat-label">Aces</span>
                     <span class="stat-value">${player.aces}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Pars</span>
-                    <span class="stat-value">${player.pars}</span>
                 </div>
             </div>
         </div>
