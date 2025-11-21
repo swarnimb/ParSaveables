@@ -63,7 +63,7 @@ body {
     font-size: var(--font-size-base);
     line-height: var(--line-height-base);
     min-height: 100vh;
-    padding-bottom: 80px; /* Space for bottom nav + FAB */
+    padding-bottom: 70px; /* Space for bottom nav + FAB */
     -webkit-font-smoothing: antialiased;
 }
 
@@ -529,15 +529,23 @@ button {
 .bottom-nav {
     position: fixed;
     bottom: 0;
-    left: 0;
-    right: 0;
-    height: 60px;
-    background: var(--color-bg-primary);
-    border-top: 1px solid var(--color-border);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 400px;
+    height: 55px;
+    background: rgba(20, 20, 20, 0.95);
+    backdrop-filter: blur(10px);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    border-top: 1px solid rgba(40, 40, 40, 0.8);
+    border-left: 1px solid rgba(40, 40, 40, 0.5);
+    border-right: 1px solid rgba(40, 40, 40, 0.5);
     display: flex;
     justify-content: space-around;
     align-items: center;
     padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
     z-index: var(--z-index-nav);
 }
 
