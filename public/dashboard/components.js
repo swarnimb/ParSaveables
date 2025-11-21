@@ -75,6 +75,9 @@ export function createPodium(topThree, onPlayerClick, expandedIds) {
     const podium = document.createElement('div');
     podium.className = 'podium';
 
+    // Track which player is expanded
+    let expandedPlayer = null;
+
     // Render in 2-1-3 order
     const orderedPlayers = [
         topThree[1], // 2nd place (left)
@@ -87,14 +90,14 @@ export function createPodium(topThree, onPlayerClick, expandedIds) {
 
         const actualRank = player.rank;
         const isExpanded = expandedIds.has(player.name);
+        if (isExpanded) expandedPlayer = player;
+
         const place = document.createElement('div');
-        place.className = `podium-place rank-${actualRank} ${isExpanded ? 'expanded' : ''}`;
+        place.className = `podium-place rank-${actualRank} ${isExpanded ? 'active' : ''}`;
         place.addEventListener('click', () => onPlayerClick(player));
 
         // Get initials from player name
         const initials = getInitials(player.name);
-
-        const topThreeFinishes = player.rounds; // Will need to calculate actual top 3s
 
         place.innerHTML = `
             <div class="podium-avatar-container">
@@ -112,40 +115,48 @@ export function createPodium(topThree, onPlayerClick, expandedIds) {
                     <div class="podium-rounds">${player.countedRounds} rounds</div>
                 </div>
             </div>
-            <div class="player-details" style="display: none; margin-top: 12px;">
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <span class="stat-label">Wins</span>
-                        <span class="stat-value">${player.wins}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Avg Score</span>
-                        <span class="stat-value">${player.avgScore}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Podiums</span>
-                        <span class="stat-value">${player.topThreeFinishes || 0}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Birdies</span>
-                        <span class="stat-value">${player.birdies}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Eagles</span>
-                        <span class="stat-value">${player.eagles}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Aces</span>
-                        <span class="stat-value">${player.aces}</span>
-                    </div>
-                </div>
-            </div>
         `;
 
         podium.appendChild(place);
     });
 
     section.appendChild(podium);
+
+    // Add expanded details below entire podium (like player cards)
+    if (expandedPlayer) {
+        const details = document.createElement('div');
+        details.className = 'podium-expanded-details';
+        details.innerHTML = `
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">Wins</span>
+                    <span class="stat-value">${expandedPlayer.wins}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Avg Score</span>
+                    <span class="stat-value">${expandedPlayer.avgScore}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Podiums</span>
+                    <span class="stat-value">${expandedPlayer.topThreeFinishes || 0}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Birdies</span>
+                    <span class="stat-value">${expandedPlayer.birdies}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Eagles</span>
+                    <span class="stat-value">${expandedPlayer.eagles}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Aces</span>
+                    <span class="stat-value">${expandedPlayer.aces}</span>
+                </div>
+            </div>
+        `;
+        section.appendChild(details);
+    }
+
     return section;
 }
 

@@ -98,13 +98,13 @@ export async function getLeaderboard(eventId) {
             totalPoints,
             rounds: rounds.length, // Total rounds played
             countedRounds: top10.length, // Rounds that count (max 10)
-            wins: rounds.filter(r => r.rank === 1).length,
-            topThreeFinishes: rounds.filter(r => r.rank <= 3).length,
-            birdies: rounds.reduce((sum, r) => sum + (r.birdies || 0), 0),
-            eagles: rounds.reduce((sum, r) => sum + (r.eagles || 0), 0),
-            aces: rounds.reduce((sum, r) => sum + (r.aces || 0), 0),
-            pars: rounds.reduce((sum, r) => sum + (r.pars || 0), 0),
-            bogeys: rounds.reduce((sum, r) => sum + (r.bogeys || 0), 0),
+            wins: top10.filter(r => r.rank === 1).length,
+            topThreeFinishes: top10.filter(r => r.rank <= 3).length,
+            birdies: top10.reduce((sum, r) => sum + (r.birdies || 0), 0),
+            eagles: top10.reduce((sum, r) => sum + (r.eagles || 0), 0),
+            aces: top10.reduce((sum, r) => sum + (r.aces || 0), 0),
+            pars: top10.reduce((sum, r) => sum + (r.pars || 0), 0),
+            bogeys: top10.reduce((sum, r) => sum + (r.bogeys || 0), 0),
             avgScore: top10.length > 0 ? (totalScore / top10.length).toFixed(1) : 0
         };
     });
