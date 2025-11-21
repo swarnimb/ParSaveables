@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0a0a">
+    <title>ParSaveables - Disc Golf League</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Top Header -->
+    <header id="header">
+        <button id="adminBtn" class="admin-icon" aria-label="Admin Panel">⚙️</button>
+        <div class="logo">
+            <span class="logo-icon">🥏</span>
+            <h1>ParSaveables</h1>
+        </div>
+    </header>
+
+    <!-- Main Content Area (switches based on active tab) -->
+    <main id="content">
+        <!-- Content dynamically rendered here -->
+    </main>
+
+    <!-- Process Scorecard Button (Semi-circle FAB) -->
+    <button id="processFab" class="process-fab" aria-label="Process New Scorecards">
+        <span class="fab-icon">📧</span>
+        <span class="fab-label">NEW</span>
+    </button>
+
+    <!-- Bottom Navigation -->
+    <nav id="bottomNav" class="bottom-nav">
+        <button class="tab active" data-page="home" aria-label="Home">
+            <span class="tab-icon">🏠</span>
+            <span class="tab-label">Home</span>
+        </button>
+        <button class="tab" data-page="stats" aria-label="Stats">
+            <span class="tab-icon">📊</span>
+            <span class="tab-label">Stats</span>
+        </button>
+        <button class="tab" data-page="podcast" aria-label="Podcast">
+            <span class="tab-icon">🎙️</span>
+            <span class="tab-label">Podcast</span>
+        </button>
+        <button class="tab" data-page="about" aria-label="About">
+            <span class="tab-icon">ℹ️</span>
+            <span class="tab-label">About</span>
+        </button>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
