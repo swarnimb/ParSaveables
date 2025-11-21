@@ -29,23 +29,67 @@ Major features to be built that will add new functionality to the system.
 
 ### 2. Dashboard & Admin UI Overhaul
 **Priority:** High
-**Status:** ✅ Mobile Dashboard Complete (Nov 21, 2025)
+**Status:** ✅ Mobile Dashboard Complete (Nov 21, 2025) | Admin Panel TODO
 **Description:** Completely redesign dashboard and admin panel for better UX, modularity, and maintainability.
 
-**✅ Completed - Mobile Dashboard:**
+**✅ Completed - Mobile Dashboard (Nov 21, 2025):**
 - Built new mobile-first dashboard at `/public/dashboard/`
 - 5 modular files using ES6 modules (index.html, style.css, app.js, components.js, data.js)
 - Forest background with semi-transparent cards
 - Top 3 podium with metallic gold/silver/bronze disc graphics
+- Orange gradient banner with rotating disc golf jokes (15 jokes)
+- Custom SVG disc golf basket logo with chains and laurel wreath
 - Event selector (Season/Tournament toggle)
-- Expandable stats showing overall performance
+- Expandable stats showing overall performance (not just top 10)
 - Bottom navigation with iPhone-style notch
-- Total: ~1,540 lines vs old 2,700-line monolith
+- Refined visual hierarchy: Rank 1 larger, ranks 2-3 match ranks 4+
+- Optimized spacing and vertical centering
+- Total: ~1,707 lines vs old 2,700-line monolith
 
 **Still TODO - Admin Panel:**
 - Admin panel still uses old monolithic structure (~1,500 lines)
 - Apply same modular architecture as new dashboard
 - Improve mobile responsiveness for admin functions
+
+**Still TODO - Stats Page:**
+- Second tab currently shows placeholder charts
+- Needs implementation with real player statistics
+- See "Stats Page Implementation" section below
+
+---
+
+### 2.5. Stats Page Implementation
+**Priority:** High
+**Status:** Not Started
+**Description:** Build out the Stats tab (2nd tab) with meaningful player performance statistics and visualizations.
+
+**Current State:**
+- Placeholder UI with 3 empty chart containers
+- Located in `renderStatsPage()` function in app.js
+
+**Proposed Features:**
+- **Top Performers Lists:**
+  - Most Total Points
+  - Most Birdies
+  - Most Eagles
+  - Most Aces
+  - Most Wins
+  - Best Average Score
+- **Player Performance Cards:**
+  - Individual player stats in card format
+  - Filter/sort by various metrics
+- **Event Comparison:**
+  - Compare performance across different events
+  - Season vs Tournament breakdowns
+- **Trends & Charts (optional):**
+  - Points progression over time
+  - Performance distribution visualizations
+
+**Technical Notes:**
+- Leverage existing `getLeaderboard()` function in data.js
+- Add new queries as needed for specific stats
+- Reuse card styling from podium/player list
+- Keep mobile-first responsive design
 
 ---
 
@@ -229,4 +273,4 @@ When you identify a new feature or improvement:
 
 ---
 
-**Last Updated:** 2025-11-19
+**Last Updated:** 2025-11-21

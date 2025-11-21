@@ -39,7 +39,18 @@ Last Updated: 2025-11-21
 5. Dashboard auto-refreshes to show new data
 
 ### Recent Changes (Nov 21, 2025)
-**Mobile Dashboard UI Overhaul:**
+**Mobile Dashboard UI Refinements:**
+- Refined podium visual hierarchy and sizing
+- Standardized font sizes across all ranks with 20% boost for rank 1
+- Optimized vertical centering and spacing in podium cards
+- Fixed average score calculation to show points per round
+- Reduced overall podium card size by 10% for better mobile fit
+- Player name "Bird" displays as 🦅 emoji throughout dashboard
+- Orange gradient banner with rotating disc golf jokes
+- Custom SVG disc golf basket logo with chains and laurel wreath
+- Font hierarchy: Rank 1 larger (16.8px name, 19.2px points), ranks 2-3 match 4+ (14px/16px)
+
+**Mobile Dashboard Initial Build (Nov 21, 2025):**
 - Built new mobile-first dashboard at `/public/dashboard/`
 - 5 files: index.html, style.css, app.js, components.js, data.js
 - Forest background image with semi-transparent cards
@@ -76,11 +87,11 @@ Last Updated: 2025-11-21
 
 ### Frontend (Static HTML/CSS/JS)
 **New Mobile Dashboard (Nov 2025):**
-- `public/dashboard/index.html` - Dashboard shell (55 lines)
-- `public/dashboard/style.css` - Complete styling with CSS variables (~700 lines)
-- `public/dashboard/app.js` - Main orchestrator, routing, state (360 lines)
-- `public/dashboard/components.js` - Reusable UI components (265 lines)
-- `public/dashboard/data.js` - Supabase queries, leverages backend (161 lines)
+- `public/dashboard/index.html` - Dashboard shell with SVG logo and banner (~82 lines)
+- `public/dashboard/style.css` - Complete styling with CSS variables (~780 lines)
+- `public/dashboard/app.js` - Main orchestrator, routing, state, jokes (~390 lines)
+- `public/dashboard/components.js` - Reusable UI components (~284 lines)
+- `public/dashboard/data.js` - Supabase queries, leverages backend (~171 lines)
 - `public/dashboard/forest-bg.jpg` - Background image
 
 **Legacy Dashboards:**
@@ -384,6 +395,6 @@ vercel env ls
 
 ---
 
-Last Updated: 2025-11-19
+Last Updated: 2025-11-21
 Status: Production Ready
-Next Session: Check ROADMAP.md for priorities
+Next Session: Work on Stats page (2nd tab) - see ROADMAP.md

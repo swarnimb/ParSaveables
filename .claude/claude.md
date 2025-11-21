@@ -87,14 +87,20 @@ Before proposing file structure:
 
 ## Recent Changes (Nov 21, 2025)
 
-**Mobile Dashboard UI Overhaul:**
+**Mobile Dashboard UI Build + Refinements:**
 - Built new mobile-first dashboard (`/public/dashboard/`) with 5 files total
 - Forest background image with semi-transparent cards
 - Top 3 players shown with metallic gold/silver/bronze disc graphics
+- Orange gradient banner with rotating disc golf jokes (15 jokes)
+- Custom SVG disc golf basket logo with chains and laurel wreath
 - Podium display (2-1-3 arrangement) with expandable stats
+- Refined visual hierarchy: Rank 1 larger (16.8px/19.2px), ranks 2-3 match 4+ (14px/16px)
+- Optimized vertical centering and spacing in podium cards
 - Event selector (Season/Tournament toggle)
 - Stats calculated from overall performance (not just top 10)
+- Fixed average score calculation to show points per round
 - Bottom navigation with iPhone-style notch design
+- Player "Bird" displays as 🦅 emoji
 - Removed chatbot to preserve API credits
 
 **Previous (Nov 19, 2025):**
