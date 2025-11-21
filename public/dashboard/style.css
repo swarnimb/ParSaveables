@@ -166,14 +166,13 @@ button {
 }
 
 .main-title {
-    font-size: 26px;
-    font-weight: 900;
-    letter-spacing: 0.5px;
-    font-family: 'Arial Black', 'Arial Bold', 'Helvetica', 'Impact', sans-serif;
-    text-transform: uppercase;
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    font-family: 'Bebas Neue', 'Arial Black', sans-serif;
+    text-transform: none;
     color: var(--color-accent);
     margin: 0;
-    font-stretch: condensed;
 }
 
 /* ===================================
