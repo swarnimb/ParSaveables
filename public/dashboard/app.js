@@ -220,12 +220,12 @@ function renderStatsPage(container) {
 
     // Stat cards data
     const statCards = [
-        { title: 'Top Performers', icon: '🏆', description: 'Most Total Points' },
-        { title: 'Most Birdies', icon: '🐦', description: 'Best Birdie Leaders' },
-        { title: 'Most Eagles', icon: '🦅', description: 'Eagle Champions' },
-        { title: 'Most Aces', icon: '🎯', description: 'Hole-in-One Kings' },
-        { title: 'Most Wins', icon: '👑', description: 'Round Winners' },
-        { title: 'Best Average', icon: '📊', description: 'Highest Avg Score' }
+        { title: 'Top Performers', description: 'Most Total Points' },
+        { title: 'Most Birdies', description: 'Best Birdie Leaders' },
+        { title: 'Most Eagles', description: 'Eagle Champions' },
+        { title: 'Most Aces', description: 'Hole-in-One Kings' },
+        { title: 'Most Wins', description: 'Round Winners' },
+        { title: 'Best Average', description: 'Highest Avg Score' }
     ];
 
     // Create swipeable carousel
@@ -239,11 +239,9 @@ function renderStatsPage(container) {
         cardElement.className = 'stat-card';
         cardElement.innerHTML = `
             <div class="stat-card-header">
-                <span class="stat-card-icon">${card.icon}</span>
                 <h2 class="stat-card-title">${card.title}</h2>
             </div>
             <div class="stat-card-content">
-                <div class="stat-card-description">${card.description}</div>
                 <div class="stat-card-placeholder">Coming soon...</div>
             </div>
         `;
