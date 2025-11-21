@@ -102,11 +102,11 @@ export function createPodium(topThree, onPlayerClick, expandedIds) {
         place.innerHTML = `
             <div class="podium-avatar-container">
                 <div class="podium-disc rank-${actualRank}">
-                    <div class="podium-rank">${actualRank}</div>
+                    <span class="podium-rank-number">${actualRank}</span>
                 </div>
             </div>
             <div class="podium-name-container">
-                <div class="podium-name">${formatPlayerName(player.name)}</div>
+                <div class="podium-name rank-${actualRank}-name">${formatPlayerName(player.name)}</div>
             </div>
             <div class="podium-stats-container">
                 <div class="podium-stats">
