@@ -2,7 +2,7 @@
 
 **Quick Start:** Read `docs/SESSION-HANDOFF.md` for complete current state
 
-**Last Updated:** 2025-01-19
+**Last Updated:** 2025-11-19
 
 **Status:** ✅ Production Ready - Fully Operational System
 
@@ -27,6 +27,55 @@
 - **Trigger:** Manual button on dashboard
 - **Architecture:** 8 microservices + 2 API endpoints
 
+## Code Architecture Principles
+
+**CRITICAL: Read before proposing any new code structure**
+
+### 1. Leverage Existing Architecture First
+- **Backend services already exist** (`src/services/`) - DO NOT duplicate on frontend
+- Frontend should consume backend services via Supabase, not recreate them
+- Before creating new files/services, check if functionality exists in backend
+- Example: Player data operations → Use `playerService.js` (backend), not new frontend service
+
+### 2. Appropriate Structure = Scope-Matched Complexity
+- **Small feature** (mobile dashboard) = 5-10 files maximum
+- **NOT**: 20+ files mimicking backend architecture
+- **Enterprise-level** means "clean and maintainable", NOT "maximum files"
+- If proposing >10 files for frontend work, question if over-engineering
+
+### 3. DRY Principle - Don't Repeat Backend Logic
+- Backend handles: Data operations, business logic, validation, error handling
+- Frontend handles: Display, user interactions, routing, state management
+- **Never duplicate**:
+  - Data fetching logic (use Supabase directly)
+  - Business rules (already in backend services)
+  - Configuration management (use backend config)
+
+### 4. Reusability Guidelines
+- **Reusable components**: UI elements used 2+ times (podium, player cards)
+- **Reusable functions**: Data formatters, DOM helpers (5+ uses)
+- **NOT reusable**: One-time page logic, single-use utilities
+- Avoid premature abstraction - extract only when pattern repeats
+
+### 5. Decision Framework Before Creating Files
+Ask these questions:
+1. Does backend already handle this? (Check `src/services/`)
+2. Is this used in 2+ places? (If no, inline it)
+3. Is file >200 lines? (If no, might not need splitting)
+4. Does splitting improve clarity? (Not just "organization")
+
+If answer is NO to most questions → Don't create the file
+
+### 6. File Creation Checklist
+Before proposing file structure:
+- [ ] Reviewed existing backend services
+- [ ] Identified actual code reuse (not theoretical)
+- [ ] Counted real use cases (not "might need later")
+- [ ] Verified scope matches complexity
+- [ ] Explained WHY each file exists (not just "best practice")
+
+**When in doubt: Start with fewer files, split later if needed**
+
 ## Documentation Structure
 
 - `docs/SESSION-HANDOFF.md` - **START HERE** for new sessions
@@ -36,7 +85,7 @@
 - `docs/TESTING.md` - Testing procedures
 - `README.md` - Project overview
 
-## Recent Changes (Jan 19, 2025)
+## Recent Changes (Nov 19, 2025)
 
 - Added manual trigger button to dashboard
 - Removed automatic cron jobs
@@ -63,10 +112,10 @@ See `docs/SESSION-HANDOFF.md` for accurate current state.
 - Deployed to Vercel with cron jobs
 - Created comprehensive documentation
 
-### Subsequent Updates (Nov 2024 - Jan 2025)
-- Manual trigger added (Jan 2025)
-- Event-based filtering implemented (Jan 2025)
-- Documentation reorganized (Jan 2025)
+### Subsequent Updates (Nov 2024 - Nov 2025)
+- Manual trigger added (Nov 2025)
+- Event-based filtering implemented (Nov 2025)
+- Documentation reorganized (Nov 2025)
 - Production workflow validated and optimized
 
 ---
