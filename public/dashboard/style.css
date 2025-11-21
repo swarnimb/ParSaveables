@@ -120,27 +120,26 @@ button {
 .admin-menu-btn {
     width: 32px;
     height: 32px;
-    padding: 6px;
+    padding: 4px;
     display: flex;
-    flex-direction: column;
-    justify-content: space-around;
     align-items: center;
+    justify-content: center;
     background: transparent;
     border: none;
     cursor: pointer;
     flex-shrink: 0;
 }
 
-.hamburger-line {
-    width: 20px;
-    height: 2px;
-    background: #ffffff;
-    border-radius: 2px;
+.admin-icon-svg {
+    width: 24px;
+    height: 24px;
+    color: #ffffff;
     transition: all 0.3s;
 }
 
-.admin-menu-btn:active .hamburger-line {
-    background: rgba(255, 255, 255, 0.7);
+.admin-menu-btn:active .admin-icon-svg {
+    opacity: 0.7;
+    transform: rotate(90deg);
 }
 
 /* ===================================
@@ -155,16 +154,25 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: var(--spacing-md);
     z-index: var(--z-index-header);
 }
 
+.site-logo {
+    height: 40px;
+    width: auto;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
 .main-title {
-    font-size: 24px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    font-family: 'Arial Black', 'Arial Bold', 'Helvetica', 'Impact', sans-serif;
+    text-transform: uppercase;
     color: var(--color-accent);
     margin: 0;
+    font-stretch: condensed;
 }
 
 /* ===================================
