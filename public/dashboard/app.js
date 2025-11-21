@@ -256,18 +256,24 @@ function renderStatsPage(container) {
     carousel.className = 'stats-carousel';
     carousel.id = 'statsCarousel';
 
-    // Create cards
+    // Create cards with actual data
     statCards.forEach((card, index) => {
         const cardElement = document.createElement('div');
         cardElement.className = 'stat-card';
-        cardElement.innerHTML = `
-            <div class="stat-card-header">
-                <h2 class="stat-card-title">${card.title}</h2>
-            </div>
-            <div class="stat-card-content">
-                <div class="stat-card-placeholder">Coming soon...</div>
-            </div>
-        `;
+
+        const header = document.createElement('div');
+        header.className = 'stat-card-header';
+        header.innerHTML = `<h2 class="stat-card-title">${card.title}</h2>`;
+
+        const content = document.createElement('div');
+        content.className = 'stat-card-content';
+
+        // Generate stat list based on card type
+        const statList = generateStatList(card.title);
+        content.appendChild(statList);
+
+        cardElement.appendChild(header);
+        cardElement.appendChild(content);
         carousel.appendChild(cardElement);
     });
 
@@ -275,6 +281,79 @@ function renderStatsPage(container) {
 
     // Initialize swipe handling
     initStatsCarousel(carousel, statCards.length);
+}
+
+/**
+ * Generate stat list for a specific stat type
+ */
+function generateStatList(statType) {
+    const listContainer = document.createElement('div');
+    listContainer.className = 'stat-list';
+
+    if (state.leaderboard.length === 0) {
+        listContainer.innerHTML = '<div class="stat-empty">No data available for this event</div>';
+        return listContainer;
+    }
+
+    let sortedPlayers = [...state.leaderboard];
+    let statKey = '';
+
+    // Sort players based on stat type
+    switch (statType) {
+        case 'Top Performers':
+            sortedPlayers.sort((a, b) => b.totalPoints - a.totalPoints);
+            statKey = 'totalPoints';
+            break;
+        case 'Most Birdies':
+            sortedPlayers.sort((a, b) => b.birdies - a.birdies);
+            statKey = 'birdies';
+            break;
+        case 'Most Eagles':
+            sortedPlayers.sort((a, b) => b.eagles - a.eagles);
+            statKey = 'eagles';
+            break;
+        case 'Most Aces':
+            sortedPlayers.sort((a, b) => b.aces - a.aces);
+            statKey = 'aces';
+            break;
+        case 'Most Wins':
+            sortedPlayers.sort((a, b) => b.wins - a.wins);
+            statKey = 'wins';
+            break;
+        case 'Best Average':
+            sortedPlayers = sortedPlayers.filter(p => p.avgScore !== '-');
+            sortedPlayers.sort((a, b) => parseFloat(b.avgScore) - parseFloat(a.avgScore));
+            statKey = 'avgScore';
+            break;
+    }
+
+    // Take top 10
+    const top10 = sortedPlayers.slice(0, 10);
+
+    // Create list items
+    top10.forEach((player, index) => {
+        const item = document.createElement('div');
+        item.className = 'stat-list-item';
+
+        const rank = document.createElement('div');
+        rank.className = 'stat-rank';
+        rank.textContent = index + 1;
+
+        const name = document.createElement('div');
+        name.className = 'stat-name';
+        name.textContent = player.name === 'Bird' ? '🦅' : player.name;
+
+        const value = document.createElement('div');
+        value.className = 'stat-value';
+        value.textContent = player[statKey];
+
+        item.appendChild(rank);
+        item.appendChild(name);
+        item.appendChild(value);
+        listContainer.appendChild(item);
+    });
+
+    return listContainer;
 }
 
 /**
