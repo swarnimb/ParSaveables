@@ -3,10 +3,10 @@
    =================================== */
 :root {
     /* Colors */
-    --color-bg-primary: #1a1a1a;
-    --color-bg-secondary: #0f0f0f;
-    --color-bg-card: #141414;
-    --color-border: #2a2a2a;
+    --color-bg-primary: rgba(26, 26, 26, 0.92);
+    --color-bg-secondary: rgba(15, 15, 15, 0.75);
+    --color-bg-card: rgba(20, 20, 20, 0.75);
+    --color-border: rgba(42, 42, 42, 0.6);
     --color-accent: #00ff88;
     --color-accent-dark: #00d978;
     --color-text-primary: #ffffff;
@@ -112,6 +112,8 @@ button {
 .admin-icon {
     position: absolute;
     left: var(--spacing-md);
+    top: 50%;
+    transform: translateY(-50%);
     width: 40px;
     height: 40px;
     font-size: var(--font-size-xl);
@@ -345,25 +347,35 @@ button {
     justify-content: center;
     font-size: 48px;
     position: relative;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
 .podium-disc.rank-1 {
     width: 90px;
     height: 90px;
     font-size: 64px;
-    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
-    color: #FFD700;
+    filter:
+        brightness(1.2)
+        saturate(2)
+        hue-rotate(15deg)
+        drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))
+        drop-shadow(0 4px 12px rgba(255, 215, 0, 0.6));
 }
 
 .podium-disc.rank-2 {
-    color: #C0C0C0;
-    filter: drop-shadow(0 0 15px rgba(192, 192, 192, 0.5)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    filter:
+        brightness(1.4)
+        saturate(0.3)
+        drop-shadow(0 0 15px rgba(192, 192, 192, 0.6))
+        drop-shadow(0 4px 8px rgba(192, 192, 192, 0.4));
 }
 
 .podium-disc.rank-3 {
-    color: #CD7F32;
-    filter: drop-shadow(0 0 15px rgba(205, 127, 50, 0.5)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    filter:
+        brightness(1.1)
+        saturate(1.5)
+        hue-rotate(-15deg)
+        drop-shadow(0 0 15px rgba(205, 127, 50, 0.6))
+        drop-shadow(0 4px 8px rgba(205, 127, 50, 0.4));
 }
 
 .podium-rank {
