@@ -99,10 +99,13 @@ export function createPodium(topThree, onPlayerClick, expandedIds) {
         // Get initials from player name
         const initials = getInitials(player.name);
 
+        // Disc icon (🥏 emoji styled with rank color)
+        const discIcon = '🥏';
+
         place.innerHTML = `
             <div class="podium-avatar-container">
-                <div class="podium-avatar">
-                    ${initials}
+                <div class="podium-disc rank-${actualRank}">
+                    ${discIcon}
                     <div class="podium-rank">${actualRank}</div>
                 </div>
             </div>
@@ -194,7 +197,6 @@ function createPlayerRow(player, isExpanded, onPlayerClick) {
                 <span class="rank-number">${String(player.rank).padStart(2, '0')}</span>
                 <span class="rank-movement same">${movement}</span>
             </div>
-            <div class="player-avatar">${initials}</div>
             <div class="player-info">
                 <div class="player-name">${player.name}</div>
                 <div class="player-meta">${player.rounds} rounds</div>
