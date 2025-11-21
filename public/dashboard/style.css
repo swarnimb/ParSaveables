@@ -412,7 +412,7 @@ button {
 }
 
 .podium-name {
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-sm);
     font-weight: 600;
     color: var(--color-text-primary);
     text-align: center;
@@ -433,14 +433,18 @@ button {
 }
 
 .podium-points {
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-sm);
     font-weight: 700;
     color: var(--color-accent);
     line-height: 1;
 }
 
+.podium-place.rank-1 .podium-points {
+    font-size: 16.1px;
+}
+
 .podium-rounds {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     color: var(--color-text-secondary);
     line-height: 1;
 }
