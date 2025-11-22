@@ -79,15 +79,30 @@ Removes these 11 duplicate entries:
 
 ## How to Run
 
-### Via Supabase SQL Editor (Recommended)
+### IMPORTANT: Two-Step Process
+
+This migration requires running TWO scripts in order:
+
+### Step 1: Fix Rounds References (Run First)
 
 1. Go to Supabase Dashboard → SQL Editor
+2. Copy contents of `004a_fix_rounds_before_cleanup.sql`
+3. Run the script
+4. Review output:
+   - Shows which rounds will be updated
+   - Updates rounds to use canonical course names
+   - Shows "SUCCESS: All rounds updated to canonical course names"
+   - Displays course distribution after update
+
+### Step 2: Clean Up Duplicate Courses (Run Second)
+
+1. Still in Supabase SQL Editor
 2. Copy contents of `004_cleanup_duplicate_courses.sql`
 3. Run the script
 4. Check output:
    - Should see: "SAFETY CHECK PASSED"
    - Should see: "Migration complete! Total courses: 20"
-   - If error occurs, migration aborts safely
+   - If error occurs (safety check failed), go back to Step 1
 
 ### Verification After Running
 

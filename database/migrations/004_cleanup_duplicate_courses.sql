@@ -1,14 +1,13 @@
 -- Migration 004: Clean Up Duplicate Courses
 -- Purpose: Delete duplicate course entries, keep only 20 canonical courses
 -- Date: 2025-01-22
--- SAFETY: This script checks for historical data before deleting
+-- IMPORTANT: Run 004a_fix_rounds_before_cleanup.sql FIRST to update rounds table
 
 -- ============================================================================
 -- SAFETY CHECK: Verify no rounds reference duplicate courses
 -- ============================================================================
 
--- Check if any rounds table references courses by course_name
--- (If rounds table has course_id FK, we need different approach)
+-- This check ensures 004a was run first
 DO $$
 DECLARE
   duplicate_courses TEXT[] := ARRAY[
@@ -22,7 +21,8 @@ DECLARE
     'Old Settlers',
     'Sprinkle',
     'Old Settler\''s',
-    'Flying Armadillo'  -- Will be deleted after renaming 'Armadillo' to 'Armadillo Big'
+    'Flying Armadillo',
+    'Armadillo'  -- Will become 'Armadillo Big'
   ];
   round_count INTEGER;
 BEGIN
@@ -32,7 +32,7 @@ BEGIN
   WHERE course_name = ANY(duplicate_courses);
 
   IF round_count > 0 THEN
-    RAISE EXCEPTION 'SAFETY CHECK FAILED: Found % rounds referencing duplicate courses. Migration aborted.', round_count;
+    RAISE EXCEPTION 'SAFETY CHECK FAILED: Found % rounds referencing duplicate courses. Run 004a_fix_rounds_before_cleanup.sql first!', round_count;
   END IF;
 
   RAISE NOTICE 'SAFETY CHECK PASSED: No rounds reference duplicate courses';
