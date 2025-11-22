@@ -119,9 +119,10 @@ async function loadInitialData() {
         // Filter events by type
         state.currentEvents = state.allEvents.filter(e => e.type === state.eventType);
 
-        // Load leaderboard for selected event
+        // Load leaderboard and round progression for selected event
         if (state.selectedEventId) {
             state.leaderboard = await getLeaderboard(state.selectedEventId);
+            state.roundProgression = await getRoundProgression(state.selectedEventId);
         }
 
         console.log('Initial data loaded:', {
@@ -706,9 +707,10 @@ async function handleEventChange(type, eventId) {
             state.selectedEventId = eventId;
         }
 
-        // Load leaderboard for new event
+        // Load leaderboard and round progression for new event
         if (state.selectedEventId) {
             state.leaderboard = await getLeaderboard(state.selectedEventId);
+            state.roundProgression = await getRoundProgression(state.selectedEventId);
             state.expandedPlayers.clear(); // Reset expanded state
         }
 
