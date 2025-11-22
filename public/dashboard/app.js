@@ -2,7 +2,7 @@
  * Main Application - Orchestrates the dashboard
  */
 
-import { initSupabase, getEvents, getEventsByType, getLeaderboard, getActiveEvent, processScorecard, getRoundProgression, getPlayerScoresByTier } from '/dashboard/data.js';
+import { initSupabase, getEvents, getEventsByType, getLeaderboard, getActiveEvent, processScorecard, getRoundProgression, getPlayerScoresByTier, getPointsSystem } from '/dashboard/data.js';
 import { createEventSelector, createPodium, createPlayerList, createLoadingState, createEmptyState } from '/dashboard/components.js';
 
 // Supabase configuration
@@ -175,7 +175,7 @@ async function renderCurrentPage() {
             renderPodcastPage(content);
             break;
         case 'about':
-            renderAboutPage(content);
+            await renderAboutPage(content);
             break;
     }
 }
@@ -531,46 +531,182 @@ function renderPodcastPage(container) {
 }
 
 /**
- * Render about page
+ * Render about/info page
  */
-function renderAboutPage(container) {
+async function renderAboutPage(container) {
     container.innerHTML = '';
 
-    const sections = [
-        {
-            title: '🏆 How Scoring Works',
-            content: `
-                <p>Points are awarded based on placement in each round, with bonuses for exceptional performance.</p>
-                <ul class="about-list">
-                    <li>1st Place: Most points</li>
-                    <li>Birdie Bonus: Extra points per birdie</li>
-                    <li>Eagle Bonus: Extra points per eagle</li>
-                    <li>Ace Bonus: Extra points for hole-in-one</li>
-                </ul>
-            `
-        },
-        {
-            title: '📅 Season Info',
-            content: `
-                <p>Track your disc golf league performance throughout the season.</p>
-                <ul class="about-list">
-                    <li>Multiple events per season</li>
-                    <li>Tournament competitions</li>
-                    <li>Year-round leaderboards</li>
-                </ul>
-            `
+    // Event selector
+    const eventSelector = createEventSelector(
+        state.currentEvents,
+        state.eventType,
+        state.selectedEventId,
+        handleInfoEventChange
+    );
+    container.appendChild(eventSelector);
+
+    if (!state.selectedEventId) {
+        container.appendChild(createEmptyState('Select an event to view points system'));
+        return;
+    }
+
+    // Fetch points system
+    try {
+        const pointsSystem = await getPointsSystem(state.selectedEventId);
+
+        if (!pointsSystem) {
+            container.appendChild(createEmptyState('No points system found for this event'));
+            return;
         }
+
+        const config = pointsSystem.config;
+
+        // Card 1: Funny Description
+        const descCard = document.createElement('div');
+        descCard.className = 'info-card';
+        descCard.innerHTML = `
+            <div class="info-card-title">🎯 How This Works</div>
+            <div class="info-card-content">
+                ${generateFunnyDescription(config, state.eventType)}
+            </div>
+        `;
+        container.appendChild(descCard);
+
+        // Card 2: Points Breakdown
+        const pointsCard = document.createElement('div');
+        pointsCard.className = 'info-card';
+
+        // Section 1: Points Allocation
+        const allocationSection = document.createElement('div');
+        allocationSection.className = 'info-section';
+        allocationSection.innerHTML = `
+            <div class="info-section-title">Points Allocation</div>
+            ${generatePointsAllocation(config)}
+        `;
+
+        // Section 2: Tie Breaker Order
+        const tieBreakerSection = document.createElement('div');
+        tieBreakerSection.className = 'info-section';
+        tieBreakerSection.innerHTML = `
+            <div class="info-section-title">Tie Breaker Order</div>
+            <div class="tie-breaker-list">
+                <div class="tie-breaker-item"><span class="tie-breaker-num">1.</span> Lower Total Score</div>
+                <div class="tie-breaker-item"><span class="tie-breaker-num">2.</span> More Birdies</div>
+                <div class="tie-breaker-item"><span class="tie-breaker-num">3.</span> More Pars</div>
+                <div class="tie-breaker-item"><span class="tie-breaker-num">4.</span> Earlier First Birdie</div>
+                ${config.tie_breaking?.enabled ? '<div class="tie-breaker-note">Points are averaged for tied ranks</div>' : ''}
+            </div>
+        `;
+
+        pointsCard.appendChild(allocationSection);
+        pointsCard.appendChild(tieBreakerSection);
+        container.appendChild(pointsCard);
+
+    } catch (error) {
+        console.error('Failed to load points system:', error);
+        container.appendChild(createEmptyState('Failed to load points system'));
+    }
+}
+
+/**
+ * Generate funny description based on config
+ */
+function generateFunnyDescription(config, eventType) {
+    const rankPoints = config.rank_points;
+    const perfPoints = config.performance_points;
+    const multiplierEnabled = config.course_multiplier?.enabled;
+
+    const descriptions = [
+        `Think of it like golf, but backwards: the worse you do, the fewer points you get. Win a round and grab <strong>${rankPoints['1']} points</strong>. `,
+        multiplierEnabled
+            ? `Play on harder courses and watch your points multiply like rabbits! Easy courses (1x) vs Elite courses (2.5x) - choose wisely! `
+            : `Every course counts the same, so no excuses! `,
+        perfPoints.birdie > 0 ? `Hit a birdie? +${perfPoints.birdie} point${perfPoints.birdie > 1 ? 's' : ''}. ` : '',
+        perfPoints.eagle > 0 ? `Eagle? That's worth <strong>${perfPoints.eagle} points</strong>! ` : '',
+        perfPoints.ace > 0 ? `And if you somehow manage an ace... <strong>${perfPoints.ace} glorious points</strong>! ` : '',
+        config.tie_breaking?.enabled
+            ? `If you tie with someone, we'll split the points like civilized disc golfers. No arm wrestling required.`
+            : `First past the post - no tie-breaking nonsense here!`
     ];
 
-    sections.forEach(section => {
-        const sectionEl = document.createElement('div');
-        sectionEl.className = 'about-section';
-        sectionEl.innerHTML = `
-            <div class="about-title">${section.title}</div>
-            <div class="about-content">${section.content}</div>
-        `;
-        container.appendChild(sectionEl);
+    return '<p>' + descriptions.filter(d => d).join('') + '</p>';
+}
+
+/**
+ * Generate points allocation table
+ */
+function generatePointsAllocation(config) {
+    const rankPoints = config.rank_points;
+    const perfPoints = config.performance_points;
+
+    let html = '<div class="points-table">';
+
+    // Rank points
+    html += '<div class="points-row points-header"><div>Rank</div><div>Points</div></div>';
+
+    const ranks = Object.keys(rankPoints).filter(k => k !== 'default').sort((a, b) => parseInt(a) - parseInt(b));
+    ranks.forEach(rank => {
+        const medal = rank === '1' ? '🥇' : rank === '2' ? '🥈' : rank === '3' ? '🥉' : '';
+        html += `<div class="points-row"><div>${medal} ${ordinal(rank)} Place</div><div>${rankPoints[rank]} pts</div></div>`;
     });
+
+    if (rankPoints.default) {
+        html += `<div class="points-row"><div>Other Ranks</div><div>${rankPoints.default} pts</div></div>`;
+    }
+
+    // Performance bonuses
+    if (perfPoints.birdie || perfPoints.eagle || perfPoints.ace) {
+        html += '<div class="points-divider"></div>';
+        html += '<div class="points-row points-header"><div>Performance</div><div>Bonus</div></div>';
+
+        if (perfPoints.birdie) html += `<div class="points-row"><div>Birdie</div><div>+${perfPoints.birdie} pts</div></div>`;
+        if (perfPoints.eagle) html += `<div class="points-row"><div>Eagle</div><div>+${perfPoints.eagle} pts</div></div>`;
+        if (perfPoints.ace) html += `<div class="points-row"><div>Ace</div><div>+${perfPoints.ace} pts</div></div>`;
+    }
+
+    html += '</div>';
+    return html;
+}
+
+/**
+ * Convert number to ordinal (1st, 2nd, 3rd, etc.)
+ */
+function ordinal(n) {
+    const s = ['th', 'st', 'nd', 'rd'];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+/**
+ * Handle event change for Info page
+ */
+async function handleInfoEventChange(type, eventId) {
+    const content = document.getElementById('content');
+    content.innerHTML = '';
+    content.appendChild(createLoadingState());
+
+    try {
+        if (type !== state.eventType) {
+            state.eventType = type;
+            state.currentEvents = await getEventsByType(type);
+            if (state.currentEvents.length > 0) {
+                state.selectedEventId = state.currentEvents[0].id;
+            }
+        } else if (eventId) {
+            state.selectedEventId = eventId;
+        }
+
+        // Load leaderboard and progression for consistency
+        if (state.selectedEventId) {
+            state.leaderboard = await getLeaderboard(state.selectedEventId);
+            state.roundProgression = await getRoundProgression(state.selectedEventId);
+        }
+
+        await renderAboutPage(content);
+    } catch (error) {
+        console.error('Failed to change event:', error);
+        showError('Failed to load event data');
+    }
 }
 
 /**

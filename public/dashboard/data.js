@@ -327,6 +327,32 @@ export async function getPlayerScoresByTier(eventId, playerName) {
 }
 
 /**
+ * Get points system for an event
+ */
+export async function getPointsSystem(eventId) {
+    // Get event with points system
+    const { data: event, error: eventError } = await supabase
+        .from('events')
+        .select('points_system_id')
+        .eq('id', eventId)
+        .single();
+
+    if (eventError) throw eventError;
+    if (!event || !event.points_system_id) return null;
+
+    // Get points system config
+    const { data: pointsSystem, error: psError } = await supabase
+        .from('points_systems')
+        .select('name, config, description')
+        .eq('id', event.points_system_id)
+        .single();
+
+    if (psError) throw psError;
+
+    return pointsSystem;
+}
+
+/**
  * Process scorecard endpoint call
  */
 export async function processScorecard() {
