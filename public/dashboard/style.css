@@ -100,7 +100,7 @@ button {
     position: sticky;
     top: 0;
     background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: 6px var(--spacing-sm);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -110,16 +110,16 @@ button {
 
 .disc-golf-joke {
     flex: 1;
-    font-size: var(--font-size-sm);
+    font-size: 11px;
     color: #ffffff;
     font-weight: 500;
-    line-height: 1.4;
-    padding-right: var(--spacing-sm);
+    line-height: 1.3;
+    padding-right: var(--spacing-xs);
 }
 
 .admin-menu-btn {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     padding: 4px;
     display: flex;
     align-items: center;
@@ -128,7 +128,7 @@ button {
     border: none;
     cursor: pointer;
     flex-shrink: 0;
-    font-size: 20px;
+    font-size: 18px;
     transition: all 0.3s;
 }
 
@@ -142,27 +142,27 @@ button {
    =================================== */
 #header {
     position: sticky;
-    top: 40px;
+    top: 28px;
     background: var(--color-bg-primary);
     border-bottom: 1px solid var(--color-border);
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
     z-index: var(--z-index-header);
 }
 
 .site-logo {
-    height: 40px;
+    height: 32px;
     width: auto;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .main-title {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     font-family: 'Georgia', 'Times New Roman', serif;
     color: var(--color-accent);
     margin: 0;
@@ -172,31 +172,31 @@ button {
    MAIN CONTENT AREA
    =================================== */
 #content {
-    padding: var(--spacing-md);
-    padding-bottom: var(--spacing-xl);
+    padding: var(--spacing-sm) var(--spacing-md);
+    padding-bottom: var(--spacing-lg);
 }
 
 /* ===================================
    EVENT SELECTOR
    =================================== */
 .event-selector {
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
 }
 
 .event-type-toggle {
     display: flex;
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-md);
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
 }
 
 .toggle-btn {
     flex: 1;
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: 6px var(--spacing-sm);
     background: var(--color-bg-secondary);
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius-sm);
     color: var(--color-text-secondary);
-    font-size: var(--font-size-sm);
+    font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -214,16 +214,16 @@ button {
 }
 
 .event-current {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
     background: var(--color-bg-secondary);
     border: 1px solid var(--color-border);
-    border-radius: var(--border-radius-md);
+    border-radius: var(--border-radius-sm);
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
     color: var(--color-text-primary);
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-sm);
 }
 
 .event-current:active {
@@ -276,27 +276,27 @@ button {
    PODIUM (Top 3)
    =================================== */
 .podium-section {
-    margin-bottom: var(--spacing-lg);
-    padding: var(--spacing-md) var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
     background: var(--color-bg-secondary);
-    border-radius: var(--border-radius-lg);
+    border-radius: var(--border-radius-md);
     border: 1px solid var(--color-border);
 }
 
 .podium {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
     padding: 0;
-    margin-top: 8px;
-    margin-bottom: 8px;
+    margin-top: 4px;
+    margin-bottom: 4px;
 }
 
 .podium-place {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--spacing-sm);
+    gap: 4px;
     cursor: pointer;
     transition: transform 0.2s;
 }
@@ -463,13 +463,13 @@ button {
 .player-list {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: 6px;
 }
 
 .player-row {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
     background: var(--color-bg-secondary);
-    border-radius: var(--border-radius-md);
+    border-radius: var(--border-radius-sm);
     border: 1px solid var(--color-border);
     cursor: pointer;
     transition: all 0.2s;
@@ -483,7 +483,7 @@ button {
 .player-row-header {
     display: flex;
     align-items: center;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
 }
 
 .player-rank {
