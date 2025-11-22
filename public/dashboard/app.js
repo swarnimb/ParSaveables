@@ -18,7 +18,8 @@ const state = {
     currentEvents: [],
     leaderboard: [],
     expandedPlayers: new Set(),
-    roundProgression: null
+    roundProgression: null,
+    selectedChartPlayers: new Set()
 };
 
 // Disc golf jokes/puns
@@ -442,25 +443,92 @@ function createPointsLineChart() {
 
     const { rounds, players } = state.roundProgression;
 
-    // Show top 5 players only for readability
-    const topPlayers = players.slice(0, 5);
+    // Initialize selected players if empty (default to top 5)
+    if (state.selectedChartPlayers.size === 0) {
+        players.slice(0, 5).forEach(p => state.selectedChartPlayers.add(p.playerName));
+    }
 
-    // Color palette for lines
-    const colors = ['#00ff88', '#60a5fa', '#fbbf24', '#f87171', '#a78bfa'];
+    // Color palette for lines (extended for more players)
+    const colorPalette = [
+        '#00ff88', '#60a5fa', '#fbbf24', '#f87171', '#a78bfa',
+        '#34d399', '#38bdf8', '#fb923c', '#fb7185', '#c084fc',
+        '#4ade80', '#22d3ee', '#fde047', '#f472b6', '#818cf8'
+    ];
 
-    // Legend
-    const legend = document.createElement('div');
-    legend.className = 'chart-legend';
-    topPlayers.forEach((player, i) => {
-        const item = document.createElement('div');
-        item.className = 'legend-item';
-        item.innerHTML = `
-            <span class="legend-color" style="background: ${colors[i]}"></span>
-            ${player.playerName === 'Bird' ? '🦅' : player.playerName}
-        `;
-        legend.appendChild(item);
+    // Player selection controls
+    const controls = document.createElement('div');
+    controls.className = 'player-filter-controls';
+
+    const controlButtons = document.createElement('div');
+    controlButtons.className = 'filter-control-buttons';
+
+    const selectAllBtn = document.createElement('button');
+    selectAllBtn.className = 'filter-control-btn';
+    selectAllBtn.textContent = 'All';
+    selectAllBtn.addEventListener('click', () => {
+        players.forEach(p => state.selectedChartPlayers.add(p.playerName));
+        renderStatsPage(document.getElementById('content'));
     });
-    container.appendChild(legend);
+
+    const clearAllBtn = document.createElement('button');
+    clearAllBtn.className = 'filter-control-btn';
+    clearAllBtn.textContent = 'Clear';
+    clearAllBtn.addEventListener('click', () => {
+        state.selectedChartPlayers.clear();
+        renderStatsPage(document.getElementById('content'));
+    });
+
+    controlButtons.appendChild(selectAllBtn);
+    controlButtons.appendChild(clearAllBtn);
+    controls.appendChild(controlButtons);
+
+    // Player checkboxes
+    const playerFilters = document.createElement('div');
+    playerFilters.className = 'player-filter-list';
+
+    players.forEach((player, index) => {
+        const filterItem = document.createElement('label');
+        filterItem.className = 'player-filter-item';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = state.selectedChartPlayers.has(player.playerName);
+        checkbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                state.selectedChartPlayers.add(player.playerName);
+            } else {
+                state.selectedChartPlayers.delete(player.playerName);
+            }
+            renderStatsPage(document.getElementById('content'));
+        });
+
+        const colorIndicator = document.createElement('span');
+        colorIndicator.className = 'filter-color-indicator';
+        colorIndicator.style.background = colorPalette[index % colorPalette.length];
+
+        const playerName = document.createElement('span');
+        playerName.className = 'filter-player-name';
+        playerName.textContent = player.playerName === 'Bird' ? '🦅' : player.playerName;
+
+        filterItem.appendChild(checkbox);
+        filterItem.appendChild(colorIndicator);
+        filterItem.appendChild(playerName);
+        playerFilters.appendChild(filterItem);
+    });
+
+    controls.appendChild(playerFilters);
+    container.appendChild(controls);
+
+    // Filter to selected players only
+    const selectedPlayers = players.filter(p => state.selectedChartPlayers.has(p.playerName));
+
+    if (selectedPlayers.length === 0) {
+        const emptyMsg = document.createElement('div');
+        emptyMsg.className = 'stat-empty';
+        emptyMsg.textContent = 'Select players to view their progression';
+        container.appendChild(emptyMsg);
+        return container;
+    }
 
     // SVG container
     const svgContainer = document.createElement('div');
@@ -471,7 +539,7 @@ function createPointsLineChart() {
     const padding = { top: 20, right: 20, bottom: 30, left: 50 };
 
     // Calculate scales
-    const maxPoints = Math.max(...topPlayers.flatMap(p => p.points));
+    const maxPoints = Math.max(...selectedPlayers.flatMap(p => p.points));
     const xScale = (index) => padding.left + (index / (rounds.length - 1)) * (width - padding.left - padding.right);
     const yScale = (value) => height - padding.bottom - (value / maxPoints) * (height - padding.top - padding.bottom);
 
