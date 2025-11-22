@@ -2,7 +2,7 @@
  * Main Application - Orchestrates the dashboard
  */
 
-import { initSupabase, getEvents, getEventsByType, getLeaderboard, getActiveEvent, processScorecard, getRoundProgression } from '/dashboard/data.js';
+import { initSupabase, getEvents, getEventsByType, getLeaderboard, getActiveEvent, processScorecard, getRoundProgression, getPlayerScoresByTier } from '/dashboard/data.js';
 import { createEventSelector, createPodium, createPlayerList, createLoadingState, createEmptyState } from '/dashboard/components.js';
 
 // Supabase configuration
@@ -19,7 +19,8 @@ const state = {
     leaderboard: [],
     expandedPlayers: new Set(),
     roundProgression: null,
-    selectedChartPlayers: new Set()
+    selectedChartPlayers: new Set(),
+    selectedPlayerForScores: null // For average score chart
 };
 
 // Disc golf jokes/puns
@@ -234,7 +235,7 @@ function renderStatsPage(container) {
     const statCards = [
         { title: 'Performance Breakdown', type: 'performance-bars' },
         { title: 'Rounds Analysis', type: 'rounds-stacked' },
-        { title: 'Points Progression', type: 'points-line' }
+        { title: 'Average Score Analysis', type: 'score-bars' }
     ];
 
     // Add position indicators (dots) - create first
@@ -300,8 +301,8 @@ function generateChart(chartType, title) {
             return createPerformanceBarsChart();
         case 'rounds-stacked':
             return createRoundsStackedChart();
-        case 'points-line':
-            return createPointsLineChart();
+        case 'score-bars':
+            return createScoreBarsChart();
         default:
             chartContainer.innerHTML = '<div class="stat-empty">Chart not available</div>';
             return chartContainer;
@@ -433,190 +434,99 @@ function createRoundsStackedChart() {
 /**
  * Create points progression line chart
  */
-function createPointsLineChart() {
+/**
+ * Create average score by tier/round chart
+ */
+async function createScoreBarsChart() {
     const container = document.createElement('div');
     container.className = 'chart-visual';
 
-    if (!state.roundProgression || state.roundProgression.players.length === 0) {
-        container.innerHTML = `<div class="stat-empty">No round data available</div>`;
-        return container;
+    // Player dropdown selector
+    const playerSelector = document.createElement('div');
+    playerSelector.className = 'player-selector';
+
+    const dropdown = document.createElement('select');
+    dropdown.className = 'player-dropdown';
+
+    // Initialize with first player if not set
+    if (!state.selectedPlayerForScores && state.leaderboard.length > 0) {
+        state.selectedPlayerForScores = state.leaderboard[0].name;
     }
 
-    const { rounds, players } = state.roundProgression;
+    // Add all players to dropdown
+    state.leaderboard.forEach(player => {
+        const option = document.createElement('option');
+        option.value = player.name;
+        option.textContent = player.name === 'Bird' ? '🦅' : player.name;
+        option.selected = player.name === state.selectedPlayerForScores;
+        dropdown.appendChild(option);
+    });
 
-    // Initialize selected players if empty (default to top 5)
-    if (state.selectedChartPlayers.size === 0) {
-        players.slice(0, 5).forEach(p => state.selectedChartPlayers.add(p.playerName));
-    }
-
-    // Color palette for lines (extended for more players)
-    const colorPalette = [
-        '#00ff88', '#60a5fa', '#fbbf24', '#f87171', '#a78bfa',
-        '#34d399', '#38bdf8', '#fb923c', '#fb7185', '#c084fc',
-        '#4ade80', '#22d3ee', '#fde047', '#f472b6', '#818cf8'
-    ];
-
-    // Player selection controls
-    const controls = document.createElement('div');
-    controls.className = 'player-filter-controls';
-
-    const controlButtons = document.createElement('div');
-    controlButtons.className = 'filter-control-buttons';
-
-    const selectAllBtn = document.createElement('button');
-    selectAllBtn.className = 'filter-control-btn';
-    selectAllBtn.textContent = 'All';
-    selectAllBtn.addEventListener('click', () => {
-        players.forEach(p => state.selectedChartPlayers.add(p.playerName));
+    dropdown.addEventListener('change', async (e) => {
+        state.selectedPlayerForScores = e.target.value;
         renderStatsPage(document.getElementById('content'));
     });
 
-    const clearAllBtn = document.createElement('button');
-    clearAllBtn.className = 'filter-control-btn';
-    clearAllBtn.textContent = 'Clear';
-    clearAllBtn.addEventListener('click', () => {
-        state.selectedChartPlayers.clear();
-        renderStatsPage(document.getElementById('content'));
-    });
+    playerSelector.appendChild(dropdown);
+    container.appendChild(playerSelector);
 
-    controlButtons.appendChild(selectAllBtn);
-    controlButtons.appendChild(clearAllBtn);
-    controls.appendChild(controlButtons);
-
-    // Player checkboxes
-    const playerFilters = document.createElement('div');
-    playerFilters.className = 'player-filter-list';
-
-    players.forEach((player, index) => {
-        const filterItem = document.createElement('label');
-        filterItem.className = 'player-filter-item';
-
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = state.selectedChartPlayers.has(player.playerName);
-        checkbox.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                state.selectedChartPlayers.add(player.playerName);
-            } else {
-                state.selectedChartPlayers.delete(player.playerName);
-            }
-            renderStatsPage(document.getElementById('content'));
-        });
-
-        const colorIndicator = document.createElement('span');
-        colorIndicator.className = 'filter-color-indicator';
-        colorIndicator.style.background = colorPalette[index % colorPalette.length];
-
-        const playerName = document.createElement('span');
-        playerName.className = 'filter-player-name';
-        playerName.textContent = player.playerName === 'Bird' ? '🦅' : player.playerName;
-
-        filterItem.appendChild(checkbox);
-        filterItem.appendChild(colorIndicator);
-        filterItem.appendChild(playerName);
-        playerFilters.appendChild(filterItem);
-    });
-
-    controls.appendChild(playerFilters);
-    container.appendChild(controls);
-
-    // Filter to selected players only
-    const selectedPlayers = players.filter(p => state.selectedChartPlayers.has(p.playerName));
-
-    if (selectedPlayers.length === 0) {
-        const emptyMsg = document.createElement('div');
-        emptyMsg.className = 'stat-empty';
-        emptyMsg.textContent = 'Select players to view their progression';
-        container.appendChild(emptyMsg);
+    if (!state.selectedPlayerForScores) {
+        container.innerHTML += '<div class="stat-empty">No player selected</div>';
         return container;
     }
 
-    // SVG container
-    const svgContainer = document.createElement('div');
-    svgContainer.className = 'line-chart-svg-container';
+    // Fetch player score data
+    try {
+        const scoreData = await getPlayerScoresByTier(state.selectedEventId, state.selectedPlayerForScores);
 
-    const width = 320;
-    const height = 200;
-    const padding = { top: 20, right: 20, bottom: 30, left: 50 };
+        if (!scoreData || scoreData.data.length === 0) {
+            container.innerHTML += '<div class="stat-empty">No score data available</div>';
+            return container;
+        }
 
-    // Calculate scales
-    const maxPoints = Math.max(...selectedPlayers.flatMap(p => p.points));
-    const xScale = (index) => padding.left + (index / (rounds.length - 1)) * (width - padding.left - padding.right);
-    const yScale = (value) => height - padding.bottom - (value / maxPoints) * (height - padding.top - padding.bottom);
+        // Chart title based on type
+        const chartTitle = document.createElement('div');
+        chartTitle.className = 'chart-subtitle';
+        chartTitle.textContent = scoreData.type === 'tier'
+            ? 'Average Score by Course Tier'
+            : 'Score by Round';
+        container.appendChild(chartTitle);
 
-    // Create SVG
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('width', width);
-    svg.setAttribute('height', height);
-    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        // Horizontal bars
+        const barsContainer = document.createElement('div');
+        barsContainer.className = 'score-bars-container';
 
-    // Grid lines (horizontal)
-    const gridCount = 4;
-    for (let i = 0; i <= gridCount; i++) {
-        const y = padding.top + (i / gridCount) * (height - padding.top - padding.bottom);
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', padding.left);
-        line.setAttribute('y1', y);
-        line.setAttribute('x2', width - padding.right);
-        line.setAttribute('y2', y);
-        line.setAttribute('stroke', 'rgba(255, 255, 255, 0.1)');
-        line.setAttribute('stroke-width', '1');
-        svg.appendChild(line);
+        const maxValue = Math.max(...scoreData.data.map(d => d.value));
 
-        // Y-axis label
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        label.setAttribute('x', padding.left - 8);
-        label.setAttribute('y', y + 4);
-        label.setAttribute('text-anchor', 'end');
-        label.setAttribute('fill', '#999');
-        label.setAttribute('font-size', '10');
-        label.textContent = Math.round(maxPoints * (1 - i / gridCount));
-        svg.appendChild(label);
-    }
+        scoreData.data.forEach(item => {
+            const barRow = document.createElement('div');
+            barRow.className = 'player-bar-row';
 
-    // Draw lines for each player
-    topPlayers.forEach((player, playerIndex) => {
-        const pathData = player.points.map((point, roundIndex) => {
-            const x = xScale(roundIndex);
-            const y = yScale(point);
-            return roundIndex === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
-        }).join(' ');
+            const label = document.createElement('div');
+            label.className = 'player-bar-name';
+            label.textContent = item.label;
 
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', pathData);
-        path.setAttribute('fill', 'none');
-        path.setAttribute('stroke', colors[playerIndex]);
-        path.setAttribute('stroke-width', '2');
-        path.setAttribute('stroke-linecap', 'round');
-        path.setAttribute('stroke-linejoin', 'round');
-        svg.appendChild(path);
+            const barContainer = document.createElement('div');
+            barContainer.className = 'bar-container';
 
-        // Add dots at data points
-        player.points.forEach((point, roundIndex) => {
-            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            circle.setAttribute('cx', xScale(roundIndex));
-            circle.setAttribute('cy', yScale(point));
-            circle.setAttribute('r', '3');
-            circle.setAttribute('fill', colors[playerIndex]);
-            svg.appendChild(circle);
+            const bar = document.createElement('div');
+            bar.className = 'bar-segment score-bar';
+            bar.style.width = `${(item.value / maxValue) * 100}%`;
+            bar.textContent = item.value;
+
+            barContainer.appendChild(bar);
+
+            barRow.appendChild(label);
+            barRow.appendChild(barContainer);
+            barsContainer.appendChild(barRow);
         });
-    });
 
-    // X-axis labels (round numbers)
-    rounds.forEach((round, index) => {
-        const x = xScale(index);
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        label.setAttribute('x', x);
-        label.setAttribute('y', height - padding.bottom + 16);
-        label.setAttribute('text-anchor', 'middle');
-        label.setAttribute('fill', '#999');
-        label.setAttribute('font-size', '10');
-        label.textContent = `R${index + 1}`;
-        svg.appendChild(label);
-    });
+        container.appendChild(barsContainer);
 
-    svgContainer.appendChild(svg);
-    container.appendChild(svgContainer);
+    } catch (error) {
+        console.error('Failed to load score data:', error);
+        container.innerHTML += '<div class="stat-empty">Failed to load score data</div>';
+    }
 
     return container;
 }

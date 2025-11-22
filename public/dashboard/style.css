@@ -1020,6 +1020,47 @@ button {
     white-space: nowrap;
 }
 
+/* Player selector dropdown */
+.player-selector {
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-sm) 0;
+    display: flex;
+    justify-content: center;
+}
+
+.player-dropdown {
+    padding: 6px var(--spacing-md);
+    font-size: 12px;
+    background: var(--color-bg-card);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    min-width: 150px;
+}
+
+.player-dropdown:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+.chart-subtitle {
+    font-size: 11px;
+    color: var(--color-text-tertiary);
+    text-align: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.score-bars-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.score-bar {
+    background: linear-gradient(90deg, var(--color-accent), #00aa66);
+}
+
 .indicator-dot {
     width: 8px;
     height: 8px;

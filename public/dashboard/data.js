@@ -218,6 +218,108 @@ export async function getRoundProgression(eventId) {
 }
 
 /**
+ * Get average score by tier (for seasons) or by round (for tournaments)
+ * For a specific player and event
+ */
+export async function getPlayerScoresByTier(eventId, playerName) {
+    // Get event type
+    const { data: event, error: eventError } = await supabase
+        .from('events')
+        .select('type')
+        .eq('id', eventId)
+        .single();
+
+    if (eventError) throw eventError;
+
+    // Get rounds for this event with course info
+    const { data: rounds, error: roundsError } = await supabase
+        .from('rounds')
+        .select('id, course_name, date')
+        .eq('event_id', eventId)
+        .order('date', { ascending: true });
+
+    if (roundsError) throw roundsError;
+    if (!rounds || rounds.length === 0) return null;
+
+    const roundIds = rounds.map(r => r.id);
+
+    // Get player_rounds for this player
+    const { data: playerRounds, error: prError } = await supabase
+        .from('player_rounds')
+        .select('round_id, total_score')
+        .eq('player_name', playerName)
+        .in('round_id', roundIds);
+
+    if (prError) throw prError;
+
+    // Get course tiers
+    const courseNames = [...new Set(rounds.map(r => r.course_name))];
+    const { data: courses, error: coursesError } = await supabase
+        .from('courses')
+        .select('course_name, tier')
+        .in('course_name', courseNames);
+
+    if (coursesError) throw coursesError;
+
+    // Build course tier map
+    const courseTierMap = {};
+    courses.forEach(c => {
+        courseTierMap[c.course_name] = c.tier;
+    });
+
+    // Build player scores map
+    const playerScoresMap = {};
+    playerRounds.forEach(pr => {
+        playerScoresMap[pr.round_id] = pr.total_score;
+    });
+
+    if (event.type === 'season') {
+        // Group by tier and calculate average
+        const tierScores = { 1: [], 2: [], 3: [], 4: [] };
+
+        rounds.forEach(round => {
+            const tier = courseTierMap[round.course_name];
+            const score = playerScoresMap[round.id];
+
+            if (tier && score !== undefined) {
+                tierScores[tier].push(score);
+            }
+        });
+
+        // Calculate averages
+        const tierAverages = [];
+        [1, 2, 3, 4].forEach(tier => {
+            const scores = tierScores[tier];
+            if (scores.length > 0) {
+                const avg = scores.reduce((sum, s) => sum + s, 0) / scores.length;
+                tierAverages.push({
+                    label: `Tier ${tier}`,
+                    value: parseFloat(avg.toFixed(1)),
+                    count: scores.length
+                });
+            }
+        });
+
+        return {
+            type: 'tier',
+            data: tierAverages
+        };
+    } else {
+        // Tournament - show by round number
+        const roundScores = rounds.map((round, index) => ({
+            label: `Round ${index + 1}`,
+            value: playerScoresMap[round.id] || 0,
+            courseName: round.course_name
+        })).filter(r => r.value > 0);
+
+        return {
+            type: 'round',
+            data: roundScores
+        };
+    }
+}
+
+/**
  * Process scorecard endpoint call
  */
 export async function processScorecard() {
