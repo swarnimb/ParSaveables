@@ -227,14 +227,11 @@ function renderStatsPage(container) {
     );
     container.appendChild(eventSelector);
 
-    // Stat cards data
+    // Stat cards data - 3 visual charts
     const statCards = [
-        { title: 'Top Performers', description: 'Most Total Points' },
-        { title: 'Most Birdies', description: 'Best Birdie Leaders' },
-        { title: 'Most Eagles', description: 'Eagle Champions' },
-        { title: 'Most Aces', description: 'Hole-in-One Kings' },
-        { title: 'Most Wins', description: 'Round Winners' },
-        { title: 'Best Average', description: 'Highest Avg Score' }
+        { title: 'Performance Breakdown', type: 'performance-bars' },
+        { title: 'Rounds Analysis', type: 'rounds-stacked' },
+        { title: 'Points Progression', type: 'points-line' }
     ];
 
     // Add position indicators (dots) - create first
@@ -268,9 +265,9 @@ function renderStatsPage(container) {
         const content = document.createElement('div');
         content.className = 'stat-card-content';
 
-        // Generate stat list based on card type
-        const statList = generateStatList(card.title);
-        content.appendChild(statList);
+        // Generate chart based on card type
+        const chart = generateChart(card.type, card.title);
+        content.appendChild(chart);
 
         cardElement.appendChild(header);
         cardElement.appendChild(content);
@@ -284,76 +281,169 @@ function renderStatsPage(container) {
 }
 
 /**
- * Generate stat list for a specific stat type
+ * Generate chart for a specific chart type
  */
-function generateStatList(statType) {
-    const listContainer = document.createElement('div');
-    listContainer.className = 'stat-list';
+function generateChart(chartType, title) {
+    const chartContainer = document.createElement('div');
+    chartContainer.className = 'chart-container-visual';
 
     if (state.leaderboard.length === 0) {
-        listContainer.innerHTML = '<div class="stat-empty">No data available for this event</div>';
-        return listContainer;
+        chartContainer.innerHTML = '<div class="stat-empty">No data available for this event</div>';
+        return chartContainer;
     }
 
-    let sortedPlayers = [...state.leaderboard];
-    let statKey = '';
-
-    // Sort players based on stat type
-    switch (statType) {
-        case 'Top Performers':
-            sortedPlayers.sort((a, b) => b.totalPoints - a.totalPoints);
-            statKey = 'totalPoints';
-            break;
-        case 'Most Birdies':
-            sortedPlayers.sort((a, b) => b.birdies - a.birdies);
-            statKey = 'birdies';
-            break;
-        case 'Most Eagles':
-            sortedPlayers.sort((a, b) => b.eagles - a.eagles);
-            statKey = 'eagles';
-            break;
-        case 'Most Aces':
-            sortedPlayers.sort((a, b) => b.aces - a.aces);
-            statKey = 'aces';
-            break;
-        case 'Most Wins':
-            sortedPlayers.sort((a, b) => b.wins - a.wins);
-            statKey = 'wins';
-            break;
-        case 'Best Average':
-            sortedPlayers = sortedPlayers.filter(p => p.avgScore !== '-');
-            sortedPlayers.sort((a, b) => parseFloat(b.avgScore) - parseFloat(a.avgScore));
-            statKey = 'avgScore';
-            break;
+    switch (chartType) {
+        case 'performance-bars':
+            return createPerformanceBarsChart();
+        case 'rounds-stacked':
+            return createRoundsStackedChart();
+        case 'points-line':
+            return createPointsLineChart();
+        default:
+            chartContainer.innerHTML = '<div class="stat-empty">Chart not available</div>';
+            return chartContainer;
     }
+}
 
-    // Take top 10
-    const top10 = sortedPlayers.slice(0, 10);
+/**
+ * Create performance breakdown chart (birdies/eagles/aces)
+ */
+function createPerformanceBarsChart() {
+    const container = document.createElement('div');
+    container.className = 'chart-visual';
 
-    // Create list items
-    top10.forEach((player, index) => {
-        const item = document.createElement('div');
-        item.className = 'stat-list-item';
+    // Sort by total performance (birdies + eagles + aces)
+    const sortedPlayers = [...state.leaderboard]
+        .map(p => ({
+            ...p,
+            totalPerf: p.birdies + p.eagles + p.aces
+        }))
+        .sort((a, b) => b.totalPerf - a.totalPerf)
+        .slice(0, 8);
 
-        const rank = document.createElement('div');
-        rank.className = 'stat-rank';
-        rank.textContent = index + 1;
+    const maxValue = Math.max(...sortedPlayers.map(p => p.totalPerf));
 
-        const name = document.createElement('div');
-        name.className = 'stat-name';
-        name.textContent = player.name === 'Bird' ? '🦅' : player.name;
+    // Legend
+    const legend = document.createElement('div');
+    legend.className = 'chart-legend';
+    legend.innerHTML = `
+        <div class="legend-item"><span class="legend-color" style="background: #4ade80"></span>Birdies</div>
+        <div class="legend-item"><span class="legend-color" style="background: #fbbf24"></span>Eagles</div>
+        <div class="legend-item"><span class="legend-color" style="background: #f87171"></span>Aces</div>
+    `;
+    container.appendChild(legend);
 
-        const value = document.createElement('div');
-        value.className = 'stat-value';
-        value.textContent = player[statKey];
+    // Chart area
+    const chartArea = document.createElement('div');
+    chartArea.className = 'chart-bars';
 
-        item.appendChild(rank);
-        item.appendChild(name);
-        item.appendChild(value);
-        listContainer.appendChild(item);
+    sortedPlayers.forEach(player => {
+        const playerBar = document.createElement('div');
+        playerBar.className = 'player-bar-row';
+
+        const playerName = document.createElement('div');
+        playerName.className = 'player-bar-name';
+        playerName.textContent = player.name === 'Bird' ? '🦅' : player.name;
+
+        const barContainer = document.createElement('div');
+        barContainer.className = 'bar-container';
+
+        const birdieWidth = (player.birdies / maxValue) * 100;
+        const eagleWidth = (player.eagles / maxValue) * 100;
+        const aceWidth = (player.aces / maxValue) * 100;
+
+        barContainer.innerHTML = `
+            <div class="bar-segment birdie-bar" style="width: ${birdieWidth}%">${player.birdies > 0 ? player.birdies : ''}</div>
+            <div class="bar-segment eagle-bar" style="width: ${eagleWidth}%">${player.eagles > 0 ? player.eagles : ''}</div>
+            <div class="bar-segment ace-bar" style="width: ${aceWidth}%">${player.aces > 0 ? player.aces : ''}</div>
+        `;
+
+        playerBar.appendChild(playerName);
+        playerBar.appendChild(barContainer);
+        chartArea.appendChild(playerBar);
     });
 
-    return listContainer;
+    container.appendChild(chartArea);
+    return container;
+}
+
+/**
+ * Create rounds stacked chart (wins/podiums/other)
+ */
+function createRoundsStackedChart() {
+    const container = document.createElement('div');
+    container.className = 'chart-visual';
+
+    // Sort by total rounds
+    const sortedPlayers = [...state.leaderboard]
+        .sort((a, b) => b.rounds - a.rounds)
+        .slice(0, 8);
+
+    const maxRounds = Math.max(...sortedPlayers.map(p => p.rounds));
+
+    // Legend
+    const legend = document.createElement('div');
+    legend.className = 'chart-legend';
+    legend.innerHTML = `
+        <div class="legend-item"><span class="legend-color" style="background: #fbbf24"></span>Wins</div>
+        <div class="legend-item"><span class="legend-color" style="background: #60a5fa"></span>Top 3</div>
+        <div class="legend-item"><span class="legend-color" style="background: #94a3b8"></span>Other</div>
+    `;
+    container.appendChild(legend);
+
+    // Chart area
+    const chartArea = document.createElement('div');
+    chartArea.className = 'chart-bars';
+
+    sortedPlayers.forEach(player => {
+        const playerBar = document.createElement('div');
+        playerBar.className = 'player-bar-row';
+
+        const playerName = document.createElement('div');
+        playerName.className = 'player-bar-name';
+        playerName.textContent = player.name === 'Bird' ? '🦅' : player.name;
+
+        const barContainer = document.createElement('div');
+        barContainer.className = 'bar-container';
+
+        const winsWidth = (player.wins / maxRounds) * 100;
+        const podiumsWithoutWins = player.topThreeFinishes - player.wins;
+        const podiumWidth = (podiumsWithoutWins / maxRounds) * 100;
+        const otherRounds = player.rounds - player.topThreeFinishes;
+        const otherWidth = (otherRounds / maxRounds) * 100;
+
+        barContainer.innerHTML = `
+            <div class="bar-segment wins-bar" style="width: ${winsWidth}%">${player.wins > 0 ? player.wins : ''}</div>
+            <div class="bar-segment podium-bar" style="width: ${podiumWidth}%">${podiumsWithoutWins > 0 ? podiumsWithoutWins : ''}</div>
+            <div class="bar-segment other-bar" style="width: ${otherWidth}%">${otherRounds > 0 ? otherRounds : ''}</div>
+        `;
+
+        playerBar.appendChild(playerName);
+        playerBar.appendChild(barContainer);
+        chartArea.appendChild(playerBar);
+    });
+
+    container.appendChild(chartArea);
+    return container;
+}
+
+/**
+ * Create points progression line chart (placeholder)
+ */
+function createPointsLineChart() {
+    const container = document.createElement('div');
+    container.className = 'chart-visual';
+
+    // Placeholder message
+    container.innerHTML = `
+        <div class="chart-placeholder-message">
+            <div style="font-size: 48px; margin-bottom: 16px;">📈</div>
+            <div style="font-size: 16px; color: var(--color-text-secondary);">Points progression chart</div>
+            <div style="font-size: 14px; color: var(--color-text-tertiary); margin-top: 8px;">Coming soon - cumulative points over time</div>
+        </div>
+    `;
+
+    return container;
 }
 
 /**
