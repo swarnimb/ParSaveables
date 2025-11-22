@@ -287,13 +287,20 @@ export async function getPlayerScoresByTier(eventId, playerName) {
         });
 
         // Calculate averages
+        const tierNames = {
+            1: 'Easy',
+            2: 'Moderate',
+            3: 'Hard',
+            4: 'Elite'
+        };
+
         const tierAverages = [];
         [1, 2, 3, 4].forEach(tier => {
             const scores = tierScores[tier];
             if (scores.length > 0) {
                 const avg = scores.reduce((sum, s) => sum + s, 0) / scores.length;
                 tierAverages.push({
-                    label: `Tier ${tier}`,
+                    label: tierNames[tier],
                     value: parseFloat(avg.toFixed(1)),
                     count: scores.length
                 });
