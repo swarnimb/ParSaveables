@@ -20,7 +20,8 @@ const state = {
     expandedPlayers: new Set(),
     roundProgression: null,
     selectedChartPlayers: new Set(),
-    selectedPlayerForScores: null // For average score chart
+    selectedPlayerForScores: null, // For average score chart
+    currentCarouselIndex: 0 // Track current chart position
 };
 
 // Disc golf jokes/puns
@@ -715,7 +716,7 @@ function showError(message) {
  * Initialize stats carousel with swipe handling
  */
 function initStatsCarousel(carousel, totalCards) {
-    let currentIndex = 0;
+    let currentIndex = state.currentCarouselIndex || 0;
     let startX = 0;
     let currentX = 0;
     let isDragging = false;
@@ -723,6 +724,7 @@ function initStatsCarousel(carousel, totalCards) {
 
     const updateCarousel = (index, animate = true) => {
         currentIndex = Math.max(0, Math.min(index, totalCards - 1));
+        state.currentCarouselIndex = currentIndex; // Save to state
         const offset = -currentIndex * 100;
 
         if (animate) {
@@ -796,8 +798,8 @@ function initStatsCarousel(carousel, totalCards) {
         });
     });
 
-    // Initialize position
-    updateCarousel(0, false);
+    // Initialize position (restore from state or start at 0)
+    updateCarousel(currentIndex, false);
 }
 
 // Start app when DOM is ready

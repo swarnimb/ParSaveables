@@ -246,7 +246,7 @@ export async function getPlayerScoresByTier(eventId, playerName) {
     // Get player_rounds for this player
     const { data: playerRounds, error: prError } = await supabase
         .from('player_rounds')
-        .select('round_id, total_score')
+        .select('round_id, final_total')
         .eq('player_name', playerName)
         .in('round_id', roundIds);
 
@@ -270,7 +270,7 @@ export async function getPlayerScoresByTier(eventId, playerName) {
     // Build player scores map
     const playerScoresMap = {};
     playerRounds.forEach(pr => {
-        playerScoresMap[pr.round_id] = pr.total_score;
+        playerScoresMap[pr.round_id] = pr.final_total || 0;
     });
 
     if (event.type === 'season') {
