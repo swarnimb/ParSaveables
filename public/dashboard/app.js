@@ -160,7 +160,7 @@ function switchPage(page) {
 /**
  * Render current page
  */
-function renderCurrentPage() {
+async function renderCurrentPage() {
     const content = document.getElementById('content');
 
     switch (state.currentPage) {
@@ -168,7 +168,7 @@ function renderCurrentPage() {
             renderHomePage(content);
             break;
         case 'stats':
-            renderStatsPage(content);
+            await renderStatsPage(content);
             break;
         case 'podcast':
             renderPodcastPage(content);
@@ -218,7 +218,7 @@ function renderHomePage(container) {
 /**
  * Render stats page
  */
-function renderStatsPage(container) {
+async function renderStatsPage(container) {
     container.innerHTML = '';
     container.className = 'stats-page';
 
@@ -258,7 +258,7 @@ function renderStatsPage(container) {
     carousel.id = 'statsCarousel';
 
     // Create cards with actual data
-    statCards.forEach((card, index) => {
+    for (const card of statCards) {
         const cardElement = document.createElement('div');
         cardElement.className = 'stat-card';
 
@@ -269,14 +269,14 @@ function renderStatsPage(container) {
         const content = document.createElement('div');
         content.className = 'stat-card-content';
 
-        // Generate chart based on card type
-        const chart = generateChart(card.type, card.title);
+        // Generate chart based on card type (await async charts)
+        const chart = await generateChart(card.type, card.title);
         content.appendChild(chart);
 
         cardElement.appendChild(header);
         cardElement.appendChild(content);
         carousel.appendChild(cardElement);
-    });
+    }
 
     container.appendChild(carousel);
 
@@ -287,7 +287,7 @@ function renderStatsPage(container) {
 /**
  * Generate chart for a specific chart type
  */
-function generateChart(chartType, title) {
+async function generateChart(chartType, title) {
     const chartContainer = document.createElement('div');
     chartContainer.className = 'chart-container-visual';
 
@@ -302,7 +302,7 @@ function generateChart(chartType, title) {
         case 'rounds-stacked':
             return createRoundsStackedChart();
         case 'score-bars':
-            return createScoreBarsChart();
+            return await createScoreBarsChart();
         default:
             chartContainer.innerHTML = '<div class="stat-empty">Chart not available</div>';
             return chartContainer;
@@ -464,7 +464,7 @@ async function createScoreBarsChart() {
 
     dropdown.addEventListener('change', async (e) => {
         state.selectedPlayerForScores = e.target.value;
-        renderStatsPage(document.getElementById('content'));
+        await renderStatsPage(document.getElementById('content'));
     });
 
     playerSelector.appendChild(dropdown);
@@ -661,7 +661,7 @@ async function handleStatsEventChange(type, eventId) {
             state.roundProgression = await getRoundProgression(state.selectedEventId);
         }
 
-        renderStatsPage(content);
+        await renderStatsPage(content);
     } catch (error) {
         console.error('Failed to change event:', error);
         showError('Failed to load event data');
