@@ -40,6 +40,25 @@ Last Updated: 2025-01-22
 5. Dashboard auto-refreshes to show new data
 
 ### Recent Changes (Jan 22, 2025)
+**Course Aliases System (Database Cleanup):**
+- Created course_aliases table to eliminate duplicate course entries
+- Migration script: `database/migrations/003_add_course_aliases.sql`
+- Database function `find_course_by_name_or_alias()` with 3-level fallback:
+  1. Exact match on course_name
+  2. Match on alias
+  3. Partial/fuzzy match
+- Updated backend services to use database-level course matching
+- **STATUS:** Migration files committed but NOT YET RUN on database
+- **NEXT STEP:** Run migration via Supabase dashboard (see README_MIGRATION_003.md)
+
+**Info Tab Implementation:**
+- Event-aware points system display with 2 cards:
+  - Card 1: Short funny description (4 variants based on config hash)
+  - Card 2: Points allocation table + Tie breaker order + Course multipliers (seasons only)
+- Course multipliers section shows tier/multiplier for each course
+- `getPointsSystem()` function fetches config from database
+- Only shows courses when multipliers enabled for seasons
+
 **Stats Page Implementation:**
 - Built 3 swipeable interactive charts with touch gestures
 - Chart 1: Performance Breakdown (birdies/eagles/aces by player)
@@ -109,6 +128,7 @@ Last Updated: 2025-01-22
 - `events` - Seasons and tournaments with player lists
 - `points_systems` - Scoring rules (JSONB config)
 - `courses` - Course library with multipliers
+- `course_aliases` - Alternate spellings for courses (NEW - migration pending)
 - `registered_players` - Player registry
 
 **Data Tables:**
@@ -142,6 +162,13 @@ Last Updated: 2025-01-22
 - Minimum 4 players required
 - Extracts hole-by-hole scores, stats, course, date
 
+### Course Matching (NEW - Aliases System)
+- Database function `find_course_by_name_or_alias()` handles variations
+- 3-level fallback: exact match → alias match → partial match
+- Eliminates duplicate course entries in database
+- Vision service can extract any spelling, aliases map to canonical name
+- **Status:** Code committed, migration NOT yet run (see database/migrations/README_MIGRATION_003.md)
+
 ---
 
 ## Common Tasks & How to Do Them
@@ -172,6 +199,21 @@ SET players = (
 WHERE id = X;
 ```
 
+### Run Course Aliases Migration (PENDING)
+**Via Supabase Dashboard (Recommended):**
+1. Go to Supabase Dashboard → SQL Editor
+2. Copy contents of `database/migrations/003_add_course_aliases.sql`
+3. Run the script
+4. Verify with:
+   ```sql
+   SELECT * FROM course_aliases;
+   SELECT course_name, active FROM courses WHERE active = false;
+   SELECT * FROM find_course_by_name_or_alias('Liveoak');
+   ```
+5. Check Info tab on dashboard - no duplicate courses should appear
+
+**See:** `database/migrations/README_MIGRATION_003.md` for full details and rollback instructions
+
 ### Trigger Scorecard Processing
 1. Visit https://par-saveables.vercel.app
 2. Click "📧 Process Scorecards" button (top center)
@@ -188,6 +230,13 @@ git push
 ---
 
 ## Known Issues & Quirks
+
+### Pending Migration
+- **Course aliases system NOT yet applied to database**
+- Migration files committed: `003_add_course_aliases.sql` + README
+- Backend code updated to use `findCourseByNameOrAlias()`
+- **Action needed:** Run migration via Supabase dashboard
+- Impact: Info tab currently shows duplicate courses until migration runs
 
 ### Database Schema
 - `rounds.season` column exists but is inconsistent (NULL for most)
@@ -401,6 +450,6 @@ vercel env ls
 
 ---
 
-Last Updated: 2025-11-21
-Status: Production Ready
-Next Session: Work on Stats page (2nd tab) - see ROADMAP.md
+Last Updated: 2025-01-22
+Status: Production Ready (with pending migration)
+Next Session: Run course aliases migration or continue mobile dashboard work
