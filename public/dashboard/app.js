@@ -615,21 +615,27 @@ function generateFunnyDescription(config, eventType) {
     const rankPoints = config.rank_points;
     const perfPoints = config.performance_points;
     const multiplierEnabled = config.course_multiplier?.enabled;
+    const first = rankPoints['1'];
+    const hasPerf = perfPoints.birdie > 0 || perfPoints.eagle > 0 || perfPoints.ace > 0;
 
-    const descriptions = [
-        `Think of it like golf, but backwards: the worse you do, the fewer points you get. Win a round and grab <strong>${rankPoints['1']} points</strong>. `,
-        multiplierEnabled
-            ? `Play on harder courses and watch your points multiply like rabbits! Easy courses (1x) vs Elite courses (2.5x) - choose wisely! `
-            : `Every course counts the same, so no excuses! `,
-        perfPoints.birdie > 0 ? `Hit a birdie? +${perfPoints.birdie} point${perfPoints.birdie > 1 ? 's' : ''}. ` : '',
-        perfPoints.eagle > 0 ? `Eagle? That's worth <strong>${perfPoints.eagle} points</strong>! ` : '',
-        perfPoints.ace > 0 ? `And if you somehow manage an ace... <strong>${perfPoints.ace} glorious points</strong>! ` : '',
-        config.tie_breaking?.enabled
-            ? `If you tie with someone, we'll split the points like civilized disc golfers. No arm wrestling required.`
-            : `First past the post - no tie-breaking nonsense here!`
+    // Generate unique hash from config to pick consistent description
+    const configHash = (first + (perfPoints.birdie || 0) + (perfPoints.eagle || 0) * 3 + (multiplierEnabled ? 100 : 0)) % 4;
+
+    const variants = [
+        // Variant 0: Simple and punny
+        `Win = <strong>${first} pts</strong>. ${hasPerf ? `Birdies, eagles, aces? Bonus points!` : ''} ${multiplierEnabled ? `Harder courses = bigger multipliers.` : `All courses equal.`}`,
+
+        // Variant 1: Competitive
+        `Top spot gets <strong>${first} points</strong>. ${multiplierEnabled ? `Elite courses multiply your glory (or your shame).` : `No course handicaps here.`} ${hasPerf ? `Aces and eagles sweeten the deal.` : ''}`,
+
+        // Variant 2: Casual humor
+        `First place? <strong>${first} sweet points</strong>. ${hasPerf ? `Add bonuses for fancy shots.` : ''} ${multiplierEnabled ? `Tougher courses = more points (no pressure).` : `Every course counts the same.`}`,
+
+        // Variant 3: Direct
+        `Win rounds for <strong>${first} pts</strong>. ${multiplierEnabled ? `Course difficulty multiplies your score (1x-2.5x).` : `Flat scoring across all courses.`} ${hasPerf ? `Performance bonuses apply.` : ''}`
     ];
 
-    return '<p>' + descriptions.filter(d => d).join('') + '</p>';
+    return '<p>' + variants[configHash] + '</p>';
 }
 
 /**
