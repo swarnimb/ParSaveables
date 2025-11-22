@@ -7,6 +7,9 @@ The `courses` table has duplicate entries for alternate spellings of the same co
 - "Northtown Park", "Northotown" (same course, 2 entries)
 - "MetCenter", "Met Center" (same course, 2 entries)
 - "Searight Park", "Searight" (same course, 2 entries)
+- "Flying Armadillo", "Armadillio" (same course, 2 entries)
+- "Sprinkle Valley", "Sprinkle" (same course, 2 entries)
+- "Old Settler's", "Old Settlers", "Old Settler\'s" (same course, 3 entries)
 
 **Issues with current approach:**
 1. Info tab shows duplicate courses in Course Multipliers list
@@ -44,9 +47,10 @@ CREATE TABLE course_aliases (
 ```
 
 ### 2. Migrates Existing Duplicates
-- Extracts alternate spellings from `courses` table
+- Extracts 14 alternate spellings from `courses` table
 - Inserts them into `course_aliases` table
 - Links aliases to their canonical course
+- **Result:** 31 courses reduced to 20 unique courses with 14 aliases
 
 ### 3. Marks Duplicates as Inactive
 - Sets `active = false` for duplicate course entries
@@ -98,24 +102,35 @@ After running migration:
 1. **Check aliases created:**
 ```sql
 SELECT * FROM course_aliases;
--- Should show ~10 aliases
+-- Should show 14 aliases
 ```
 
 2. **Check duplicates disabled:**
 ```sql
 SELECT course_name, active FROM courses WHERE active = false;
--- Should show Liveoak, Northotown, etc.
+-- Should show 11 inactive courses: Liveoak, Live Oak Brewing DGC, Northotown,
+-- Searight, Met Center, Roy G, Roy G., Old Settlers, Armadillio, Sprinkle, Old Settler\'s
 ```
 
 3. **Test database function:**
 ```sql
-SELECT * FROM find_course_by_name_or_alias('Liveoak');
--- Should return Live Oak (canonical name)
+-- Test various aliases
+SELECT * FROM find_course_by_name_or_alias('Liveoak');          -- Should return Live Oak
+SELECT * FROM find_course_by_name_or_alias('Armadillio');       -- Should return Flying Armadillo
+SELECT * FROM find_course_by_name_or_alias('Sprinkle');         -- Should return Sprinkle Valley
+SELECT * FROM find_course_by_name_or_alias('Old Settlers');     -- Should return Old Settler's
 ```
 
-4. **Check Info tab:**
+4. **Verify course count:**
+```sql
+SELECT COUNT(*) FROM courses WHERE active = true;
+-- Should show exactly 20 active courses
+```
+
+5. **Check Info tab:**
 - Navigate to Info tab in dashboard
 - Course Multipliers section should show no duplicates
+- Should show exactly 20 courses
 - Only canonical course names should appear
 
 ## Rollback (If Needed)
@@ -125,7 +140,8 @@ SELECT * FROM find_course_by_name_or_alias('Liveoak');
 UPDATE courses SET active = true
 WHERE course_name IN (
   'Liveoak', 'Live Oak Brewing DGC', 'Northotown',
-  'Searight', 'Met Center', 'Roy G', 'Roy G.', 'Old Settlers'
+  'Searight', 'Met Center', 'Roy G', 'Roy G.', 'Old Settlers',
+  'Armadillio', 'Sprinkle', 'Old Settler\''s'
 );
 
 -- Drop aliases table

@@ -62,6 +62,21 @@ INSERT INTO course_aliases (alias, course_id)
 SELECT 'Old Settlers', id FROM courses WHERE course_name = 'Old Settler''s'
 ON CONFLICT (alias) DO NOTHING;
 
+-- Flying Armadillo variations
+INSERT INTO course_aliases (alias, course_id)
+SELECT 'Armadillio', id FROM courses WHERE course_name = 'Flying Armadillo'
+ON CONFLICT (alias) DO NOTHING;
+
+-- Sprinkle Valley variations
+INSERT INTO course_aliases (alias, course_id)
+SELECT 'Sprinkle', id FROM courses WHERE course_name = 'Sprinkle Valley'
+ON CONFLICT (alias) DO NOTHING;
+
+-- Old Settler's variations (escape handling)
+INSERT INTO course_aliases (alias, course_id)
+SELECT 'Old Settler\''s', id FROM courses WHERE course_name = 'Old Settler''s'
+ON CONFLICT (alias) DO NOTHING;
+
 -- ============================================================================
 -- 3. MARK DUPLICATE COURSES AS INACTIVE
 -- ============================================================================
@@ -76,7 +91,10 @@ WHERE course_name IN (
   'Met Center',
   'Roy G',
   'Roy G.',
-  'Old Settlers'
+  'Old Settlers',
+  'Armadillio',
+  'Sprinkle',
+  'Old Settler\''s'
 );
 
 -- ============================================================================
