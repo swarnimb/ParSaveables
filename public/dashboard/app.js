@@ -2,7 +2,7 @@
  * Main Application - Orchestrates the dashboard
  */
 
-import { initSupabase, getEvents, getEventsByType, getLeaderboard, getActiveEvent, processScorecard } from '/dashboard/data.js';
+import { initSupabase, getEvents, getEventsByType, getLeaderboard, getActiveEvent, processScorecard, getRoundProgression } from '/dashboard/data.js';
 import { createEventSelector, createPodium, createPlayerList, createLoadingState, createEmptyState } from '/dashboard/components.js';
 
 // Supabase configuration
@@ -17,7 +17,8 @@ const state = {
     allEvents: [],
     currentEvents: [],
     leaderboard: [],
-    expandedPlayers: new Set()
+    expandedPlayers: new Set(),
+    roundProgression: null
 };
 
 // Disc golf jokes/puns
@@ -428,20 +429,125 @@ function createRoundsStackedChart() {
 }
 
 /**
- * Create points progression line chart (placeholder)
+ * Create points progression line chart
  */
 function createPointsLineChart() {
     const container = document.createElement('div');
     container.className = 'chart-visual';
 
-    // Placeholder message
-    container.innerHTML = `
-        <div class="chart-placeholder-message">
-            <div style="font-size: 48px; margin-bottom: 16px;">📈</div>
-            <div style="font-size: 16px; color: var(--color-text-secondary);">Points progression chart</div>
-            <div style="font-size: 14px; color: var(--color-text-tertiary); margin-top: 8px;">Coming soon - cumulative points over time</div>
-        </div>
-    `;
+    if (!state.roundProgression || state.roundProgression.players.length === 0) {
+        container.innerHTML = `<div class="stat-empty">No round data available</div>`;
+        return container;
+    }
+
+    const { rounds, players } = state.roundProgression;
+
+    // Show top 5 players only for readability
+    const topPlayers = players.slice(0, 5);
+
+    // Color palette for lines
+    const colors = ['#00ff88', '#60a5fa', '#fbbf24', '#f87171', '#a78bfa'];
+
+    // Legend
+    const legend = document.createElement('div');
+    legend.className = 'chart-legend';
+    topPlayers.forEach((player, i) => {
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        item.innerHTML = `
+            <span class="legend-color" style="background: ${colors[i]}"></span>
+            ${player.playerName === 'Bird' ? '🦅' : player.playerName}
+        `;
+        legend.appendChild(item);
+    });
+    container.appendChild(legend);
+
+    // SVG container
+    const svgContainer = document.createElement('div');
+    svgContainer.className = 'line-chart-svg-container';
+
+    const width = 320;
+    const height = 200;
+    const padding = { top: 20, right: 20, bottom: 30, left: 50 };
+
+    // Calculate scales
+    const maxPoints = Math.max(...topPlayers.flatMap(p => p.points));
+    const xScale = (index) => padding.left + (index / (rounds.length - 1)) * (width - padding.left - padding.right);
+    const yScale = (value) => height - padding.bottom - (value / maxPoints) * (height - padding.top - padding.bottom);
+
+    // Create SVG
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', width);
+    svg.setAttribute('height', height);
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+    // Grid lines (horizontal)
+    const gridCount = 4;
+    for (let i = 0; i <= gridCount; i++) {
+        const y = padding.top + (i / gridCount) * (height - padding.top - padding.bottom);
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', padding.left);
+        line.setAttribute('y1', y);
+        line.setAttribute('x2', width - padding.right);
+        line.setAttribute('y2', y);
+        line.setAttribute('stroke', 'rgba(255, 255, 255, 0.1)');
+        line.setAttribute('stroke-width', '1');
+        svg.appendChild(line);
+
+        // Y-axis label
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', padding.left - 8);
+        label.setAttribute('y', y + 4);
+        label.setAttribute('text-anchor', 'end');
+        label.setAttribute('fill', '#999');
+        label.setAttribute('font-size', '10');
+        label.textContent = Math.round(maxPoints * (1 - i / gridCount));
+        svg.appendChild(label);
+    }
+
+    // Draw lines for each player
+    topPlayers.forEach((player, playerIndex) => {
+        const pathData = player.points.map((point, roundIndex) => {
+            const x = xScale(roundIndex);
+            const y = yScale(point);
+            return roundIndex === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
+        }).join(' ');
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', pathData);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', colors[playerIndex]);
+        path.setAttribute('stroke-width', '2');
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
+        svg.appendChild(path);
+
+        // Add dots at data points
+        player.points.forEach((point, roundIndex) => {
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', xScale(roundIndex));
+            circle.setAttribute('cy', yScale(point));
+            circle.setAttribute('r', '3');
+            circle.setAttribute('fill', colors[playerIndex]);
+            svg.appendChild(circle);
+        });
+    });
+
+    // X-axis labels (round numbers)
+    rounds.forEach((round, index) => {
+        const x = xScale(index);
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', x);
+        label.setAttribute('y', height - padding.bottom + 16);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('fill', '#999');
+        label.setAttribute('font-size', '10');
+        label.textContent = `R${index + 1}`;
+        svg.appendChild(label);
+    });
+
+    svgContainer.appendChild(svg);
+    container.appendChild(svgContainer);
 
     return container;
 }
@@ -569,9 +675,10 @@ async function handleStatsEventChange(type, eventId) {
             state.selectedEventId = eventId;
         }
 
-        // Load leaderboard for new event (for stats calculations)
+        // Load leaderboard and progression data for new event
         if (state.selectedEventId) {
             state.leaderboard = await getLeaderboard(state.selectedEventId);
+            state.roundProgression = await getRoundProgression(state.selectedEventId);
         }
 
         renderStatsPage(content);

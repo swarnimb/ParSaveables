@@ -927,6 +927,19 @@ button {
     text-align: center;
 }
 
+.line-chart-svg-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-md) 0;
+}
+
+.line-chart-svg-container svg {
+    max-width: 100%;
+    height: auto;
+}
+
 .stat-empty {
     text-align: center;
     color: var(--color-text-tertiary);

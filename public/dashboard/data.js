@@ -150,6 +150,74 @@ export async function getActiveEvent() {
 }
 
 /**
+ * Get round-by-round progression data for an event
+ */
+export async function getRoundProgression(eventId) {
+    // Get rounds for this event
+    const { data: rounds, error: roundsError } = await supabase
+        .from('rounds')
+        .select('id, date, course_name')
+        .eq('event_id', eventId)
+        .order('date', { ascending: true });
+
+    if (roundsError) throw roundsError;
+    if (!rounds || rounds.length === 0) return [];
+
+    const roundIds = rounds.map(r => r.id);
+
+    // Get player_rounds for these rounds
+    const { data: playerRounds, error: prError } = await supabase
+        .from('player_rounds')
+        .select('player_name, final_total, round_id')
+        .in('round_id', roundIds);
+
+    if (prError) throw prError;
+
+    // Get event players to filter
+    const { data: event, error: eventError } = await supabase
+        .from('events')
+        .select('players')
+        .eq('id', eventId)
+        .single();
+
+    if (eventError) throw eventError;
+    const eventPlayers = event.players || [];
+
+    // Build progression data
+    const playerProgressions = {};
+
+    playerRounds.forEach(pr => {
+        if (!eventPlayers.includes(pr.player_name)) return;
+
+        if (!playerProgressions[pr.player_name]) {
+            playerProgressions[pr.player_name] = {};
+        }
+        playerProgressions[pr.player_name][pr.round_id] = pr.final_total || 0;
+    });
+
+    // Calculate cumulative points for each player across rounds
+    const progressionData = Object.entries(playerProgressions).map(([playerName, roundPoints]) => {
+        let cumulative = 0;
+        const points = rounds.map(round => {
+            const roundScore = roundPoints[round.id] || 0;
+            cumulative += roundScore;
+            return cumulative;
+        });
+
+        return {
+            playerName,
+            points,
+            finalTotal: cumulative
+        };
+    });
+
+    return {
+        rounds: rounds.map(r => ({ date: r.date, course: r.course_name })),
+        players: progressionData.sort((a, b) => b.finalTotal - a.finalTotal)
+    };
+}
+
+/**
  * Process scorecard endpoint call
  */
 export async function processScorecard() {
