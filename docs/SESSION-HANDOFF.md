@@ -40,16 +40,18 @@ Last Updated: 2025-01-22
 5. Dashboard auto-refreshes to show new data
 
 ### Recent Changes (Jan 22, 2025)
-**Course Aliases System (Database Cleanup):**
-- Created course_aliases table to eliminate duplicate course entries
-- Migration script: `database/migrations/003_add_course_aliases.sql`
+**Course Database Cleanup (COMPLETED):**
+- ✅ Created course_aliases table to eliminate duplicate course entries
+- ✅ Migration 003: Added course aliases system with database function
+- ✅ Migration 004a: Updated 14 historical rounds to use canonical course names
+- ✅ Migration 004: Deleted 11 duplicate courses, kept 20 canonical courses
 - Database function `find_course_by_name_or_alias()` with 3-level fallback:
   1. Exact match on course_name
   2. Match on alias
   3. Partial/fuzzy match
 - Updated backend services to use database-level course matching
-- **STATUS:** Migration files committed but NOT YET RUN on database
-- **NEXT STEP:** Run migration via Supabase dashboard (see README_MIGRATION_003.md)
+- **RESULT:** Exactly 20 courses in database (down from 31+)
+- **BENEFIT:** Clean schema, no more active/inactive filtering needed
 
 **Info Tab Implementation:**
 - Event-aware points system display with 2 cards:
@@ -127,12 +129,12 @@ Last Updated: 2025-01-22
 **Configuration Tables:**
 - `events` - Seasons and tournaments with player lists
 - `points_systems` - Scoring rules (JSONB config)
-- `courses` - Course library with multipliers
-- `course_aliases` - Alternate spellings for courses (NEW - migration pending)
+- `courses` - 20 canonical courses with tier/multiplier
+- `course_aliases` - Alternate spellings mapped to canonical courses
 - `registered_players` - Player registry
 
 **Data Tables:**
-- `rounds` - Round metadata
+- `rounds` - Round metadata (references canonical course names)
 - `player_rounds` - Player stats and points
 
 ---
@@ -162,12 +164,14 @@ Last Updated: 2025-01-22
 - Minimum 4 players required
 - Extracts hole-by-hole scores, stats, course, date
 
-### Course Matching (NEW - Aliases System)
+### Course Matching (Aliases System)
 - Database function `find_course_by_name_or_alias()` handles variations
 - 3-level fallback: exact match → alias match → partial match
-- Eliminates duplicate course entries in database
-- Vision service can extract any spelling, aliases map to canonical name
-- **Status:** Code committed, migration NOT yet run (see database/migrations/README_MIGRATION_003.md)
+- Vision service can extract any spelling (e.g., "Flying Armadillo DGC - Big Course")
+- Aliases automatically map to canonical course (e.g., "Armadillo Big")
+- **20 canonical courses** (clean table, no duplicates)
+- **17+ aliases** for scorecard variations
+- All historical rounds updated to reference canonical names
 
 ---
 
@@ -199,20 +203,23 @@ SET players = (
 WHERE id = X;
 ```
 
-### Run Course Aliases Migration (PENDING)
-**Via Supabase Dashboard (Recommended):**
-1. Go to Supabase Dashboard → SQL Editor
-2. Copy contents of `database/migrations/003_add_course_aliases.sql`
-3. Run the script
-4. Verify with:
-   ```sql
-   SELECT * FROM course_aliases;
-   SELECT course_name, active FROM courses WHERE active = false;
-   SELECT * FROM find_course_by_name_or_alias('Liveoak');
-   ```
-5. Check Info tab on dashboard - no duplicate courses should appear
+### Add New Course Alias
+When vision service extracts a new course name variation:
+```sql
+-- Add alias to existing canonical course
+INSERT INTO course_aliases (alias, course_id)
+SELECT 'New Course Name Variation', id
+FROM courses
+WHERE course_name = 'Canonical Course Name'
+ON CONFLICT (alias) DO NOTHING;
+```
 
-**See:** `database/migrations/README_MIGRATION_003.md` for full details and rollback instructions
+### Add New Course (Entirely New)
+```sql
+-- Insert new canonical course
+INSERT INTO courses (course_name, tier, multiplier)
+VALUES ('New Course Name', 2, 1.5);
+```
 
 ### Trigger Scorecard Processing
 1. Visit https://par-saveables.vercel.app
@@ -230,13 +237,6 @@ git push
 ---
 
 ## Known Issues & Quirks
-
-### Pending Migration
-- **Course aliases system NOT yet applied to database**
-- Migration files committed: `003_add_course_aliases.sql` + README
-- Backend code updated to use `findCourseByNameOrAlias()`
-- **Action needed:** Run migration via Supabase dashboard
-- Impact: Info tab currently shows duplicate courses until migration runs
 
 ### Database Schema
 - `rounds.season` column exists but is inconsistent (NULL for most)
@@ -451,5 +451,5 @@ vercel env ls
 ---
 
 Last Updated: 2025-01-22
-Status: Production Ready (with pending migration)
-Next Session: Run course aliases migration or continue mobile dashboard work
+Status: Production Ready
+Next Session: Continue mobile dashboard work (Podcast tab next)
