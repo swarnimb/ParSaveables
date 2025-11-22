@@ -9,9 +9,10 @@ Enterprise-grade serverless disc golf scorecard processing system with automated
 - **Configuration-Driven**: All scoring rules, course tiers, and point systems stored in database (zero hardcoding)
 - **Multi-Event Support**: Separate tracking for seasons and tournaments with custom scoring systems
 - **Player Validation**: Fuzzy name matching with Levenshtein distance for truncated/misspelled names
-- **Real-time Dashboard**: Live leaderboards, player statistics, and performance trends
+- **Mobile Dashboard**: Touch-optimized leaderboards with podium display and expandable stats
+- **Interactive Stats**: 3 swipeable charts showing performance breakdowns, rounds analysis, and tier-based scores
 - **Admin Panel**: Full CRUD interface for managing points systems, courses, events, and data
-- **Serverless Architecture**: Vercel functions with Gmail API trigger (no servers to maintain)
+- **Serverless Architecture**: Vercel functions with manual trigger (no servers to maintain)
 
 ## Tech Stack
 
@@ -28,11 +29,11 @@ Enterprise-grade serverless disc golf scorecard processing system with automated
 ```
 Gmail Inbox
     ↓ (OAuth2)
-Vercel Serverless Function (Cron: daily at 12pm UTC)
+Vercel Serverless Function (Manual Trigger via Dashboard)
     ↓
 8 Microservices → Supabase PostgreSQL
     ↓
-Dashboard (Static Site)
+Mobile Dashboard (Static Site with Stats Charts)
 ```
 
 ## Project Structure

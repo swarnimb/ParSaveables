@@ -2,15 +2,16 @@
 
 **Quick Start for New Claude Code Sessions**
 
-Last Updated: 2025-11-21
+Last Updated: 2025-01-22
 
 ---
 
 ## TL;DR - Start Here
 
-**System Status:** ✅ **FULLY OPERATIONAL - NEW MOBILE DASHBOARD LIVE**
+**System Status:** ✅ **FULLY OPERATIONAL - MOBILE DASHBOARD WITH STATS**
 - Production deployment on Vercel
-- New mobile-first dashboard at `/dashboard/`
+- New mobile-first dashboard at `/dashboard/` with Stats tab
+- 3 interactive swipeable charts on Stats page
 - Manual trigger via dashboard button
 - Event-based player filtering active
 - All 8 services + 2 API endpoints working
@@ -38,33 +39,32 @@ Last Updated: 2025-11-21
 4. 12-step workflow processes and stores data
 5. Dashboard auto-refreshes to show new data
 
-### Recent Changes (Nov 21, 2025)
-**Mobile Dashboard UI Refinements:**
-- Refined podium visual hierarchy and sizing
-- Standardized font sizes across all ranks with 20% boost for rank 1
-- Optimized vertical centering and spacing in podium cards
-- Fixed average score calculation to show points per round
-- Reduced overall podium card size by 10% for better mobile fit
-- Player name "Bird" displays as 🦅 emoji throughout dashboard
-- Orange gradient banner with rotating disc golf jokes
-- Custom SVG disc golf basket logo with chains and laurel wreath
-- Font hierarchy: Rank 1 larger (16.8px name, 19.2px points), ranks 2-3 match 4+ (14px/16px)
+### Recent Changes (Jan 22, 2025)
+**Stats Page Implementation:**
+- Built 3 swipeable interactive charts with touch gestures
+- Chart 1: Performance Breakdown (birdies/eagles/aces by player)
+- Chart 2: Rounds Analysis (wins/podiums/other rounds by player)
+- Chart 3: Average Score Analysis (scores by tier for seasons, by round for tournaments)
+- Player dropdown on Chart 3 to select individual player analysis
+- Tier labels: Easy (1.0x), Moderate (1.5x), Hard (2.0x), Elite (2.5x)
+- Carousel position preserved when changing events/players (no jump to first chart)
+- Event selector on Stats page (Season/Tournament toggle)
+- Charts update dynamically based on selected event
+- Refactored chart rendering to eliminate code duplication (reusable helper)
+- Total: ~340 lines added across 3 files (app.js, data.js, style.css)
 
-**Mobile Dashboard Initial Build (Nov 21, 2025):**
-- Built new mobile-first dashboard at `/public/dashboard/`
-- 5 files: index.html, style.css, app.js, components.js, data.js
-- Forest background image with semi-transparent cards
-- Top 3 podium with gold/silver/bronze metallic disc graphics
-- Event selector (Season/Tournament toggle)
-- Expandable stats for all players (overall stats, not just top 10)
-- Bottom navigation with iPhone-style notch design
-- Removed chatbot functionality to preserve API credits
+**Previous (Nov 21, 2025):**
+- Built mobile-first dashboard at `/public/dashboard/`
+- Home tab with podium, leaderboard, expandable stats
+- Compressed top section (joke banner, header, event selector) for better viewability
+- Player "Bird" displays as 🦅 emoji throughout
+- Removed "pts" text from podium points display
+- Bottom navigation with 4 tabs: Home, Stats, Podcast, About
 
 **Previous (Nov 19, 2025):**
 - Added manual trigger button to dashboard
 - Removed automatic cron job (was daily at 12pm UTC)
 - Implemented event-based player filtering
-- Players shown on dashboard now filtered by `events.players` column
 
 ---
 
@@ -86,13 +86,19 @@ Last Updated: 2025-11-21
 - `/api/chatbot` - AI chatbot for dashboard queries
 
 ### Frontend (Static HTML/CSS/JS)
-**New Mobile Dashboard (Nov 2025):**
+**Mobile Dashboard (Jan 2025):**
 - `public/dashboard/index.html` - Dashboard shell with SVG logo and banner (~82 lines)
-- `public/dashboard/style.css` - Complete styling with CSS variables (~780 lines)
-- `public/dashboard/app.js` - Main orchestrator, routing, state, jokes (~390 lines)
+- `public/dashboard/style.css` - Complete styling with CSS variables (~860 lines)
+- `public/dashboard/app.js` - Main orchestrator, routing, state, charts (~590 lines)
 - `public/dashboard/components.js` - Reusable UI components (~284 lines)
-- `public/dashboard/data.js` - Supabase queries, leverages backend (~171 lines)
+- `public/dashboard/data.js` - Supabase queries + chart data fetching (~242 lines)
 - `public/dashboard/forest-bg.jpg` - Background image
+
+**Features:**
+- Home tab: Podium (top 3), leaderboard (all players), expandable stats
+- Stats tab: 3 swipeable charts with touch gestures, event-aware
+- Podcast tab: Placeholder for future podcast feature
+- About tab: Project information
 
 **Legacy Dashboards:**
 - `public/index.html` - Old desktop dashboard (~2700 lines, deprecated)
