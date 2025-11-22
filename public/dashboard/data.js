@@ -333,7 +333,7 @@ export async function getPointsSystem(eventId) {
     // Get event with points system
     const { data: event, error: eventError } = await supabase
         .from('events')
-        .select('points_system_id')
+        .select('points_system_id, type')
         .eq('id', eventId)
         .single();
 
@@ -349,7 +349,25 @@ export async function getPointsSystem(eventId) {
 
     if (psError) throw psError;
 
-    return pointsSystem;
+    // Get courses if multiplier is enabled and it's a season
+    let courses = null;
+    if (pointsSystem.config.course_multiplier?.enabled && event.type === 'season') {
+        const { data: coursesData, error: coursesError } = await supabase
+            .from('courses')
+            .select('course_name, tier, multiplier')
+            .eq('active', true)
+            .order('tier', { ascending: true })
+            .order('course_name', { ascending: true });
+
+        if (!coursesError) {
+            courses = coursesData;
+        }
+    }
+
+    return {
+        ...pointsSystem,
+        courses
+    };
 }
 
 /**

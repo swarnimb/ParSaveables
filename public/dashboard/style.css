@@ -1207,3 +1207,47 @@ button {
     color: var(--color-text-secondary);
     font-style: italic;
 }
+
+.course-table {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.course-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: var(--spacing-sm);
+    padding: 6px var(--spacing-sm);
+    background: var(--color-bg-card);
+    border-radius: var(--border-radius-sm);
+    font-size: 13px;
+    align-items: center;
+}
+
+.course-row.course-header {
+    background: transparent;
+    color: var(--color-text-tertiary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px var(--spacing-sm);
+}
+
+.course-name {
+    color: var(--color-text-primary);
+}
+
+.course-tier {
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    text-align: center;
+    min-width: 70px;
+}
+
+.course-multiplier {
+    color: var(--color-accent);
+    font-weight: 600;
+    text-align: right;
+    min-width: 50px;
+}

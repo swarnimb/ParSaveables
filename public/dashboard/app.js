@@ -600,6 +600,18 @@ async function renderAboutPage(container) {
 
         pointsCard.appendChild(allocationSection);
         pointsCard.appendChild(tieBreakerSection);
+
+        // Section 3: Course Multipliers (only for seasons with multipliers enabled)
+        if (pointsSystem.courses && pointsSystem.courses.length > 0) {
+            const courseSection = document.createElement('div');
+            courseSection.className = 'info-section';
+            courseSection.innerHTML = `
+                <div class="info-section-title">Course Multipliers</div>
+                ${generateCourseMultipliers(pointsSystem.courses)}
+            `;
+            pointsCard.appendChild(courseSection);
+        }
+
         container.appendChild(pointsCard);
 
     } catch (error) {
@@ -669,6 +681,35 @@ function generatePointsAllocation(config) {
         if (perfPoints.eagle) html += `<div class="points-row"><div>Eagle</div><div>+${perfPoints.eagle} pts</div></div>`;
         if (perfPoints.ace) html += `<div class="points-row"><div>Ace</div><div>+${perfPoints.ace} pts</div></div>`;
     }
+
+    html += '</div>';
+    return html;
+}
+
+/**
+ * Generate course multipliers table
+ */
+function generateCourseMultipliers(courses) {
+    const tierNames = {
+        1: 'Easy',
+        2: 'Moderate',
+        3: 'Hard',
+        4: 'Elite'
+    };
+
+    let html = '<div class="course-table">';
+    html += '<div class="course-row course-header"><div>Course</div><div>Tier</div><div>Multiplier</div></div>';
+
+    courses.forEach(course => {
+        const tierName = tierNames[course.tier] || `Tier ${course.tier}`;
+        html += `
+            <div class="course-row">
+                <div class="course-name">${course.course_name}</div>
+                <div class="course-tier">${tierName}</div>
+                <div class="course-multiplier">${course.multiplier}x</div>
+            </div>
+        `;
+    });
 
     html += '</div>';
     return html;
