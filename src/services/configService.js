@@ -57,11 +57,11 @@ export async function loadConfiguration(event, courseName) {
   // Load points system configuration
   const pointsSystem = await db.getPointsSystem(event.points_system_id);
 
-  // Load all courses
+  // Load all courses (for reference)
   const courses = await db.getCourses();
 
-  // Find matching course (case-insensitive, partial match)
-  const course = findCourse(courses, courseName);
+  // Find matching course using aliases system (database-level matching)
+  const course = await db.findCourseByNameOrAlias(courseName);
 
   const configuration = {
     event: {

@@ -172,6 +172,49 @@ export async function insertPlayerRounds(playerRounds) {
   return data;
 }
 
+/**
+ * Find course by name using aliases table
+ * Uses database function for exact/alias/partial matching
+ *
+ * @param {string} courseName - Course name from scorecard
+ * @returns {Promise<Object|null>} Course object or null
+ */
+export async function findCourseByNameOrAlias(courseName) {
+  if (!courseName) {
+    logger.warn('findCourseByNameOrAlias called with empty course name');
+    return null;
+  }
+
+  try {
+    const { data, error } = await supabase.rpc('find_course_by_name_or_alias', {
+      input_name: courseName
+    });
+
+    if (error) {
+      logger.error('Error finding course by name or alias', { error, courseName });
+      throw error;
+    }
+
+    if (!data || data.length === 0) {
+      logger.warn('No course found for name', { courseName });
+      return null;
+    }
+
+    const course = data[0];
+    logger.info('Course found via alias system', {
+      input: courseName,
+      matched: course.course_name,
+      tier: course.tier,
+      multiplier: course.multiplier
+    });
+
+    return course;
+  } catch (error) {
+    logger.error('Failed to find course', { error, courseName });
+    throw error;
+  }
+}
+
 export default {
   getRegisteredPlayers,
   findEventByDate,
@@ -179,5 +222,6 @@ export default {
   getCourses,
   getPointsSystem,
   insertRound,
-  insertPlayerRounds
+  insertPlayerRounds,
+  findCourseByNameOrAlias
 };
