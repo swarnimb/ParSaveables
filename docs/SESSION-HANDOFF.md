@@ -452,4 +452,61 @@ vercel env ls
 
 Last Updated: 2025-01-22
 Status: Production Ready
-Next Session: Continue mobile dashboard work (Podcast tab next)
+Next Session: **Podcast Tab + Admin Panel Overhaul**
+
+---
+
+## Next Session Goals
+
+### Priority 1: Podcast Tab (Mobile Dashboard)
+**Current State:**
+- Podcast generation system exists in `/podcast/` directory
+- Podcast tab shows placeholder UI in mobile dashboard
+- Need to integrate podcast system with dashboard
+
+**Tasks:**
+1. Review existing podcast generation system (`/podcast/`)
+2. Build Podcast tab UI:
+   - Episode list with metadata (date, event, duration)
+   - Audio player with play/pause/seek controls
+   - Show notes display
+   - Download button
+3. Integrate with podcast generation backend
+4. Test playback on mobile devices
+
+**Files to Work On:**
+- `public/dashboard/app.js` (renderPodcastPage function)
+- `public/dashboard/data.js` (add podcast data fetching)
+- `public/dashboard/style.css` (podcast player styling)
+- Review `/podcast/` directory for backend integration
+
+### Priority 2: Admin Panel Overhaul
+**Current State:**
+- `public/admin.html` is monolithic (~1,500 lines)
+- Works but hard to maintain
+- Not mobile-responsive
+
+**Tasks:**
+1. Create new modular architecture:
+   - `public/admin/index.html`
+   - `public/admin/style.css`
+   - `public/admin/app.js`
+   - `public/admin/components.js`
+   - `public/admin/data.js`
+2. Port existing functionality to new structure
+3. Add new features:
+   - Registered Players CRUD interface
+   - Course Management (add/edit courses + aliases)
+   - Better event management UI
+   - Points System visual editor
+4. Make mobile-responsive
+
+**Files to Work On:**
+- Create new `/public/admin/` directory
+- Migrate logic from `public/admin.html`
+- Test all admin functionality
+
+### Optional: If Time Permits
+- Chatbot enhancement (conversation memory)
+- Performance optimizations (caching)
+- Automated testing suite

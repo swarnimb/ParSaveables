@@ -29,10 +29,10 @@ Major features to be built that will add new functionality to the system.
 
 ### 2. Dashboard & Admin UI Overhaul
 **Priority:** High
-**Status:** ✅ Mobile Dashboard Complete (Nov 21, 2025) | Admin Panel TODO
+**Status:** ✅ Mobile Dashboard Complete (Jan 22, 2025) | Admin Panel TODO
 **Description:** Completely redesign dashboard and admin panel for better UX, modularity, and maintainability.
 
-**✅ Completed - Mobile Dashboard (Nov 21, 2025):**
+**✅ Completed - Mobile Dashboard (Nov 21-Jan 22, 2025):**
 - Built new mobile-first dashboard at `/public/dashboard/`
 - 5 modular files using ES6 modules (index.html, style.css, app.js, components.js, data.js)
 - Forest background with semi-transparent cards
@@ -44,85 +44,112 @@ Major features to be built that will add new functionality to the system.
 - Bottom navigation with iPhone-style notch
 - Refined visual hierarchy: Rank 1 larger, ranks 2-3 match ranks 4+
 - Optimized spacing and vertical centering
-- Total: ~1,707 lines vs old 2,700-line monolith
+- **4 Tabs Complete:**
+  - ✅ Home: Podium, leaderboard, expandable stats
+  - ✅ Stats: 3 interactive swipeable charts
+  - ✅ Info: Points system, tie breakers, course multipliers
+  - ⏳ Podcast: TODO (placeholder exists)
+- Total: ~2,000+ lines across 5 files
 
-**Still TODO - Admin Panel:**
+**TODO - Podcast Tab:**
+- Currently shows placeholder UI
+- Needs integration with podcast generation system
+- Episode list, player, show notes
+- See "Podcast Feature Refinement" section
+
+**TODO - Admin Panel:**
 - Admin panel still uses old monolithic structure (~1,500 lines)
 - Apply same modular architecture as new dashboard
 - Improve mobile responsiveness for admin functions
-
-**Still TODO - Stats Page:**
-- Second tab currently shows placeholder charts
-- Needs implementation with real player statistics
-- See "Stats Page Implementation" section below
 
 ---
 
 ### 2.5. Stats Page Implementation
 **Priority:** High
-**Status:** Not Started
+**Status:** ✅ Complete (Jan 22, 2025)
 **Description:** Build out the Stats tab (2nd tab) with meaningful player performance statistics and visualizations.
 
-**Current State:**
-- Placeholder UI with 3 empty chart containers
-- Located in `renderStatsPage()` function in app.js
+**✅ Completed Features:**
+- **3 Interactive Swipeable Charts:**
+  - Chart 1: Performance Breakdown (birdies/eagles/aces per player)
+  - Chart 2: Rounds Analysis (wins/podiums/other rounds per player)
+  - Chart 3: Average Score Analysis (by tier for seasons, by round for tournaments)
+- **Touch Gestures:** Horizontal swipe navigation between charts
+- **Event Selector:** Season/Tournament toggle at top
+- **Player Dropdown:** Chart 3 allows selecting individual player
+- **Tier Labels:** Easy (1.0x), Moderate (1.5x), Hard (2.0x), Elite (2.5x)
+- **State Preservation:** Carousel position maintained when changing events/players
+- **Code Quality:** Refactored chart rendering to eliminate duplication
 
-**Proposed Features:**
-- **Top Performers Lists:**
-  - Most Total Points
-  - Most Birdies
-  - Most Eagles
-  - Most Aces
-  - Most Wins
-  - Best Average Score
-- **Player Performance Cards:**
-  - Individual player stats in card format
-  - Filter/sort by various metrics
-- **Event Comparison:**
-  - Compare performance across different events
-  - Season vs Tournament breakdowns
-- **Trends & Charts (optional):**
-  - Points progression over time
-  - Performance distribution visualizations
-
-**Technical Notes:**
-- Leverage existing `getLeaderboard()` function in data.js
-- Add new queries as needed for specific stats
-- Reuse card styling from podium/player list
-- Keep mobile-first responsive design
+**Technical Implementation:**
+- Added `getPerformanceBreakdown()`, `getRoundsAnalysis()`, `getAverageScoreByTier()` in data.js
+- Touch event handlers for swipe gestures
+- Reusable `renderChart()` helper function
+- Total: ~340 lines added across 3 files
 
 ---
 
 ### 3. Podcast Feature Refinement
-**Priority:** Medium
+**Priority:** High (Next Up)
 **Status:** Partially Implemented
-**Description:** Enhance the automated podcast generation system.
+**Description:** Enhance the automated podcast generation system and integrate with mobile dashboard.
 
 **Current State:**
-- Basic podcast generation exists
-- Playback on dashboard works
+- Basic podcast generation exists (`/podcast/` directory)
+- Generation works but not integrated with dashboard
+- Podcast tab exists but shows placeholder
 
-**Proposed Enhancements:**
-- Automatic episode generation on schedule
+**TODO - Dashboard Integration:**
+- Build Podcast tab UI in mobile dashboard
+- Episode list with metadata (date, event, duration)
+- Audio player with play/pause/seek controls
+- Show notes display
+- Download button for episodes
+
+**TODO - Generation Enhancements:**
+- Automatic episode generation on schedule (or manual trigger)
 - Better audio quality/voice selection
 - Episode metadata (show notes, timestamps)
 - RSS feed for podcast apps
-- Download functionality
 - Archive old episodes
+- Event-specific episode generation
 
 ---
 
-### 4. Registered Players Management
-**Priority:** Medium
+### 4. Admin Panel Overhaul
+**Priority:** High (Next Up After Podcast)
 **Status:** Not Started
-**Description:** Add full CRUD interface for managing registered players in the admin panel.
+**Description:** Modernize admin panel with modular architecture and improved UX.
 
-**Requirements:**
-- Add "Registered Players" tab to admin panel
-- Create, read, update, delete player records
-- Mark players as active/inactive
-- Bulk import from CSV
-- Player profile pages (optional)
+**Current State:**
+- `public/admin.html` (~1,500 lines monolithic file)
+- Basic functionality works but hard to maintain
+- Not mobile-responsive
+
+**TODO - Architecture:**
+- Split into modular files (like mobile dashboard)
+- admin/index.html, admin/style.css, admin/app.js, admin/components.js
+- ES6 modules for better organization
+- Mobile-responsive design
+
+**TODO - Features:**
+- **Registered Players Management:**
+  - Add "Registered Players" tab
+  - Create, read, update, delete player records
+  - Mark players as active/inactive
+  - Bulk import from CSV
+- **Event Management Improvements:**
+  - Better player selection UI for events
+  - Copy event functionality (duplicate season/tournament)
+  - Bulk edit capabilities
+- **Course Management:**
+  - Add/edit courses with tier/multiplier
+  - Add course aliases
+  - View course usage statistics
+- **Points System Editor:**
+  - Visual editor for JSONB config
+  - Template library for common configurations
+  - Preview points calculation
 
 **Database:**
 - Table: `registered_players`
@@ -130,25 +157,7 @@ Major features to be built that will add new functionality to the system.
 
 ---
 
-### 5. Event Player Selection
-**Priority:** Medium
-**Status:** Not Started
-**Description:** When creating/editing events, allow admin to select which registered players participate.
-
-**Requirements:**
-- Multi-select dropdown in event form
-- Auto-populate from player_rounds when processing scorecards
-- Ability to manually add/remove players from events
-- Visual indicator of which players are in which events
-
-**Implementation:**
-- Enhance admin.html event form
-- Add player selection UI component
-- Update event creation/edit API
-
----
-
-### 6. Email Notification Templates
+### 5. Email Notification Templates
 **Priority:** Low
 **Status:** Partially Implemented
 **Description:** Improve email notification templates with better design and more information.
@@ -263,14 +272,42 @@ When you identify a new feature or improvement:
 
 ## Completed Features
 
-### Manual Scorecard Processing Trigger
-**Completed:** 2025-11-19
+### Course Database Cleanup (Jan 22, 2025)
+**Description:** Eliminated duplicate course entries using aliases system.
+- Created `course_aliases` table with 17+ aliases
+- Database function `find_course_by_name_or_alias()` with 3-level fallback
+- Updated 14 historical rounds to reference canonical names
+- Deleted 11 duplicate courses
+- **Result:** Exactly 20 canonical courses (down from 31+)
+
+### Info Tab Implementation (Jan 22, 2025)
+**Description:** Built Info tab showing event-specific points system information.
+- Event selector (Season/Tournament toggle)
+- Card 1: Funny description (4 variants based on config)
+- Card 2: Points allocation, tie breakers, course multipliers
+- Course multipliers only show for seasons with multipliers enabled
+
+### Stats Tab Implementation (Jan 22, 2025)
+**Description:** Built Stats tab with 3 interactive swipeable charts.
+- Chart 1: Performance Breakdown (birdies/eagles/aces)
+- Chart 2: Rounds Analysis (wins/podiums/other)
+- Chart 3: Average Score Analysis (by tier or round)
+- Touch gestures, event selector, player dropdown
+- State preservation across navigation
+
+### Mobile Dashboard (Nov 21, 2025)
+**Description:** Built new mobile-first dashboard at `/public/dashboard/`.
+- 5 modular files (index.html, style.css, app.js, components.js, data.js)
+- Home, Stats, Info tabs complete
+- Forest background, podium, leaderboard, expandable stats
+- Bottom navigation with 4 tabs
+
+### Manual Scorecard Processing Trigger (Nov 19, 2025)
 **Description:** Added dashboard button to manually trigger scorecard processing instead of relying on cron jobs.
 
-### Event-Based Player Filtering
-**Completed:** 2025-11-19
+### Event-Based Player Filtering (Nov 19, 2025)
 **Description:** Dashboard now filters leaderboards by event-specific player lists from `events.players` column.
 
 ---
 
-**Last Updated:** 2025-11-21
+**Last Updated:** 2025-01-22
