@@ -766,22 +766,25 @@ function generateFunnyDescription(config, eventType) {
     const multiplierEnabled = config.course_multiplier?.enabled;
     const first = rankPoints['1'];
     const hasPerf = perfPoints.birdie > 0 || perfPoints.eagle > 0 || perfPoints.ace > 0;
+    const isSeason = eventType === 'season';
 
     // Generate unique hash from config to pick consistent description
     const configHash = (first + (perfPoints.birdie || 0) + (perfPoints.eagle || 0) * 3 + (multiplierEnabled ? 100 : 0)) % 4;
 
+    const top10Note = isSeason ? ` <em>Only your top 10 rounds count for points.</em>` : '';
+
     const variants = [
         // Variant 0: Simple and punny
-        `Win = <strong>${first} pts</strong>. ${hasPerf ? `Birdies, eagles, aces? Bonus points!` : ''} ${multiplierEnabled ? `Harder courses = bigger multipliers.` : `All courses equal.`}`,
+        `Win = <strong>${first} pts</strong>. ${hasPerf ? `Birdies, eagles, aces? Bonus points!` : ''} ${multiplierEnabled ? `Harder courses = bigger multipliers.` : `All courses equal.`}${top10Note}`,
 
         // Variant 1: Competitive
-        `Top spot gets <strong>${first} points</strong>. ${multiplierEnabled ? `Elite courses multiply your glory (or your shame).` : `No course handicaps here.`} ${hasPerf ? `Aces and eagles sweeten the deal.` : ''}`,
+        `Top spot gets <strong>${first} points</strong>. ${multiplierEnabled ? `Elite courses multiply your glory (or your shame).` : `No course handicaps here.`} ${hasPerf ? `Aces and eagles sweeten the deal.` : ''}${top10Note}`,
 
         // Variant 2: Casual humor
-        `First place? <strong>${first} sweet points</strong>. ${hasPerf ? `Add bonuses for fancy shots.` : ''} ${multiplierEnabled ? `Tougher courses = more points (no pressure).` : `Every course counts the same.`}`,
+        `First place? <strong>${first} sweet points</strong>. ${hasPerf ? `Add bonuses for fancy shots.` : ''} ${multiplierEnabled ? `Tougher courses = more points (no pressure).` : `Every course counts the same.`}${top10Note}`,
 
         // Variant 3: Direct
-        `Win rounds for <strong>${first} pts</strong>. ${multiplierEnabled ? `Course difficulty multiplies your score (1x-2.5x).` : `Flat scoring across all courses.`} ${hasPerf ? `Performance bonuses apply.` : ''}`
+        `Win rounds for <strong>${first} pts</strong>. ${multiplierEnabled ? `Course difficulty multiplies your score (1x-2.5x).` : `Flat scoring across all courses.`} ${hasPerf ? `Performance bonuses apply.` : ''}${top10Note}`
     ];
 
     return '<p>' + variants[configHash] + '</p>';
