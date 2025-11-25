@@ -250,7 +250,8 @@ function handleHashChange() {
         // Valid page hash
         if (state.isLandingPage) {
             enterDashboard(hash);
-        } else {
+        } else if (state.currentPage !== hash) {
+            // Only switch if we're not already on this page
             switchPage(hash);
         }
     }
@@ -885,7 +886,7 @@ async function handleRulesEventChange(type, eventId) {
             state.roundProgression = await getRoundProgression(state.selectedEventId);
         }
 
-        await renderAboutPage(content);
+        await renderRulesPage(content);
     } catch (error) {
         console.error('Failed to change event:', error);
         showError('Failed to load event data');
