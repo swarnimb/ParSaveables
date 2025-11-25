@@ -21,7 +21,8 @@ const state = {
     roundProgression: null,
     selectedChartPlayers: new Set(),
     selectedPlayerForScores: null, // For average score chart
-    currentCarouselIndex: 0 // Track current chart position
+    currentCarouselIndex: 0, // Track current chart position
+    carouselCleanup: null // Store cleanup function for touch listeners
 };
 
 // Disc golf jokes/puns
@@ -143,6 +144,12 @@ async function loadInitialData() {
  * Switch page
  */
 function switchPage(page) {
+    // Clean up any existing event listeners from previous page
+    if (state.carouselCleanup) {
+        state.carouselCleanup();
+        state.carouselCleanup = null;
+    }
+
     state.currentPage = page;
 
     // Update active tab
@@ -954,14 +961,27 @@ function initStatsCarousel(carousel, totalCards) {
     carousel.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     // Click on indicator dots
+    const indicatorClickHandlers = [];
     document.querySelectorAll('.indicator-dot').forEach(dot => {
-        dot.addEventListener('click', () => {
+        const handler = () => {
             updateCarousel(parseInt(dot.dataset.index));
-        });
+        };
+        dot.addEventListener('click', handler);
+        indicatorClickHandlers.push({ element: dot, handler });
     });
 
     // Initialize position (restore from state or start at 0)
     updateCarousel(currentIndex, false);
+
+    // Store cleanup function in state to remove listeners when switching pages
+    state.carouselCleanup = () => {
+        carousel.removeEventListener('touchstart', handleTouchStart);
+        carousel.removeEventListener('touchmove', handleTouchMove);
+        carousel.removeEventListener('touchend', handleTouchEnd);
+        indicatorClickHandlers.forEach(({ element, handler }) => {
+            element.removeEventListener('click', handler);
+        });
+    };
 }
 
 // Start app when DOM is ready
