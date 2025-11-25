@@ -29,15 +29,21 @@ Major features to be built that will add new functionality to the system.
 
 ### 2. Dashboard & Admin UI Overhaul
 **Priority:** High
-**Status:** ✅ Mobile Dashboard Complete (Jan 22, 2025) | Admin Panel TODO
+**Status:** ✅ Mobile Dashboard Complete (Nov 25, 2025) | Admin Panel TODO
 **Description:** Completely redesign dashboard and admin panel for better UX, modularity, and maintainability.
 
-**✅ Completed - Mobile Dashboard (Nov 21-Jan 22, 2025):**
+**✅ Completed - Mobile Dashboard (Nov 21-25, 2025):**
 - Built new mobile-first dashboard at `/public/dashboard/`
 - 5 modular files using ES6 modules (index.html, style.css, app.js, components.js, data.js)
+- **Landing Page with Animated Navigation:**
+  - Funny description highlighting disc golf culture (96 words)
+  - 4 vertical tab cards with smooth morph animation (600ms)
+  - URL-based routing with hash navigation
+  - Clickable title to return to landing page
+  - Browser back/forward support
 - Forest background with semi-transparent cards
 - Top 3 podium with metallic gold/silver/bronze disc graphics
-- Orange gradient banner with rotating disc golf jokes (15 jokes)
+- Orange gradient banner with rotating disc golf jokes (shows on landing too)
 - Custom SVG disc golf basket logo with chains and laurel wreath
 - Event selector (Season/Tournament toggle)
 - Expandable stats showing overall performance (not just top 10)
@@ -45,11 +51,11 @@ Major features to be built that will add new functionality to the system.
 - Refined visual hierarchy: Rank 1 larger, ranks 2-3 match ranks 4+
 - Optimized spacing and vertical centering
 - **4 Tabs Complete:**
-  - ✅ Home: Podium, leaderboard, expandable stats
+  - ✅ Leaderboard: Podium, leaderboard, expandable stats
   - ✅ Stats: 3 interactive swipeable charts
-  - ✅ Info: Points system, tie breakers, course multipliers
+  - ✅ Rules: Points system, tie breakers, course multipliers, top-10 rule
   - ⏳ Podcast: TODO (placeholder exists)
-- Total: ~2,000+ lines across 5 files
+- Total: ~2,500+ lines across 5 files
 
 **TODO - Podcast Tab:**
 - Currently shows placeholder UI
@@ -272,6 +278,20 @@ When you identify a new feature or improvement:
 
 ## Completed Features
 
+### Landing Page with Navigation (Nov 25, 2025)
+**Description:** Built landing page with animated navigation to dashboard.
+- Created landing page with funny disc golf description
+- 4 vertical tab cards: Leaderboard, Stats, Podcast, Rules
+- Smooth morph animation (600ms) from vertical tabs to bottom nav
+- URL-based routing with hash navigation (#leaderboard, #stats, etc.)
+- Clickable ParSaveables title to return to landing page
+- Browser back/forward support with hashchange handler
+- Renamed "Home" → "Leaderboard" and "Info" → "Rules" throughout
+- Compact design with all tabs visible without scrolling
+- Fixed double rendering bug on Stats and Rules pages
+- Fixed scroll blocking issue when switching pages
+- Added top-10 rounds rule to season descriptions on Rules page
+
 ### Course Database Cleanup (Jan 22, 2025)
 **Description:** Eliminated duplicate course entries using aliases system.
 - Created `course_aliases` table with 17+ aliases
@@ -310,4 +330,4 @@ When you identify a new feature or improvement:
 
 ---
 
-**Last Updated:** 2025-01-22
+**Last Updated:** 2025-11-25

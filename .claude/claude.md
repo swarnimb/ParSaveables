@@ -2,9 +2,9 @@
 
 **Quick Start:** Read `docs/SESSION-HANDOFF.md` for complete current state
 
-**Last Updated:** 2025-11-21
+**Last Updated:** 2025-11-25
 
-**Status:** ✅ Production Ready - New Mobile Dashboard Live
+**Status:** ✅ Production Ready - Landing Page + Mobile Dashboard Live
 
 ---
 
@@ -85,23 +85,30 @@ Before proposing file structure:
 - `docs/TESTING.md` - Testing procedures
 - `README.md` - Project overview
 
-## Recent Changes (Nov 21, 2025)
+## Recent Changes (Nov 25, 2025)
 
-**Mobile Dashboard UI Build + Refinements:**
-- Built new mobile-first dashboard (`/public/dashboard/`) with 5 files total
-- Forest background image with semi-transparent cards
-- Top 3 players shown with metallic gold/silver/bronze disc graphics
-- Orange gradient banner with rotating disc golf jokes (15 jokes)
-- Custom SVG disc golf basket logo with chains and laurel wreath
-- Podium display (2-1-3 arrangement) with expandable stats
-- Refined visual hierarchy: Rank 1 larger (16.8px/19.2px), ranks 2-3 match 4+ (14px/16px)
-- Optimized vertical centering and spacing in podium cards
-- Event selector (Season/Tournament toggle)
-- Stats calculated from overall performance (not just top 10)
-- Fixed average score calculation to show points per round
-- Bottom navigation with iPhone-style notch design
-- Player "Bird" displays as 🦅 emoji
-- Removed chatbot to preserve API credits
+**Landing Page with Animated Navigation:**
+- Built landing page at `/dashboard/` with funny disc golf description
+- 4 vertical tab cards: Leaderboard, Stats, Podcast, Rules
+- Smooth morph animation (600ms) from vertical tabs to bottom nav
+- URL-based routing with hash navigation (#leaderboard, #stats, etc.)
+- Clickable ParSaveables title to return to landing page
+- Browser back/forward support via hashchange handler
+- Renamed "Home" → "Leaderboard" and "Info" → "Rules" throughout
+- Compact design with all tabs visible without scrolling
+- Top joke banner shows on both landing and dashboard
+- Description includes "Let's throw some plastic" as green CTA
+
+**Bug Fixes:**
+- Fixed double rendering on Stats and Rules pages (hashchange conflict)
+- Fixed scroll blocking when switching from Stats page (className reset)
+- Fixed Rules page calling wrong render function
+- Added top-10 rounds rule to season descriptions
+
+**Previous (Nov 21, 2025) - Mobile Dashboard:**
+- Built new mobile-first dashboard (`/public/dashboard/`) with 5 files
+- Forest background, podium, expandable stats, bottom navigation
+- Custom SVG logo, rotating jokes, emoji support
 
 **Previous (Nov 19, 2025):**
 - Added manual trigger button

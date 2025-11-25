@@ -2,16 +2,17 @@
 
 **Quick Start for New Claude Code Sessions**
 
-Last Updated: 2025-01-22
+Last Updated: 2025-11-25
 
 ---
 
 ## TL;DR - Start Here
 
-**System Status:** ✅ **FULLY OPERATIONAL - MOBILE DASHBOARD WITH STATS**
+**System Status:** ✅ **FULLY OPERATIONAL - LANDING PAGE + MOBILE DASHBOARD**
 - Production deployment on Vercel
-- New mobile-first dashboard at `/dashboard/` with Stats tab
-- 3 interactive swipeable charts on Stats page
+- New landing page with animated navigation
+- Mobile-first dashboard at `/dashboard/` with 4 tabs
+- URL-based routing with hash navigation
 - Manual trigger via dashboard button
 - Event-based player filtering active
 - All 8 services + 2 API endpoints working
@@ -39,7 +40,33 @@ Last Updated: 2025-01-22
 4. 12-step workflow processes and stores data
 5. Dashboard auto-refreshes to show new data
 
-### Recent Changes (Jan 22, 2025)
+### Recent Changes (Nov 25, 2025)
+**Landing Page with Animated Navigation (COMPLETED):**
+- ✅ Created landing page at `/dashboard/` with funny description
+- ✅ 4 vertical tab cards: Leaderboard, Stats, Podcast, Rules
+- ✅ Smooth morph animation (600ms) from vertical tabs to bottom nav
+- ✅ URL-based routing with hash navigation (#leaderboard, #stats, etc.)
+- ✅ Clickable ParSaveables title to return to landing page
+- ✅ Browser back/forward support via hashchange handler
+- ✅ Renamed "Home" → "Leaderboard" and "Info" → "Rules" throughout
+- ✅ Compact design with all tabs visible without scrolling
+- ✅ Top joke banner shows on both landing and dashboard
+- ✅ Description includes "Let's throw some plastic" as green CTA
+
+**Bug Fixes:**
+- ✅ Fixed double rendering on Stats and Rules pages
+- ✅ Fixed scroll blocking issue when switching from Stats page
+- ✅ Fixed Rules page showing wrong render function
+- ✅ Added top-10 rounds rule to season descriptions
+
+**Landing Page Content:**
+> "Where amateur disc golfers take rules deadly serious and slow play even more seriously. Mulligans are negotiated like hostage situations, shotguns are mandatory, and curses can make or break your round.
+>
+> We believe in fast golf, faster beer, and the sacred art of the perfectly timed blessing. Punishments are real. The rulebook is longer than the PDGA's.
+>
+> Let's throw some plastic."
+
+### Previous Changes (Jan 22, 2025)
 **Course Database Cleanup (COMPLETED):**
 - ✅ Created course_aliases table to eliminate duplicate course entries
 - ✅ Migration 003: Added course aliases system with database function
@@ -76,11 +103,11 @@ Last Updated: 2025-01-22
 
 **Previous (Nov 21, 2025):**
 - Built mobile-first dashboard at `/public/dashboard/`
-- Home tab with podium, leaderboard, expandable stats
+- Leaderboard tab with podium, leaderboard, expandable stats
 - Compressed top section (joke banner, header, event selector) for better viewability
 - Player "Bird" displays as 🦅 emoji throughout
 - Removed "pts" text from podium points display
-- Bottom navigation with 4 tabs: Home, Stats, Podcast, About
+- Bottom navigation with 4 tabs: Leaderboard, Stats, Podcast, Rules
 
 **Previous (Nov 19, 2025):**
 - Added manual trigger button to dashboard
@@ -107,19 +134,20 @@ Last Updated: 2025-01-22
 - `/api/chatbot` - AI chatbot for dashboard queries
 
 ### Frontend (Static HTML/CSS/JS)
-**Mobile Dashboard (Jan 2025):**
-- `public/dashboard/index.html` - Dashboard shell with SVG logo and banner (~82 lines)
-- `public/dashboard/style.css` - Complete styling with CSS variables (~860 lines)
-- `public/dashboard/app.js` - Main orchestrator, routing, state, charts (~590 lines)
+**Mobile Dashboard (Nov 2025):**
+- `public/dashboard/index.html` - Landing page + dashboard shell (~105 lines)
+- `public/dashboard/style.css` - Complete styling with CSS variables (~1400 lines)
+- `public/dashboard/app.js` - Main orchestrator, routing, state, charts (~990 lines)
 - `public/dashboard/components.js` - Reusable UI components (~284 lines)
 - `public/dashboard/data.js` - Supabase queries + chart data fetching (~242 lines)
 - `public/dashboard/forest-bg.jpg` - Background image
 
 **Features:**
-- Home tab: Podium (top 3), leaderboard (all players), expandable stats
+- Landing page: Funny description + 4 vertical tabs with morph animation
+- Leaderboard tab: Podium (top 3), leaderboard (all players), expandable stats
 - Stats tab: 3 swipeable charts with touch gestures, event-aware
 - Podcast tab: Placeholder for future podcast feature
-- About tab: Project information
+- Rules tab: Points system info with top-10 rule for seasons
 
 **Legacy Dashboards:**
 - `public/index.html` - Old desktop dashboard (~2700 lines, deprecated)
@@ -450,9 +478,9 @@ vercel env ls
 
 ---
 
-Last Updated: 2025-01-22
+Last Updated: 2025-11-25
 Status: Production Ready
-Next Session: **Podcast Tab + Admin Panel Overhaul**
+Next Session: **Podcast Tab Implementation + Admin Panel Overhaul**
 
 ---
 
