@@ -4,32 +4,21 @@
  * Orchestrates podcast generation workflow:
  * 1. Determine episode period and type
  * 2. Fetch relevant data from database
- * 3. Generate script using Claude AI
- * 4. Generate audio using Google TTS
- * 5. Upload audio file
+ * 3. Generate script using Claude AI (TODO)
+ * 4. Generate audio using Google TTS (TODO)
+ * 5. Upload audio file (TODO)
  * 6. Save episode metadata
  * 7. Publish episode
  *
  * Can be triggered manually (dashboard button) or via Vercel cron
+ *
+ * NOTE: This is a simplified version that creates episode metadata only.
+ * Audio generation will be added in Phase 2.
  */
-
-import { createClient } from '@supabase/supabase-js';
-import { logger } from '../utils/logger.js';
-import {
-    getLatestEpisode,
-    getNextEpisodeNumber,
-    createEpisode,
-    updateEpisode,
-    publishEpisode,
-    logGenerationStage,
-    completeGenerationLog,
-    determineNextEpisodePeriod
-} from '../services/podcastService.js';
 
 // Environment configuration
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 /**
  * Main handler for podcast generation
@@ -40,94 +29,94 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
+    // Import dynamically to avoid build issues
+    const { createClient } = await import('@supabase/supabase-js');
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
     let episodeId = null;
-    let logId = null;
 
     try {
-        logger.info('Starting podcast generation');
+        console.log('Starting podcast generation');
 
-        // Step 1: Determine episode details
-        const { periodStart, periodEnd, type } = await determineNextEpisodePeriod(supabase);
-        const episodeNumber = await getNextEpisodeNumber(supabase);
+        // Step 1: Get next episode number
+        const { data: latestEpisode } = await supabase
+            .from('podcast_episodes')
+            .select('episode_number')
+            .order('episode_number', { ascending: false })
+            .limit(1)
+            .single();
 
-        logger.info('Episode details', { episodeNumber, periodStart, periodEnd, type });
+        const episodeNumber = latestEpisode ? latestEpisode.episode_number + 1 : 1;
 
-        // Step 2: Create episode record
-        const episodeData = {
-            episode_number: episodeNumber,
-            title: generateEpisodeTitle(episodeNumber, type, periodStart, periodEnd),
-            description: '', // Will be updated after script generation
-            type,
-            period_start: periodStart,
-            period_end: periodEnd,
-            is_published: false
-        };
+        // Step 2: Determine period (first episode = all 2025 data)
+        const periodStart = episodeNumber === 1 ? '2025-01-01' : new Date().toISOString().split('T')[0];
+        const periodEnd = episodeNumber === 1 ? '2025-12-31' : new Date().toISOString().split('T')[0];
+        const type = episodeNumber === 1 ? 'season_recap' : 'monthly_recap';
 
-        const episode = await createEpisode(supabase, episodeData);
-        episodeId = episode.id;
-
-        logger.info('Created episode record', { episodeId });
+        console.log('Episode details', { episodeNumber, periodStart, periodEnd, type });
 
         // Step 3: Fetch data for period
-        logId = await logGenerationStage(supabase, {
-            episode_id: episodeId,
-            stage: 'script_generation'
-        });
+        const { data: rounds } = await supabase
+            .from('rounds')
+            .select('*')
+            .gte('date', periodStart)
+            .lte('date', periodEnd);
 
-        const episodeContent = await fetchEpisodeData(supabase, periodStart, periodEnd, type);
+        const roundIds = rounds?.map(r => r.id) || [];
 
-        logger.info('Fetched episode data', {
-            rounds: episodeContent.totalRounds,
-            players: episodeContent.players.length
-        });
+        const { data: playerRounds } = await supabase
+            .from('player_rounds')
+            .select('*')
+            .in('round_id', roundIds);
 
-        // Step 4: Generate script
-        // TODO: Call existing podcast/lib/script-generator.js
-        // For now, create placeholder
-        const scriptText = await generatePlaceholderScript(episodeContent, type);
+        // Calculate player stats
+        const playerStats = calculatePlayerStats(playerRounds || []);
 
-        await completeGenerationLog(supabase, logId, true);
+        // Step 4: Create episode record
+        const title = generateEpisodeTitle(episodeNumber, type, periodStart, periodEnd);
+        const description = `Recap of ${rounds?.length || 0} rounds featuring ${playerStats.length} players.`;
 
-        // Step 5: Update episode with script summary
-        await updateEpisode(supabase, episodeId, {
-            description: extractDescription(scriptText),
-            total_rounds_covered: episodeContent.totalRounds,
-            event_ids: episodeContent.eventIds
-        });
+        const { data: episode, error: createError } = await supabase
+            .from('podcast_episodes')
+            .insert([{
+                episode_number: episodeNumber,
+                title,
+                description,
+                type,
+                period_start: periodStart,
+                period_end: periodEnd,
+                total_rounds_covered: rounds?.length || 0,
+                is_published: true,
+                published_at: new Date().toISOString()
+            }])
+            .select()
+            .single();
 
-        // Step 6: Generate audio
-        // TODO: Call existing podcast/lib/audio-generator.js
-        // For now, skip audio generation
+        if (createError) throw createError;
 
-        // Step 7: Publish episode
-        await publishEpisode(supabase, episodeId);
+        episodeId = episode.id;
 
-        logger.info('Podcast generation complete', { episodeId, episodeNumber });
+        console.log('Episode created successfully', { episodeId, episodeNumber });
 
         return res.status(200).json({
             success: true,
             episode: {
                 id: episodeId,
                 episode_number: episodeNumber,
-                title: episodeData.title,
+                title,
                 type,
                 period_start: periodStart,
                 period_end: periodEnd
             },
-            message: `Episode ${episodeNumber} generated successfully`
+            message: `Episode ${episodeNumber} generated successfully! (Audio generation coming in Phase 2)`
         });
 
     } catch (error) {
-        logger.error('Podcast generation failed', { error, episodeId });
-
-        if (logId) {
-            await completeGenerationLog(supabase, logId, false, error.message);
-        }
+        console.error('Podcast generation failed', error);
 
         return res.status(500).json({
             success: false,
-            error: error.message,
+            error: error.message || 'Unknown error',
             details: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
@@ -157,59 +146,6 @@ function generateEpisodeTitle(episodeNumber, type, periodStart, periodEnd) {
     return `Chain Reactions #${episodeNumber}`;
 }
 
-/**
- * Fetch all data needed for episode generation
- */
-async function fetchEpisodeData(supabase, periodStart, periodEnd, type) {
-    try {
-        logger.info('Fetching episode data', { periodStart, periodEnd });
-
-        // Fetch rounds in period
-        const { data: rounds, error: roundsError } = await supabase
-            .from('rounds')
-            .select('*')
-            .gte('date', periodStart)
-            .lte('date', periodEnd)
-            .order('date', { ascending: true });
-
-        if (roundsError) throw roundsError;
-
-        const roundIds = rounds.map(r => r.id);
-
-        // Fetch player rounds
-        const { data: playerRounds, error: playerRoundsError } = await supabase
-            .from('player_rounds')
-            .select('*')
-            .in('round_id', roundIds);
-
-        if (playerRoundsError) throw playerRoundsError;
-
-        // Fetch events
-        const eventIds = [...new Set(rounds.map(r => r.event_id).filter(Boolean))];
-        const { data: events, error: eventsError } = await supabase
-            .from('events')
-            .select('*')
-            .in('id', eventIds);
-
-        if (eventsError) throw eventsError;
-
-        // Calculate player statistics
-        const playerStats = calculatePlayerStats(playerRounds);
-
-        return {
-            rounds,
-            playerRounds,
-            events,
-            eventIds,
-            totalRounds: rounds.length,
-            players: playerStats,
-            type
-        };
-    } catch (error) {
-        logger.error('Failed to fetch episode data', { error });
-        throw new Error(`Failed to fetch episode data: ${error.message}`);
-    }
-}
 
 /**
  * Calculate aggregate player statistics
@@ -249,37 +185,3 @@ function calculatePlayerStats(playerRounds) {
     return Object.values(stats).sort((a, b) => b.totalPoints - a.totalPoints);
 }
 
-/**
- * Generate placeholder script (temporary until we integrate existing generator)
- */
-async function generatePlaceholderScript(episodeContent, type) {
-    const { rounds, players, events } = episodeContent;
-
-    const topPlayers = players.slice(0, 5);
-
-    return `
-Welcome to Chain Reactions, the ParSaveables disc golf podcast!
-
-${type === 'season_recap' ? 'Season Recap' : 'Monthly Recap'}
-
-We covered ${rounds.length} rounds across ${events.length} events.
-
-Top performers:
-${topPlayers.map((p, i) => `${i + 1}. ${p.name} - ${p.totalPoints} points, ${p.wins} wins, ${p.aces} aces`).join('\n')}
-
-Notable stats:
-- Total birdies: ${players.reduce((sum, p) => sum + p.birdies, 0)}
-- Total eagles: ${players.reduce((sum, p) => sum + p.eagles, 0)}
-- Total aces: ${players.reduce((sum, p) => sum + p.aces, 0)}
-
-That's all for this episode! Until next time, keep those chains rattling!
-    `.trim();
-}
-
-/**
- * Extract description from script (first 200 characters)
- */
-function extractDescription(scriptText) {
-    const cleaned = scriptText.replace(/\n+/g, ' ').trim();
-    return cleaned.substring(0, 200) + (cleaned.length > 200 ? '...' : '');
-}
