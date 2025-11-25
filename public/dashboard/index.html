@@ -42,8 +42,35 @@
             <path d="M 75 65 Q 80 55 75 45 Q 78 50 80 55 Q 78 60 75 65" fill="#d4af37" stroke="#8b7500" stroke-width="1"/>
             <path d="M 75 65 Q 75 58 72 52 Q 74 56 75 60 Q 75 62 75 65" fill="#d4af37" stroke="#8b7500" stroke-width="1"/>
         </svg>
-        <h1 class="main-title">ParSaveables</h1>
+        <h1 class="main-title" id="mainTitle">ParSaveables</h1>
     </header>
+
+    <!-- Landing Page (shown on initial load) -->
+    <div id="landingPage" class="landing-page">
+        <div class="landing-description">
+            <p>Where amateur disc golfers take rules deadly serious and slow play even more seriously. Mulligans are negotiated like hostage situations, shotguns are mandatory, and curses can make or break your round.</p>
+            <p>We believe in fast golf, faster beer, and the sacred art of the perfectly timed blessing. Punishments are real. The rulebook is longer than the PDGA's. Let's throw.</p>
+        </div>
+
+        <nav class="landing-nav">
+            <button class="landing-tab" data-page="leaderboard">
+                <span class="landing-tab-icon">🏠</span>
+                <span class="landing-tab-label">Leaderboard</span>
+            </button>
+            <button class="landing-tab" data-page="stats">
+                <span class="landing-tab-icon">📊</span>
+                <span class="landing-tab-label">Stats</span>
+            </button>
+            <button class="landing-tab" data-page="podcast">
+                <span class="landing-tab-icon">🎙️</span>
+                <span class="landing-tab-label">Podcast</span>
+            </button>
+            <button class="landing-tab" data-page="rules">
+                <span class="landing-tab-icon about-icon">i</span>
+                <span class="landing-tab-label">Rules</span>
+            </button>
+        </nav>
+    </div>
 
     <!-- Main Content Area (switches based on active tab) -->
     <main id="content">
@@ -57,9 +84,9 @@
 
     <!-- Bottom Navigation -->
     <nav id="bottomNav" class="bottom-nav">
-        <button class="tab active" data-page="home" aria-label="Home">
+        <button class="tab active" data-page="leaderboard" aria-label="Leaderboard">
             <span class="tab-icon">🏠</span>
-            <span class="tab-label">Home</span>
+            <span class="tab-label">Leaderboard</span>
         </button>
         <button class="tab" data-page="stats" aria-label="Stats">
             <span class="tab-icon">📊</span>
@@ -69,9 +96,9 @@
             <span class="tab-icon">🎙️</span>
             <span class="tab-label">Podcast</span>
         </button>
-        <button class="tab" data-page="about" aria-label="Info">
+        <button class="tab" data-page="rules" aria-label="Rules">
             <span class="tab-icon about-icon" style="font-family: 'Brush Script MT', cursive; font-style: italic;">i</span>
-            <span class="tab-label">Info</span>
+            <span class="tab-label">Rules</span>
         </button>
     </nav>
 

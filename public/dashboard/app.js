@@ -11,7 +11,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 // App state
 const state = {
-    currentPage: 'home',
+    currentPage: 'leaderboard',
     eventType: 'season',
     selectedEventId: null,
     allEvents: [],
@@ -22,7 +22,8 @@ const state = {
     selectedChartPlayers: new Set(),
     selectedPlayerForScores: null, // For average score chart
     currentCarouselIndex: 0, // Track current chart position
-    carouselCleanup: null // Store cleanup function for touch listeners
+    carouselCleanup: null, // Store cleanup function for touch listeners
+    isLandingPage: true // Track if we're on landing page
 };
 
 // Disc golf jokes/puns
@@ -61,8 +62,15 @@ async function init() {
     // Load initial data
     await loadInitialData();
 
-    // Render home page
-    renderCurrentPage();
+    // Check URL hash to determine initial state
+    const hash = window.location.hash.slice(1); // Remove #
+    if (hash && ['leaderboard', 'stats', 'podcast', 'rules'].includes(hash)) {
+        // Direct link to a page - skip landing page
+        enterDashboard(hash);
+    } else {
+        // Show landing page
+        showLandingPage();
+    }
 }
 
 /**
@@ -78,6 +86,15 @@ function showRandomJoke() {
  * Setup event listeners
  */
 function setupEventListeners() {
+    // Landing page tabs
+    const landingTabs = document.querySelectorAll('.landing-tab');
+    landingTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const page = tab.dataset.page;
+            enterDashboard(page);
+        });
+    });
+
     // Bottom navigation tabs
     const tabs = document.querySelectorAll('.tab');
     tabs.forEach(tab => {
@@ -96,6 +113,16 @@ function setupEventListeners() {
     adminBtn.addEventListener('click', () => {
         window.location.href = '/admin.html';
     });
+
+    // Make title clickable to return to landing page
+    const mainTitle = document.getElementById('mainTitle');
+    mainTitle.addEventListener('click', () => {
+        if (state.isLandingPage) return; // Already on landing page
+        returnToLanding();
+    });
+
+    // Handle browser back/forward
+    window.addEventListener('hashchange', handleHashChange);
 }
 
 /**
@@ -141,7 +168,110 @@ async function loadInitialData() {
 }
 
 /**
- * Switch page
+ * Show landing page
+ */
+function showLandingPage() {
+    state.isLandingPage = true;
+    document.body.classList.remove('dashboard-active');
+    window.location.hash = '';
+}
+
+/**
+ * Enter dashboard with animation
+ */
+async function enterDashboard(page) {
+    if (!state.isLandingPage) {
+        // Already in dashboard, just switch page
+        switchPage(page);
+        return;
+    }
+
+    // Trigger morph animation
+    const landingPage = document.getElementById('landingPage');
+    const landingTabs = document.querySelectorAll('.landing-tab');
+
+    // Add morphing class to all tabs
+    landingTabs.forEach(tab => tab.classList.add('morphing'));
+
+    // Fade out landing description
+    landingPage.classList.add('fade-out');
+
+    // Wait for animation to complete
+    await new Promise(resolve => setTimeout(resolve, 600));
+
+    // Switch to dashboard
+    state.isLandingPage = false;
+    document.body.classList.add('dashboard-active');
+
+    // Update state and render
+    state.currentPage = page;
+    window.location.hash = `#${page}`;
+
+    // Update active tab
+    updateActiveTab(page);
+
+    // Render the page
+    renderCurrentPage();
+}
+
+/**
+ * Return to landing page
+ */
+function returnToLanding() {
+    // Clean up any active listeners
+    if (state.carouselCleanup) {
+        state.carouselCleanup();
+        state.carouselCleanup = null;
+    }
+
+    // Reset morphing classes
+    const landingTabs = document.querySelectorAll('.landing-tab');
+    landingTabs.forEach(tab => tab.classList.remove('morphing'));
+
+    const landingPage = document.getElementById('landingPage');
+    landingPage.classList.remove('fade-out');
+
+    // Show landing page
+    showLandingPage();
+}
+
+/**
+ * Handle hash change (browser back/forward)
+ */
+function handleHashChange() {
+    const hash = window.location.hash.slice(1);
+
+    if (!hash) {
+        // No hash = landing page
+        if (!state.isLandingPage) {
+            returnToLanding();
+        }
+    } else if (['leaderboard', 'stats', 'podcast', 'rules'].includes(hash)) {
+        // Valid page hash
+        if (state.isLandingPage) {
+            enterDashboard(hash);
+        } else {
+            switchPage(hash);
+        }
+    }
+}
+
+/**
+ * Update active tab highlight
+ */
+function updateActiveTab(page) {
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+        if (tab.dataset.page === page) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+}
+
+/**
+ * Switch page (within dashboard)
  */
 function switchPage(page) {
     // Clean up any existing event listeners from previous page
@@ -151,16 +281,10 @@ function switchPage(page) {
     }
 
     state.currentPage = page;
+    window.location.hash = `#${page}`;
 
     // Update active tab
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(tab => {
-        if (tab.dataset.page === page) {
-            tab.classList.add('active');
-        } else {
-            tab.classList.remove('active');
-        }
-    });
+    updateActiveTab(page);
 
     renderCurrentPage();
 }
@@ -172,8 +296,8 @@ async function renderCurrentPage() {
     const content = document.getElementById('content');
 
     switch (state.currentPage) {
-        case 'home':
-            renderHomePage(content);
+        case 'leaderboard':
+            renderLeaderboardPage(content);
             break;
         case 'stats':
             await renderStatsPage(content);
@@ -181,16 +305,18 @@ async function renderCurrentPage() {
         case 'podcast':
             renderPodcastPage(content);
             break;
-        case 'about':
-            await renderAboutPage(content);
+        case 'rules':
+            await renderRulesPage(content);
             break;
+        default:
+            content.innerHTML = '<div class="error">Page not found</div>';
     }
 }
 
 /**
- * Render home page (leaderboard)
+ * Render leaderboard page
  */
-function renderHomePage(container) {
+function renderLeaderboardPage(container) {
     container.innerHTML = '';
     container.className = ''; // Reset any previous page classes
 
@@ -540,9 +666,9 @@ function renderPodcastPage(container) {
 }
 
 /**
- * Render about/info page
+ * Render rules/info page
  */
-async function renderAboutPage(container) {
+async function renderRulesPage(container) {
     container.innerHTML = '';
     container.className = ''; // Reset any previous page classes
 
@@ -551,7 +677,7 @@ async function renderAboutPage(container) {
         state.currentEvents,
         state.eventType,
         state.selectedEventId,
-        handleInfoEventChange
+        handleRulesEventChange
     );
     container.appendChild(eventSelector);
 
@@ -737,7 +863,7 @@ function ordinal(n) {
 /**
  * Handle event change for Info page
  */
-async function handleInfoEventChange(type, eventId) {
+async function handleRulesEventChange(type, eventId) {
     const content = document.getElementById('content');
     content.innerHTML = '';
     content.appendChild(createLoadingState());
@@ -797,7 +923,7 @@ async function handleEventChange(type, eventId) {
             state.expandedPlayers.clear(); // Reset expanded state
         }
 
-        renderHomePage(content);
+        renderLeaderboardPage(content);
     } catch (error) {
         console.error('Failed to change event:', error);
         showError('Failed to load event data');
@@ -850,7 +976,7 @@ function handlePlayerClick(player) {
     } else {
         state.expandedPlayers.add(player.name);
     }
-    renderHomePage(document.getElementById('content'));
+    renderLeaderboardPage(document.getElementById('content'));
 }
 
 /**
