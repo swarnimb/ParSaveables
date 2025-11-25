@@ -59,6 +59,14 @@ Last Updated: 2025-11-25
 - ✅ Fixed Rules page showing wrong render function
 - ✅ Added top-10 rounds rule to season descriptions
 
+**Code Cleanup & Optimization (COMPLETED):**
+- ✅ Fixed memory leak risk in carousel touch handlers
+- ✅ Eliminated event handler duplication (~80 lines reduced)
+- ✅ Split large chart functions into smaller focused functions
+- ✅ Extracted chart configuration to constants (CHART_CONFIG)
+- ✅ Converted CSS magic numbers to variables (transition timing)
+- ✅ Code review grade improved from A- to A
+
 **Landing Page Content:**
 > "Where amateur disc golfers take rules deadly serious and slow play even more seriously. Mulligans are negotiated like hostage situations, shotguns are mandatory, and curses can make or break your round.
 >
@@ -136,8 +144,8 @@ Last Updated: 2025-11-25
 ### Frontend (Static HTML/CSS/JS)
 **Mobile Dashboard (Nov 2025):**
 - `public/dashboard/index.html` - Landing page + dashboard shell (~105 lines)
-- `public/dashboard/style.css` - Complete styling with CSS variables (~1400 lines)
-- `public/dashboard/app.js` - Main orchestrator, routing, state, charts (~990 lines)
+- `public/dashboard/style.css` - Complete styling with CSS variables (~1404 lines)
+- `public/dashboard/app.js` - Main orchestrator, routing, state, charts (~1129 lines)
 - `public/dashboard/components.js` - Reusable UI components (~284 lines)
 - `public/dashboard/data.js` - Supabase queries + chart data fetching (~242 lines)
 - `public/dashboard/forest-bg.jpg` - Background image

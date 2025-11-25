@@ -105,6 +105,14 @@ Before proposing file structure:
 - Fixed Rules page calling wrong render function
 - Added top-10 rounds rule to season descriptions
 
+**Code Cleanup & Optimization:**
+- Fixed memory leak risk in carousel touch handlers
+- Eliminated event handler duplication (~80 lines reduced)
+- Split large chart functions into smaller focused functions
+- Extracted chart configuration to constants (CHART_CONFIG)
+- Converted CSS magic numbers to transition timing variables
+- Code review grade improved from A- to A
+
 **Previous (Nov 21, 2025) - Mobile Dashboard:**
 - Built new mobile-first dashboard (`/public/dashboard/`) with 5 files
 - Forest background, podium, expandable stats, bottom navigation
