@@ -392,3 +392,46 @@ export async function processScorecard() {
         throw error;
     }
 }
+
+/**
+ * Get published podcast episodes
+ * @param {number} limit - Maximum episodes to fetch
+ * @returns {Promise<Array>} Published episodes, newest first
+ */
+export async function getPodcastEpisodes(limit = 10) {
+    const { data, error } = await supabase
+        .from('podcast_episodes')
+        .select('*')
+        .eq('is_published', true)
+        .order('episode_number', { ascending: false })
+        .limit(limit);
+
+    if (error) throw error;
+    return data || [];
+}
+
+/**
+ * Generate new podcast episode
+ * @returns {Promise<object>} Generation result
+ */
+export async function generatePodcast() {
+    try {
+        const response = await fetch('/api/generatePodcast', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to generate podcast');
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Generate podcast error:', error);
+        throw error;
+    }
+}
