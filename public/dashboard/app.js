@@ -192,6 +192,7 @@ async function renderCurrentPage() {
  */
 function renderHomePage(container) {
     container.innerHTML = '';
+    container.className = ''; // Reset any previous page classes
 
     // Event selector
     const eventSelector = createEventSelector(
@@ -523,6 +524,7 @@ async function createScoreBarsChart() {
  */
 function renderPodcastPage(container) {
     container.innerHTML = '';
+    container.className = ''; // Reset any previous page classes
 
     const section = document.createElement('div');
     section.className = 'about-section';
@@ -542,6 +544,7 @@ function renderPodcastPage(container) {
  */
 async function renderAboutPage(container) {
     container.innerHTML = '';
+    container.className = ''; // Reset any previous page classes
 
     // Event selector
     const eventSelector = createEventSelector(
