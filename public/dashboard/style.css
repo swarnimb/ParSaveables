@@ -1259,9 +1259,10 @@ button {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     min-height: calc(100vh - 200px);
-    padding: var(--spacing-xl) var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+    padding-top: var(--spacing-lg);
     opacity: 1;
     transition: opacity 0.5s ease-out;
 }
@@ -1275,27 +1276,30 @@ button {
     background: var(--color-bg-card);
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius-lg);
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
     max-width: 600px;
     text-align: center;
 }
 
 .landing-description p {
     color: var(--color-text-primary);
-    font-size: var(--font-size-base);
-    line-height: 1.6;
-    margin-bottom: var(--spacing-md);
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+    margin-bottom: var(--spacing-sm);
 }
 
 .landing-description p:last-child {
     margin-bottom: 0;
+    margin-top: var(--spacing-sm);
+    font-weight: 600;
+    color: var(--color-accent);
 }
 
 .landing-nav {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
     width: 100%;
     max-width: 400px;
 }
@@ -1303,8 +1307,8 @@ button {
 .landing-tab {
     background: var(--color-bg-card);
     border: 1px solid var(--color-border);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-md);
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
@@ -1324,19 +1328,19 @@ button {
 }
 
 .landing-tab-icon {
-    font-size: 32px;
-    width: 48px;
-    height: 48px;
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: var(--border-radius-md);
+    border-radius: var(--border-radius-sm);
     flex-shrink: 0;
 }
 
 .landing-tab-label {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-lg);
     font-weight: 600;
     color: var(--color-text-primary);
     flex: 1;
@@ -1377,7 +1381,6 @@ body.dashboard-active #content {
 }
 
 /* Hide dashboard elements when on landing page */
-body:not(.dashboard-active) #topBanner,
 body:not(.dashboard-active) #processFab,
 body:not(.dashboard-active) #bottomNav,
 body:not(.dashboard-active) #content {
