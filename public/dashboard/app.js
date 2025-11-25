@@ -26,6 +26,28 @@ const state = {
     isLandingPage: true // Track if we're on landing page
 };
 
+// Chart configuration constants
+const CHART_CONFIG = {
+    MAX_PLAYERS_DISPLAYED: 8,
+    STAT_CARDS: [
+        { title: 'Performance Breakdown', type: 'performance-bars' },
+        { title: 'Rounds Analysis', type: 'rounds-stacked' },
+        { title: 'Average Score Analysis', type: 'score-bars' }
+    ],
+    LEGENDS: {
+        PERFORMANCE: [
+            { color: '#4ade80', label: 'Birdies' },
+            { color: '#fbbf24', label: 'Eagles' },
+            { color: '#f87171', label: 'Aces' }
+        ],
+        ROUNDS: [
+            { color: '#fbbf24', label: 'Wins' },
+            { color: '#60a5fa', label: 'Top 3' },
+            { color: '#94a3b8', label: 'Other' }
+        ]
+    }
+};
+
 // Disc golf jokes/puns
 const discGolfJokes = [
     "I'm having a disc-traction free day! 🥏",
@@ -367,12 +389,8 @@ async function renderStatsPage(container) {
     );
     container.appendChild(eventSelector);
 
-    // Stat cards data - 3 visual charts
-    const statCards = [
-        { title: 'Performance Breakdown', type: 'performance-bars' },
-        { title: 'Rounds Analysis', type: 'rounds-stacked' },
-        { title: 'Average Score Analysis', type: 'score-bars' }
-    ];
+    // Stat cards data - use configuration
+    const statCards = CHART_CONFIG.STAT_CARDS;
 
     // Add position indicators (dots) - create first
     const indicators = document.createElement('div');
@@ -494,16 +512,12 @@ function createPerformanceBarsChart() {
     const sortedPlayers = [...state.leaderboard]
         .map(p => ({ ...p, totalPerf: p.birdies + p.eagles + p.aces }))
         .sort((a, b) => b.totalPerf - a.totalPerf)
-        .slice(0, 8);
+        .slice(0, CHART_CONFIG.MAX_PLAYERS_DISPLAYED);
 
     const maxValue = Math.max(...sortedPlayers.map(p => p.totalPerf));
 
     return createStackedBarChart({
-        legend: [
-            { color: '#4ade80', label: 'Birdies' },
-            { color: '#fbbf24', label: 'Eagles' },
-            { color: '#f87171', label: 'Aces' }
-        ],
+        legend: CHART_CONFIG.LEGENDS.PERFORMANCE,
         data: sortedPlayers.map(p => ({
             name: p.name,
             segments: [
@@ -521,16 +535,12 @@ function createPerformanceBarsChart() {
 function createRoundsStackedChart() {
     const sortedPlayers = [...state.leaderboard]
         .sort((a, b) => b.rounds - a.rounds)
-        .slice(0, 8);
+        .slice(0, CHART_CONFIG.MAX_PLAYERS_DISPLAYED);
 
     const maxRounds = Math.max(...sortedPlayers.map(p => p.rounds));
 
     return createStackedBarChart({
-        legend: [
-            { color: '#fbbf24', label: 'Wins' },
-            { color: '#60a5fa', label: 'Top 3' },
-            { color: '#94a3b8', label: 'Other' }
-        ],
+        legend: CHART_CONFIG.LEGENDS.ROUNDS,
         data: sortedPlayers.map(p => {
             const podiumsWithoutWins = p.topThreeFinishes - p.wins;
             const otherRounds = p.rounds - p.topThreeFinishes;
@@ -547,16 +557,9 @@ function createRoundsStackedChart() {
 }
 
 /**
- * Create points progression line chart
+ * Create player dropdown selector for score chart
  */
-/**
- * Create average score by tier/round chart
- */
-async function createScoreBarsChart() {
-    const container = document.createElement('div');
-    container.className = 'chart-visual';
-
-    // Player dropdown selector
+function createPlayerDropdown(onPlayerChange) {
     const playerSelector = document.createElement('div');
     playerSelector.className = 'player-selector';
 
@@ -577,12 +580,71 @@ async function createScoreBarsChart() {
         dropdown.appendChild(option);
     });
 
-    dropdown.addEventListener('change', async (e) => {
+    dropdown.addEventListener('change', onPlayerChange);
+    playerSelector.appendChild(dropdown);
+
+    return playerSelector;
+}
+
+/**
+ * Create horizontal bar chart for score data
+ */
+function createScoreBars(scoreData) {
+    const container = document.createElement('div');
+    container.className = 'score-bars-wrapper';
+
+    // Chart title based on type
+    const chartTitle = document.createElement('div');
+    chartTitle.className = 'chart-subtitle';
+    chartTitle.textContent = scoreData.type === 'tier'
+        ? 'Average Score by Course Tier'
+        : 'Score by Round';
+    container.appendChild(chartTitle);
+
+    // Horizontal bars
+    const barsContainer = document.createElement('div');
+    barsContainer.className = 'score-bars-container';
+
+    const maxValue = Math.max(...scoreData.data.map(d => d.value));
+
+    scoreData.data.forEach(item => {
+        const barRow = document.createElement('div');
+        barRow.className = 'player-bar-row';
+
+        const label = document.createElement('div');
+        label.className = 'player-bar-name';
+        label.textContent = item.label;
+
+        const barContainer = document.createElement('div');
+        barContainer.className = 'bar-container';
+
+        const bar = document.createElement('div');
+        bar.className = 'bar-segment score-bar';
+        bar.style.width = `${(item.value / maxValue) * 100}%`;
+        bar.textContent = item.value;
+
+        barContainer.appendChild(bar);
+        barRow.appendChild(label);
+        barRow.appendChild(barContainer);
+        barsContainer.appendChild(barRow);
+    });
+
+    container.appendChild(barsContainer);
+    return container;
+}
+
+/**
+ * Create average score by tier/round chart
+ */
+async function createScoreBarsChart() {
+    const container = document.createElement('div');
+    container.className = 'chart-visual';
+
+    // Player dropdown selector
+    const playerSelector = createPlayerDropdown(async (e) => {
         state.selectedPlayerForScores = e.target.value;
         await renderStatsPage(document.getElementById('content'));
     });
-
-    playerSelector.appendChild(dropdown);
     container.appendChild(playerSelector);
 
     if (!state.selectedPlayerForScores) {
@@ -599,44 +661,9 @@ async function createScoreBarsChart() {
             return container;
         }
 
-        // Chart title based on type
-        const chartTitle = document.createElement('div');
-        chartTitle.className = 'chart-subtitle';
-        chartTitle.textContent = scoreData.type === 'tier'
-            ? 'Average Score by Course Tier'
-            : 'Score by Round';
-        container.appendChild(chartTitle);
-
-        // Horizontal bars
-        const barsContainer = document.createElement('div');
-        barsContainer.className = 'score-bars-container';
-
-        const maxValue = Math.max(...scoreData.data.map(d => d.value));
-
-        scoreData.data.forEach(item => {
-            const barRow = document.createElement('div');
-            barRow.className = 'player-bar-row';
-
-            const label = document.createElement('div');
-            label.className = 'player-bar-name';
-            label.textContent = item.label;
-
-            const barContainer = document.createElement('div');
-            barContainer.className = 'bar-container';
-
-            const bar = document.createElement('div');
-            bar.className = 'bar-segment score-bar';
-            bar.style.width = `${(item.value / maxValue) * 100}%`;
-            bar.textContent = item.value;
-
-            barContainer.appendChild(bar);
-
-            barRow.appendChild(label);
-            barRow.appendChild(barContainer);
-            barsContainer.appendChild(barRow);
-        });
-
-        container.appendChild(barsContainer);
+        // Create and append score bars
+        const scoreBars = createScoreBars(scoreData);
+        container.appendChild(scoreBars);
 
     } catch (error) {
         console.error('Failed to load score data:', error);
@@ -865,80 +892,12 @@ function ordinal(n) {
 }
 
 /**
- * Handle event change for Info page
+ * Core event change logic shared by all event handlers
+ * @param {string} type - Event type (season/tournament)
+ * @param {number} eventId - Specific event ID (optional)
+ * @param {boolean} clearExpanded - Whether to clear expanded players state
  */
-async function handleRulesEventChange(type, eventId) {
-    const content = document.getElementById('content');
-    content.innerHTML = '';
-    content.appendChild(createLoadingState());
-
-    try {
-        if (type !== state.eventType) {
-            state.eventType = type;
-            state.currentEvents = await getEventsByType(type);
-            if (state.currentEvents.length > 0) {
-                state.selectedEventId = state.currentEvents[0].id;
-            }
-        } else if (eventId) {
-            state.selectedEventId = eventId;
-        }
-
-        // Load leaderboard and progression for consistency
-        if (state.selectedEventId) {
-            state.leaderboard = await getLeaderboard(state.selectedEventId);
-            state.roundProgression = await getRoundProgression(state.selectedEventId);
-        }
-
-        await renderRulesPage(content);
-    } catch (error) {
-        console.error('Failed to change event:', error);
-        showError('Failed to load event data');
-    }
-}
-
-/**
- * Handle event type/selection change
- */
-async function handleEventChange(type, eventId) {
-    // Show loading
-    const content = document.getElementById('content');
-    content.innerHTML = '';
-    content.appendChild(createLoadingState());
-
-    try {
-        // Update type if changed
-        if (type !== state.eventType) {
-            state.eventType = type;
-            state.currentEvents = await getEventsByType(type);
-
-            // Select first event of new type
-            if (state.currentEvents.length > 0) {
-                state.selectedEventId = state.currentEvents[0].id;
-            }
-        } else if (eventId) {
-            // Just update selected event
-            state.selectedEventId = eventId;
-        }
-
-        // Load leaderboard and round progression for new event
-        if (state.selectedEventId) {
-            state.leaderboard = await getLeaderboard(state.selectedEventId);
-            state.roundProgression = await getRoundProgression(state.selectedEventId);
-            state.expandedPlayers.clear(); // Reset expanded state
-        }
-
-        renderLeaderboardPage(content);
-    } catch (error) {
-        console.error('Failed to change event:', error);
-        showError('Failed to load event data');
-    }
-}
-
-/**
- * Handle event type/selection change for stats page
- */
-async function handleStatsEventChange(type, eventId) {
-    // Show loading
+async function handleEventChangeCore(type, eventId, clearExpanded = false) {
     const content = document.getElementById('content');
     content.innerHTML = '';
     content.appendChild(createLoadingState());
@@ -962,12 +921,51 @@ async function handleStatsEventChange(type, eventId) {
         if (state.selectedEventId) {
             state.leaderboard = await getLeaderboard(state.selectedEventId);
             state.roundProgression = await getRoundProgression(state.selectedEventId);
-        }
 
-        await renderStatsPage(content);
+            if (clearExpanded) {
+                state.expandedPlayers.clear(); // Reset expanded state
+            }
+        }
     } catch (error) {
         console.error('Failed to change event:', error);
         showError('Failed to load event data');
+        throw error; // Re-throw to let caller handle
+    }
+}
+
+/**
+ * Handle event change for Rules page
+ */
+async function handleRulesEventChange(type, eventId) {
+    try {
+        await handleEventChangeCore(type, eventId, false);
+        await renderRulesPage(document.getElementById('content'));
+    } catch (error) {
+        // Error already logged in core function
+    }
+}
+
+/**
+ * Handle event type/selection change for Leaderboard page
+ */
+async function handleEventChange(type, eventId) {
+    try {
+        await handleEventChangeCore(type, eventId, true);
+        renderLeaderboardPage(document.getElementById('content'));
+    } catch (error) {
+        // Error already logged in core function
+    }
+}
+
+/**
+ * Handle event type/selection change for Stats page
+ */
+async function handleStatsEventChange(type, eventId) {
+    try {
+        await handleEventChangeCore(type, eventId, false);
+        await renderStatsPage(document.getElementById('content'));
+    } catch (error) {
+        // Error already logged in core function
     }
 }
 
@@ -1018,6 +1016,12 @@ function showError(message) {
  * Initialize stats carousel with swipe handling
  */
 function initStatsCarousel(carousel, totalCards) {
+    // Clean up any existing carousel listeners first (prevents memory leaks)
+    if (state.carouselCleanup) {
+        state.carouselCleanup();
+        state.carouselCleanup = null;
+    }
+
     let currentIndex = state.currentCarouselIndex || 0;
     let startX = 0;
     let currentX = 0;

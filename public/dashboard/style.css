@@ -41,6 +41,12 @@
     --border-radius-md: 12px;
     --border-radius-lg: 16px;
 
+    /* Transitions */
+    --transition-fast: 0.2s;
+    --transition-base: 0.3s;
+    --transition-slow: 0.5s;
+    --transition-morph: 600ms;
+
     /* Z-index */
     --z-index-fab: 1001;
     --z-index-nav: 1000;
@@ -129,7 +135,7 @@ button {
     cursor: pointer;
     flex-shrink: 0;
     font-size: 18px;
-    transition: all 0.3s;
+    transition: all var(--transition-base);
 }
 
 .admin-menu-btn:active {
@@ -200,7 +206,7 @@ button {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    transition: all 0.2s;
+    transition: all var(--transition-fast);
 }
 
 .toggle-btn.active {
@@ -298,7 +304,7 @@ button {
     align-items: center;
     gap: 4px;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: transform var(--transition-fast);
 }
 
 .podium-place.rank-2,
@@ -472,7 +478,7 @@ button {
     border-radius: var(--border-radius-sm);
     border: 1px solid var(--color-border);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all var(--transition-fast);
 }
 
 .player-row:active {
@@ -613,7 +619,7 @@ button {
     justify-content: flex-start;
     padding-top: 12px;
     z-index: 999;
-    transition: all 0.2s;
+    transition: all var(--transition-fast);
     border: 2px solid rgba(0, 0, 0, 0.2);
     border-bottom: none;
 }
@@ -669,7 +675,7 @@ button {
     justify-content: flex-end;
     gap: 2px;
     color: var(--color-text-tertiary);
-    transition: color 0.2s;
+    transition: color var(--transition-fast);
     flex: 1;
     padding: 0;
     padding-bottom: var(--spacing-xs);
@@ -891,7 +897,7 @@ button {
     font-size: 11px;
     font-weight: 600;
     color: rgba(0, 0, 0, 0.8);
-    transition: all 0.3s;
+    transition: all var(--transition-base);
 }
 
 .birdie-bar {
@@ -968,7 +974,7 @@ button {
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius-sm);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all var(--transition-fast);
 }
 
 .filter-control-btn:active {
@@ -996,7 +1002,7 @@ button {
     border-radius: var(--border-radius-sm);
     cursor: pointer;
     font-size: 11px;
-    transition: background 0.2s;
+    transition: background var(--transition-fast);
 }
 
 .player-filter-item:hover {
@@ -1067,7 +1073,7 @@ button {
     border-radius: 50%;
     background: var(--color-text-tertiary);
     opacity: 0.3;
-    transition: all 0.3s;
+    transition: all var(--transition-base);
     cursor: pointer;
 }
 
@@ -1264,7 +1270,7 @@ button {
     padding: var(--spacing-md) var(--spacing-lg);
     padding-top: var(--spacing-lg);
     opacity: 1;
-    transition: opacity 0.5s ease-out;
+    transition: opacity var(--transition-slow) ease-out;
 }
 
 .landing-page.fade-out {
@@ -1312,7 +1318,7 @@ button {
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
-    transition: all 0.3s ease;
+    transition: all var(--transition-base) ease;
     cursor: pointer;
     position: relative;
 }
@@ -1390,7 +1396,7 @@ body:not(.dashboard-active) #content {
 /* Make title clickable */
 .main-title {
     cursor: pointer;
-    transition: color 0.3s ease;
+    transition: color var(--transition-base) ease;
 }
 
 .main-title:hover {
