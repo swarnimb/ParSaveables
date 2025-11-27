@@ -96,29 +96,38 @@ Major features to be built that will add new functionality to the system.
 ---
 
 ### 3. Podcast Feature Refinement
-**Priority:** High (Next Up)
-**Status:** Partially Implemented
-**Description:** Enhance the automated podcast generation system and integrate with mobile dashboard.
+**Priority:** High (Next Up - Phase 2)
+**Status:** ✅ Phase 1 Complete (Nov 25, 2025) | Phase 2 TODO
+**Description:** Automated podcast generation system with mobile dashboard integration.
 
-**Current State:**
-- Basic podcast generation exists (`/podcast/` directory)
-- Generation works but not integrated with dashboard
-- Podcast tab exists but shows placeholder
+**✅ Completed - Phase 1 (Dashboard UI + Infrastructure):**
+- Built complete Podcast tab UI in mobile dashboard
+  - Episode list with title, date, duration, description
+  - HTML5 audio player with play/pause/seek controls
+  - Playback speed control (1x, 1.25x, 1.5x, 1.75x, 2x)
+  - Download button for episodes
+  - "Generate New Episode" manual trigger button
+- Created podcastService.js with 13 reusable functions
+- Built /api/generatePodcast endpoint (metadata generation only)
+- Database tables verified (podcast_episodes, podcast_scripts, podcast_generation_logs)
+- Manual episode generation working (Episode #1 created with 2025 data)
+- Episode cards with Play/Download buttons (when audio exists)
+- 220+ lines of podcast-specific CSS styling
+- Fixed RLS policy issues and API import errors
 
-**TODO - Dashboard Integration:**
-- Build Podcast tab UI in mobile dashboard
-- Episode list with metadata (date, event, duration)
-- Audio player with play/pause/seek controls
-- Show notes display
-- Download button for episodes
+**⏳ TODO - Phase 2 (Audio Generation):**
+- Integrate `/podcast/lib/script-generator.js` (Claude AI)
+- Integrate `/podcast/lib/audio-generator.js` (Google TTS)
+- Upload audio files (GitHub Releases or Vercel Blob)
+- Update episode.audio_url with public URL
+- Add Vercel cron job for monthly automation (Feb 1, 2026)
+- Test end-to-end Episode #1 with audio playback
 
-**TODO - Generation Enhancements:**
-- Automatic episode generation on schedule (or manual trigger)
-- Better audio quality/voice selection
-- Episode metadata (show notes, timestamps)
+**⏳ TODO - Phase 3 (Enhancements):**
 - RSS feed for podcast apps
-- Archive old episodes
-- Event-specific episode generation
+- Better episode metadata (show notes, timestamps)
+- Archive old episodes (auto-delete after 1 year)
+- Event-specific episode generation (tournament specials)
 
 ---
 

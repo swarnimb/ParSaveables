@@ -67,6 +67,22 @@ Last Updated: 2025-11-25
 - ✅ Converted CSS magic numbers to variables (transition timing)
 - ✅ Code review grade improved from A- to A
 
+**Podcast Feature - Phase 1 (COMPLETED):**
+- ✅ Built complete Podcast tab UI with episode list + audio player
+- ✅ Created podcastService.js with 13 reusable functions
+- ✅ Built /api/generatePodcast endpoint (metadata only, no audio yet)
+- ✅ Added podcast data fetching (getPodcastEpisodes, generatePodcast)
+- ✅ Migration 005: Verified podcast tables exist in production
+- ✅ Fixed "Failed to load episodes" error (RLS policy issue)
+- ✅ Fixed "Failed to generate podcast" error (import simplification)
+- ✅ Manual episode generation working (creates Episode #1 with 2025 data)
+- ✅ Episode cards with Play/Download buttons (when audio exists)
+- ✅ HTML5 audio player with speed control (1x-2x)
+- ✅ 220+ lines of podcast-specific CSS styling
+- ⏳ Audio generation pending (Phase 2 - integrate /podcast/ CLI)
+- ⏳ File upload pending (GitHub releases or Vercel Blob)
+- ⏳ Vercel cron job for monthly automation (Feb 1, 2026)
+
 **Landing Page Content:**
 > "Where amateur disc golfers take rules deadly serious and slow play even more seriously. Mulligans are negotiated like hostage situations, shotguns are mandatory, and curses can make or break your round.
 >
@@ -487,34 +503,65 @@ vercel env ls
 ---
 
 Last Updated: 2025-11-25
-Status: Production Ready
-Next Session: **Podcast Tab Implementation + Admin Panel Overhaul**
+Status: Production Ready - Podcast Phase 1 Complete
+Next Session: **Podcast Audio Generation (Phase 2)**
 
 ---
 
 ## Next Session Goals
 
-### Priority 1: Podcast Tab (Mobile Dashboard)
+### Priority 1: Podcast Audio Generation (Phase 2)
 **Current State:**
-- Podcast generation system exists in `/podcast/` directory
-- Podcast tab shows placeholder UI in mobile dashboard
-- Need to integrate podcast system with dashboard
+- ✅ Podcast tab UI complete (episode list + player)
+- ✅ Episode metadata generation working (Episode #1 created)
+- ✅ Database tables exist (podcast_episodes, podcast_scripts, podcast_generation_logs)
+- ⏳ Audio generation not integrated yet
+- ⏳ Episode #1 shows "Audio pending..."
 
-**Tasks:**
-1. Review existing podcast generation system (`/podcast/`)
-2. Build Podcast tab UI:
-   - Episode list with metadata (date, event, duration)
-   - Audio player with play/pause/seek controls
-   - Show notes display
-   - Download button
-3. Integrate with podcast generation backend
-4. Test playback on mobile devices
+**What Works:**
+- Manual "Generate New Episode" button creates episode metadata
+- Episode #1: "Chain Reactions #1 - 2025 Season Highlights"
+- Data range: Jan 1 - Dec 31, 2025 (all 3 historical events)
+- Player statistics calculated (birdies, eagles, aces, wins, etc.)
 
-**Files to Work On:**
-- `public/dashboard/app.js` (renderPodcastPage function)
-- `public/dashboard/data.js` (add podcast data fetching)
-- `public/dashboard/style.css` (podcast player styling)
-- Review `/podcast/` directory for backend integration
+**What's Missing:**
+1. **Script generation** - Integrate `/podcast/lib/script-generator.js`
+   - Uses Claude API to generate engaging podcast script
+   - Takes player stats, rounds data, fun facts
+   - Returns ~2000 word script (10 minutes audio)
+
+2. **Audio generation** - Integrate `/podcast/lib/audio-generator.js`
+   - Uses Google Cloud TTS (free tier: 1M chars/month)
+   - Converts script to MP3 audio
+   - Voice: en-US-Neural2-J (male, energetic)
+
+3. **File upload** - Store audio file
+   - Option A: GitHub Releases (free, unlimited)
+   - Option B: Vercel Blob Storage ($0.15/GB)
+   - Update episode.audio_url with public URL
+
+4. **Cron job** - Monthly automation (Feb 1, 2026)
+   - Add to vercel.json: `"schedule": "0 0 1 * *"`
+   - Triggers /api/generatePodcast automatically
+
+**Implementation Steps:**
+1. Update `/api/generatePodcast` to call script generator
+2. Add audio generation after script
+3. Upload audio to storage (recommend GitHub Releases)
+4. Update episode with audio_url
+5. Test Episode #1 end-to-end
+6. Add vercel.json cron configuration
+7. Deploy and verify
+
+**Files to Modify:**
+- `src/api/generatePodcast.js` - Add script + audio generation
+- `vercel.json` - Add cron schedule
+- Test with existing `/podcast/` CLI tools first
+
+**Environment Variables Needed:**
+- ANTHROPIC_API_KEY (already exists)
+- GOOGLE_APPLICATION_CREDENTIALS (if using Google TTS)
+- GITHUB_TOKEN (if using GitHub Releases for storage)
 
 ### Priority 2: Admin Panel Overhaul
 **Current State:**
