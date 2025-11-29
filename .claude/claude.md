@@ -85,73 +85,32 @@ Before proposing file structure:
 - `docs/TESTING.md` - Testing procedures
 - `README.md` - Project overview
 
-<<<<<<< HEAD
-## Recent Changes (Nov 25, 2025)
+## Recent Changes (Nov 29, 2025)
 
-**Landing Page with Animated Navigation:**
-- Built landing page at `/dashboard/` with funny disc golf description
-- 4 vertical tab cards: Leaderboard, Stats, Podcast, Rules
-- Smooth morph animation (600ms) from vertical tabs to bottom nav
+**Automated Monthly Podcast System:**
+- Built complete automated podcast generation system for Feb 1, 2026 launch
+- Restructured podcast folder: Removed single-host (Dave), kept dialogue (Hyzer & Annie)
+- Created incremental data fetching: `fetchDataSinceLastEpisode()` - only NEW rounds
+- Episode-to-episode comparison: Tracks trends, new players, performance changes
+- Dynamic episode length: 4+ rounds=5min, 3=4min, 2=3min, 1=2min, 0=skip
+- AI-generated episode titles: Max 6 words, catchy and hilarious
+- Ultra-engaging script prompts: "Brutally honest", "Hilarious", "Never boring"
+- Vercel cron job: Monthly on 1st at 12pm UTC (starting Feb 1, 2026)
+- API endpoint: `/api/generatePodcast` triggers monthly podcast generator
+- Episode 1 custom context: Minneapolis 2024, Season 2025, Portlandia highlights
+- Documentation: `podcast/AUTOMATION-SETUP.md` with complete setup guide
+- Redesigned Podcast UI: "Chain Reactions" banner, tagline, episode list, no generate button
+- Audio: ElevenLabs TTS (fallback to Google TTS), intro/outro music mixing
+- GitHub Releases: Auto-upload and publish episodes
+- Database tracking: Episodes, scripts, generation logs with cost tracking
+
+**Previous (Nov 25, 2025) - Landing Page & Dashboard:**
+- Built landing page with animated navigation (vertical tabs → bottom nav)
 - URL-based routing with hash navigation (#leaderboard, #stats, etc.)
-- Clickable ParSaveables title to return to landing page
-- Browser back/forward support via hashchange handler
-- Renamed "Home" → "Leaderboard" and "Info" → "Rules" throughout
-- Compact design with all tabs visible without scrolling
-- Top joke banner shows on both landing and dashboard
-- Description includes "Let's throw some plastic" as green CTA
-
-**Bug Fixes:**
-- Fixed double rendering on Stats and Rules pages (hashchange conflict)
-- Fixed scroll blocking when switching from Stats page (className reset)
-- Fixed Rules page calling wrong render function
-- Added top-10 rounds rule to season descriptions
-
-**Code Cleanup & Optimization:**
-- Fixed memory leak risk in carousel touch handlers
-- Eliminated event handler duplication (~80 lines reduced)
-- Split large chart functions into smaller focused functions
-- Extracted chart configuration to constants (CHART_CONFIG)
-- Converted CSS magic numbers to transition timing variables
-- Code review grade improved from A- to A
-
-**Podcast Feature - Phase 1:**
-- Built complete Podcast tab UI (episode list + audio player)
-- Created podcastService.js with 13 reusable functions
-- Built /api/generatePodcast endpoint (metadata only)
-- Migration 005: Verified podcast tables in production
-- Fixed RLS policy and API import errors
-- Manual episode generation working (Episode #1 with 2025 data)
-- HTML5 player with speed control (1x-2x)
-- 220+ lines of podcast CSS styling
-- Audio generation pending (Phase 2)
-
-**Previous (Nov 21, 2025) - Mobile Dashboard:**
-- Built new mobile-first dashboard (`/public/dashboard/`) with 5 files
-- Forest background, podium, expandable stats, bottom navigation
-- Custom SVG logo, rotating jokes, emoji support
-=======
-## Recent Changes (Jan 22, 2025)
-
-**Stats Tab Implementation:**
-- Built 3 interactive swipeable charts on Stats page
-- Touch gesture handling for carousel navigation
-- Chart 1: Performance Breakdown (horizontal stacked bars - birdies/eagles/aces)
-- Chart 2: Rounds Analysis (horizontal stacked bars - wins/podiums/other)
-- Chart 3: Average Score Analysis (tier-based for seasons, round-based for tournaments)
-- Player dropdown on Chart 3 for individual analysis
-- Tier names: Easy, Moderate, Hard, Elite (instead of numbers)
-- Carousel position preserved when changing events/players
-- Refactored charts to use reusable helper (eliminated 50 lines of duplication)
-- Event-aware: all charts update based on selected event
-- Total: ~340 lines added (optimized, no over-engineering)
-
-**Previous (Nov 21, 2025):**
-- Built mobile-first dashboard with Home tab
-- Podium display, leaderboard, expandable stats
-- Compressed top section for better mobile viewability
-- Bottom navigation with 4 tabs
-- Player "Bird" displays as 🦅 emoji
->>>>>>> 2fa610e (Restructure podcast folder: Remove single-host system, organize files)
+- Stats tab: 3 swipeable charts, touch gestures, carousel navigation
+- Podcast tab UI: Episode list + HTML5 audio player
+- Bug fixes: Double rendering, scroll blocking, memory leaks
+- Code optimization: ~80 lines reduced, A grade code quality
 
 **Previous (Nov 19, 2025):**
 - Added manual trigger button
