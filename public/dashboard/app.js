@@ -689,23 +689,21 @@ async function renderPodcastPage(container) {
 
         container.innerHTML = '';
 
-        // Header with generate button
-        const header = document.createElement('div');
-        header.className = 'podcast-header';
-        header.innerHTML = `
-            <h2 class="podcast-title">🎙️ Chain Reactions Podcast</h2>
-            <button class="btn-generate-podcast" id="generatePodcastBtn">
-                ✨ Generate New Episode
-            </button>
+        // Banner section
+        const banner = document.createElement('div');
+        banner.className = 'podcast-banner';
+        banner.innerHTML = `
+            <h1 class="podcast-title">Chain Reactions Podcast</h1>
+            <p class="podcast-tagline">The world of heavy bags, curses, and pocket beers</p>
         `;
-        container.appendChild(header);
+        container.appendChild(banner);
 
         // Episodes list
         if (episodes.length === 0) {
             const empty = document.createElement('div');
             empty.className = 'podcast-empty';
             empty.innerHTML = `
-                <p>No episodes yet. Click "Generate New Episode" to create the first one!</p>
+                <p>No episodes yet. Check back soon for the latest disc golf action!</p>
             `;
             container.appendChild(empty);
         } else {
@@ -805,12 +803,6 @@ function createAudioPlayer() {
  * Attach podcast event listeners
  */
 function attachPodcastEventListeners() {
-    // Generate podcast button
-    const generateBtn = document.getElementById('generatePodcastBtn');
-    if (generateBtn) {
-        generateBtn.addEventListener('click', handleGeneratePodcast);
-    }
-
     // Play buttons
     const playButtons = document.querySelectorAll('.btn-play-episode');
     playButtons.forEach(btn => {
@@ -830,32 +822,6 @@ function attachPodcastEventListeners() {
     const playerSpeed = document.getElementById('playerSpeed');
     if (playerSpeed) {
         playerSpeed.addEventListener('click', togglePlaybackSpeed);
-    }
-}
-
-/**
- * Handle generate podcast button
- */
-async function handleGeneratePodcast() {
-    const btn = document.getElementById('generatePodcastBtn');
-    if (!btn) return;
-
-    const originalText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = '⏳ Generating...';
-
-    try {
-        const result = await generatePodcast();
-        alert(`Episode ${result.episode.episode_number} generated successfully!\n\nTitle: ${result.episode.title}\nNote: Audio generation may take a few minutes.`);
-
-        // Reload page to show new episode
-        await renderPodcastPage(document.getElementById('content'));
-    } catch (error) {
-        console.error('Failed to generate podcast:', error);
-        alert(`Failed to generate podcast: ${error.message}`);
-    } finally {
-        btn.disabled = false;
-        btn.textContent = originalText;
     }
 }
 
