@@ -44,6 +44,71 @@ export async function generateDialogueScript(options) {
 }
 
 /**
+ * Generate a catchy, hilarious episode title
+ * @param {object} options - Title generation options
+ * @returns {Promise<string>} Generated title
+ */
+export async function generateEpisodeTitle(options) {
+  const { apiKey, incrementalData } = options;
+
+  const { stats, newRounds, events, comparisonData } = incrementalData;
+
+  const topPlayer = stats.topPlayer?.name || 'Unknown';
+  const totalRounds = newRounds.length;
+  const eventNames = events?.map(e => e.name).join(', ') || 'Regular rounds';
+
+  const prompt = `Generate a CATCHY, HILARIOUS episode title for a disc golf podcast episode.
+
+**Episode Data:**
+- ${totalRounds} rounds covered
+- Top player: ${topPlayer} (${stats.topPlayer?.wins || 0} wins)
+- Aces: ${stats.totalAces}
+- Events: ${eventNames}
+${comparisonData?.trends?.length > 0 ? `\n**Trends:** ${comparisonData.trends.join(', ')}` : ''}
+
+**Title Guidelines:**
+- Maximum 6 words (keep it SHORT)
+- Make it FUNNY or INTRIGUING
+- Reference disc golf culture (chains, aces, birdies, pocket beers, etc.)
+- Can be a pun, reference meme culture, or inside joke
+- Should make people want to listen
+
+**Examples of GOOD titles:**
+- "The Great Pocket Beer Heist"
+- "Aces High, Standards Low"
+- "${topPlayer} Can't Stop Winning"
+- "3 Rounds of Pure Chaos"
+- "When Birdies Attack"
+- "The Comeback Nobody Expected"
+
+**Examples of BAD titles:**
+- "Episode 2" (boring)
+- "Monthly Recap for January" (too formal)
+- "Disc Golf Tournament Results" (no personality)
+
+Generate ONLY the title (no quotes, no explanation). Be creative and hilarious!`;
+
+  const response = await axios.post(
+    'https://api.anthropic.com/v1/messages',
+    {
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 100,
+      temperature: 0.9, // High creativity
+      messages: [{ role: 'user', content: prompt }]
+    },
+    {
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json'
+      }
+    }
+  );
+
+  return response.data.content[0].text.trim();
+}
+
+/**
  * Build engaging prompt for incremental monthly episodes
  * @param {object} incrementalData - Data from fetchDataSinceLastEpisode()
  * @returns {string} Prompt for Claude

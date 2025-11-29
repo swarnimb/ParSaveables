@@ -11,7 +11,7 @@ import path from 'path';
 import fs from 'fs-extra';
 import { fileURLToPath } from 'url';
 import { createSupabaseClient, fetchDataSinceLastEpisode } from './lib/data-fetcher.js';
-import { generateDialogueScript, parseDialogue, buildIncrementalPrompt } from './lib/dialogue-script-generator.js';
+import { generateDialogueScript, parseDialogue, buildIncrementalPrompt, generateEpisodeTitle } from './lib/dialogue-script-generator.js';
 import { generateDialogueAudio } from './lib/dialogue-audio-generator.js';
 import { AudioMixer } from './lib/audio-mixer.js';
 import { uploadPodcastEpisode } from './lib/github-uploader.js';
@@ -98,8 +98,18 @@ async function main() {
 
     const logId = logEntry?.id;
 
-    // STEP 2: Generate dialogue script using incremental prompt
-    console.log('✍️  Step 2/8: Generating dialogue script with Claude AI...\n');
+    // STEP 2: Generate catchy episode title
+    console.log('📝 Step 2/9: Generating episode title...\n');
+
+    const episodeTitle = await generateEpisodeTitle({
+      apiKey: CONFIG.anthropic.apiKey,
+      incrementalData
+    });
+
+    console.log(`✓ Title: "${episodeTitle}"\n`);
+
+    // STEP 3: Generate dialogue script using incremental prompt
+    console.log('✍️  Step 3/9: Generating dialogue script with Claude AI...\n');
 
     const customPrompt = buildIncrementalPrompt(incrementalData);
 
@@ -115,15 +125,15 @@ async function main() {
     const dialogue = parseDialogue(scriptResult.script);
     console.log(`✓ Parsed ${dialogue.length} dialogue segments\n`);
 
-    // STEP 3: Create episode record in database
-    console.log('💾 Step 3/8: Creating episode record...\n');
+    // STEP 4: Create episode record in database
+    console.log('💾 Step 4/9: Creating episode record...\n');
 
     const { data: episode, error: episodeError } = await supabase
       .from('podcast_episodes')
       .insert({
         episode_number: episodeNumber,
-        title: `Episode ${episodeNumber}: ${incrementalData.periodStart} to ${incrementalData.periodEnd}`,
-        description: `What happened in Par Saveables disc golf from ${incrementalData.periodStart} to ${incrementalData.periodEnd}`,
+        title: episodeTitle,
+        description: `Episode ${episodeNumber}: ${episodeTitle} - Covering ${incrementalData.totalNewRounds} rounds from ${incrementalData.periodStart} to ${incrementalData.periodEnd}`,
         type: 'monthly_recap',
         period_start: incrementalData.periodStart,
         period_end: incrementalData.periodEnd,
@@ -137,8 +147,8 @@ async function main() {
 
     console.log(`✓ Episode record created (ID: ${episode.id})\n`);
 
-    // STEP 4: Save script to database
-    console.log('📝 Step 4/8: Saving script to database...\n');
+    // STEP 5: Save script to database
+    console.log('📝 Step 5/9: Saving script to database...\n');
 
     await fs.ensureDir(CONFIG.output.outputDir);
     const scriptPath = path.join(CONFIG.output.outputDir, `EP${episodeNumber.toString().padStart(2, '0')}-Script.txt`);
@@ -163,8 +173,8 @@ async function main() {
 
     console.log(`✓ Script saved: ${scriptPath}\n`);
 
-    // STEP 5: Generate audio
-    console.log('🎤 Step 5/8: Converting dialogue to audio...\n');
+    // STEP 6: Generate audio
+    console.log('🎤 Step 6/9: Converting dialogue to audio...\n');
 
     // Update log
     await supabase
@@ -208,8 +218,8 @@ async function main() {
       console.log(`📊 ElevenLabs Usage: ${audioResult.totalCharacters}/10,000 (${audioResult.percentageUsed}%)\n`);
     }
 
-    // STEP 6: Mix with intro/outro
-    console.log('🎵 Step 6/8: Mixing with intro/outro music...\n');
+    // STEP 7: Mix with intro/outro
+    console.log('🎵 Step 7/9: Mixing with intro/outro music...\n');
 
     const finalAudioPath = path.join(CONFIG.output.outputDir, `ParSaveables-EP${episodeNumber.toString().padStart(2, '0')}.mp3`);
 
@@ -231,8 +241,8 @@ async function main() {
 
     console.log(`✓ Final podcast: ${finalAudioPath}\n`);
 
-    // STEP 7: Upload to GitHub
-    console.log('📤 Step 7/8: Uploading to GitHub Releases...\n');
+    // STEP 8: Upload to GitHub
+    console.log('📤 Step 8/9: Uploading to GitHub Releases...\n');
 
     // Update log
     await supabase
@@ -246,8 +256,8 @@ async function main() {
       repo: CONFIG.github.repo,
       episode: {
         number: episodeNumber,
-        title: `${incrementalData.periodStart} Recap`,
-        description: `Episode ${episodeNumber}: What happened in Par Saveables from ${incrementalData.periodStart} to ${incrementalData.periodEnd}.\n\n${incrementalData.totalNewRounds} rounds played.\n\nThe world of heavy bags, curses, and pocket beers!`,
+        title: episodeTitle,
+        description: `Episode ${episodeNumber}: ${episodeTitle}\n\nCovering ${incrementalData.totalNewRounds} rounds from ${incrementalData.periodStart} to ${incrementalData.periodEnd}.\n\nThe world of heavy bags, curses, and pocket beers!`,
         type: 'monthly_recap',
         filePath: finalAudioPath,
         fileName: `ParSaveables-EP${episodeNumber.toString().padStart(2, '0')}.mp3`
@@ -256,8 +266,8 @@ async function main() {
 
     console.log(`✓ Upload complete: ${uploadResult.audioUrl}\n`);
 
-    // STEP 8: Update episode record with final data
-    console.log('💾 Step 8/8: Finalizing episode...\n');
+    // STEP 9: Update episode record with final data
+    console.log('💾 Step 9/9: Finalizing episode...\n');
 
     await supabase
       .from('podcast_episodes')

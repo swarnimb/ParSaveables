@@ -1,0 +1,46 @@
+{
+  "episodeNumber": 1,
+  "title": "The Ruckus Until Now",
+  "customContext": {
+    "minneapolis": {
+      "highlights": [
+        "Pocket beer controversy between Butter Cookie and Jaguar",
+        "Borrowed beer controversy between Jaguar and Jabba the Putt",
+        "The ironic situation: Bird won 3 rounds but Intern Line Cook won the tournament due to the scoring format",
+        "Biggest highlight: Cobra's ace in round 5"
+      ],
+      "funFacts": [
+        "5 rounds of absolute chaos",
+        "Everyone brought their A-game... and their beer collections",
+        "The tournament that started it all"
+      ]
+    },
+    "season2025": {
+      "highlights": [
+        "The winner complained about not getting any prize for winning",
+        "Others made fun saying he actually got the highest bed in the house during Portlandia tournament",
+        "Sadly, NO aces in the entire season (a historic drought)",
+        "Two new entrants for 2026 season: Food Zaddy and Scarlet Speedster"
+      ],
+      "funFacts": [
+        "An entire season without a single ace - unprecedented!",
+        "The prize debate became legendary",
+        "New blood coming in 2026 - watch out"
+      ]
+    },
+    "portlandia": {
+      "highlights": [
+        "Tournament marred by controversies after controversies, making for an intense and dramatic ending",
+        "Beer trading controversy that could set a bad precedent for the future",
+        "THE BIGGEST CONTROVERSY the sport has ever seen - but one that shall not be talked about (tease it but don't reveal what it is)"
+      ],
+      "funFacts": [
+        "The tournament everyone will remember for decades",
+        "What happens in Portlandia... actually makes it to the podcast",
+        "The forbidden topic that sparked a thousand arguments"
+      ]
+    },
+    "overallNarrative": "Episode 1 covers the COMPLETE 2025 season journey - from the Minneapolis kickoff through the regular season grind to the controversial Portlandia finale. This is the origin story of Par Saveables disc golf, setting the stage for the 2026 season ahead."
+  },
+  "scriptInstructions": "This is Episode 1 - the FOUNDATION episode. Listeners need context on what Par Saveables is, who the key players are, and why they should care. Make it welcoming for new listeners while being entertaining for those who lived through it. Set up the storylines that will continue into 2026."
+}
