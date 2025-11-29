@@ -20,7 +20,16 @@
 7. **Upload** - Publishes to GitHub Releases
 8. **Database Tracking** - Saves episode, script, and logs
 
-### Intelligence Features
+### Episode Length
+
+**Maximum 5 Minutes** - Episodes scale dynamically with data volume:
+- **Many rounds (10+):** ~5 minutes / 1000 words
+- **Moderate (5-9):** ~3-4 minutes / 700 words
+- **Few (1-4):** ~2-3 minutes / 500 words
+
+Scripts are optimized for **tight, punchy delivery** - every word must be interesting or funny. No fluff.
+
+## Intelligence Features
 
 **Episode-to-Episode Continuity:**
 - Tracks what was covered in last episode
