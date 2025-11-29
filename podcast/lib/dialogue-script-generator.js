@@ -126,40 +126,42 @@ Use this EXACT format:
 [HYZER]: Dialogue here
 [ANNIE]: Response here
 
-=== STRUCTURE (7-10 minutes / 1500-2000 words) ===
+=== STRUCTURE (3-5 minutes MAX / 600-1000 words) ===
 
-**[1] COLD OPEN (30 seconds)**
+**IMPORTANT: Episode length scales with data volume**
+- Many rounds (10+): ~5 minutes / 1000 words
+- Moderate rounds (5-9): ~3-4 minutes / 700 words
+- Few rounds (1-4): ~2-3 minutes / 500 words
+
+Keep it TIGHT. Every word must earn its place. No fluff.
+
+**[1] COLD OPEN (15-20 seconds)**
 BOTH: "Welcome folks!"
 HYZER: "to PAR SAVEABLES!"
 ANNIE: "The world of heavy bags, curses, and pocket beers!"
-- Immediately hook with the WILDEST thing that happened this period
-- Hyzer and Annie banter about it
-- Don't intro the show formally yet - cold open is pure hook
+- Immediately hook with the WILDEST thing that happened
+- ONE punchy line of banter, then dive in
 
-**[2] WHAT YOU MISSED (if previous episode exists) (1 min)**
-- Quick recap: "Last time we talked..."
-- Set up context for THIS episode
-- Highlight what changed
+**[2] WHAT YOU MISSED (if previous episode exists) (20 seconds MAX)**
+- Single sentence: "Last time X happened, now..."
+- Don't belabor it - just enough context
 
-**[3] THE BIG STORIES (4-5 minutes)**
-Break into 2-3 narrative arcs:
-- Who dominated? Why? Annie makes observations, Hyzer brings stats
-- Any upsets? Comebacks? Chokes? Tell it like a STORY
-- Aces, eagles, highlights - don't just list them, REACT to them
-- Course talk - if one course got played a ton, riff on it
-- New players - roast them lovingly as rookies or celebrate strong debuts
+**[3] THE BIG STORIES (2-3 minutes)**
+Pick 1-2 narrative arcs MAX (choose the most interesting):
+- Dominator story OR upset story (not both unless data-heavy)
+- One standout moment (ace, comeback, choke)
+- Quick stat callout if surprising
+- NEW players - one funny observation, move on
 
-**[4] THE DRAMA / SPICY TAKES (2-3 minutes)**
-- Any controversies? Questionable plays? Beer incidents? Equipment fails?
-- Hyzer and Annie debate hot takes
-- Predictions for next period
-- Call out players specifically - "X needs to step up" or "Y is unstoppable right now"
+**[4] SPICY TAKE / PREDICTION (30-60 seconds)**
+- ONE hot take or prediction for next period
+- Make it bold, make it funny
+- Call out ONE specific player
 
-**[5] OUTRO (30 seconds)**
-- Quick preview of what's coming
-- Thank listeners
-- Sign off with energy
-- Callback to tagline
+**[5] OUTRO (10-15 seconds)**
+- Fast sign-off
+- Energy + tagline callback
+- Done
 
 === TONE EXAMPLES ===
 
@@ -184,11 +186,14 @@ Break into 2-3 narrative arcs:
 === GENERATE THE COMPLETE SCRIPT NOW ===
 
 Write Episode ${nextEpisodeNumber} following the structure above. Make it:
-- NEVER BORING (if even 10 seconds feels dull, you failed)
-- BRUTALLY HONEST (call out greatness AND mediocrity)
-- HILARIOUS (constant wit, observations, zingers)
-- CONVERSATIONAL (interruptions, laughter, tangents)
-- STORY-DRIVEN (not just stat lists - tell what HAPPENED)
+- **TIGHT & PUNCHY** - Maximum 5 minutes (scale with data volume: ${newRounds.length} rounds = ${newRounds.length > 10 ? '5 min' : newRounds.length > 5 ? '3-4 min' : '2-3 min'})
+- **NEVER BORING** - Every sentence must be interesting or funny
+- **BRUTALLY HONEST** - Call out greatness AND mediocrity
+- **HILARIOUS** - Constant wit, zingers (but FAST)
+- **CONVERSATIONAL** - Interruptions, but keep it MOVING
+- **STORY-DRIVEN** - Not stat lists - what HAPPENED
+
+**WORD COUNT TARGET: ${newRounds.length > 10 ? '800-1000' : newRounds.length > 5 ? '600-750' : '450-600'} words MAX**
 
 Start with the cold open:
 [HYZER]: "Welcome folks!"
@@ -208,7 +213,7 @@ function buildDialoguePrompt(data, customSnippets) {
 
 **SHOW TAGLINE:** "Par Saveables - The world of heavy bags, curses, and pocket beers"
 
-**EPISODE:** 2025 Season Spectacular Recap (10 minutes / ~2000 words)
+**EPISODE:** 2025 Season Spectacular Recap (5 minutes MAX / ~1000 words)
 
 === DATA TO COVER ===
 
@@ -261,23 +266,23 @@ Use this exact format for dialogue:
 6. React to dramatic moments with genuine excitement
 7. Conversational language - contractions, "you know", "I mean", casual speech
 
-=== STRUCTURE (10 minutes) ===
+=== STRUCTURE (5 minutes MAX / ~1000 words) ===
 
-**[1] COLD OPEN & INTRO (1 minute)**
+**[1] COLD OPEN & INTRO (20 seconds)**
 - Start with BOTH hosts together saying: "Welcome folks!"
 - Then Hyzer continues: "to PAR SAVEABLES!"
 - Annie: "The world of heavy bags, curses, and pocket beers!"
 - Quick tease of the controversies and drama ahead
 - Introduce themselves and what's coming
 
-**[2] MINNEAPOLIS 2024 RECAP (2.5 minutes)**
+**[2] MINNEAPOLIS 2024 RECAP (1 minute)**
 - Cover the tournament stats
 - MUST discuss: pocket beer controversies (Butter Cookie/Jaguar, Jaguar/Jabba)
 - MUST discuss: Bird won 3 rounds but Intern Line Cook won overall (format irony)
 - MUST discuss: Cobra's ace in round 5 as the highlight
 - Hyzer handles stats, Annie tells the stories
 
-**[3] SEASON 2025 OVERVIEW (3 minutes)**
+**[3] SEASON 2025 OVERVIEW (2 minutes)**
 - Overall standings and winner
 - MUST discuss: Winner complained about no prize, others joked about "highest bed at Portlandia"
 - MUST discuss: Sadly no aces all season
@@ -285,7 +290,7 @@ Use this exact format for dialogue:
 - Analyze top 5, talk about battles
 - Most birdies, most wins stats
 
-**[4] PORTLANDIA 2025 DRAMA (2.5 minutes)**
+**[4] PORTLANDIA 2025 DRAMA (1 minute)**
 - Tournament results and winner
 - MUST discuss: "Marred by controversies after controversies"
 - MUST discuss: Beer trading controversy and bad precedent
@@ -293,7 +298,7 @@ Use this exact format for dialogue:
 - Build dramatic tension, Annie and Hyzer go back and forth on the drama
 - End on the mystery - "one that shall not be talked about"
 
-**[5] WRAP-UP & OUTRO (1 minute)**
+**[5] WRAP-UP & OUTRO (30 seconds)**
 - Quick 2026 preview mention
 - Thank listeners
 - Sign off with energy and personality
@@ -311,7 +316,9 @@ Bad:
 
 === GENERATE THE COMPLETE SCRIPT NOW ===
 
-Write the entire 10-minute dialogue following the structure above. Make it:
+Write the entire 5-minute MAX dialogue following the structure above. Make it:
+- **TIGHT & PUNCHY** - Maximum 5 minutes (~1000 words)
+- **NO FLUFF** - Every sentence must be interesting or funny
 - Natural and conversational
 - Include ALL custom highlights
 - Funny and engaging
