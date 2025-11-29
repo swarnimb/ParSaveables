@@ -22,10 +22,12 @@
 
 ### Episode Length
 
-**Maximum 5 Minutes** - Episodes scale dynamically with data volume:
-- **Many rounds (10+):** ~5 minutes / 1000 words
-- **Moderate (5-9):** ~3-4 minutes / 700 words
-- **Few (1-4):** ~2-3 minutes / 500 words
+**Dynamic Scaling** - Episodes scale EXACTLY with new data:
+- **4+ rounds:** 5 minutes / ~1000 words
+- **3 rounds:** 4 minutes / ~800 words
+- **2 rounds:** 3 minutes / ~600 words
+- **1 round:** 2 minutes / ~400 words
+- **0 rounds:** No episode generated (system exits)
 
 Scripts are optimized for **tight, punchy delivery** - every word must be interesting or funny. No fluff.
 

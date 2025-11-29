@@ -128,10 +128,12 @@ Use this EXACT format:
 
 === STRUCTURE (3-5 minutes MAX / 600-1000 words) ===
 
-**IMPORTANT: Episode length scales with data volume**
-- Many rounds (10+): ~5 minutes / 1000 words
-- Moderate rounds (5-9): ~3-4 minutes / 700 words
-- Few rounds (1-4): ~2-3 minutes / 500 words
+**IMPORTANT: Episode length scales EXACTLY with data volume**
+- 4+ rounds: 5 minutes / ~1000 words
+- 3 rounds: 4 minutes / ~800 words
+- 2 rounds: 3 minutes / ~600 words
+- 1 round: 2 minutes / ~400 words
+- 0 rounds: NO EPISODE (system exits)
 
 Keep it TIGHT. Every word must earn its place. No fluff.
 
@@ -186,14 +188,14 @@ Pick 1-2 narrative arcs MAX (choose the most interesting):
 === GENERATE THE COMPLETE SCRIPT NOW ===
 
 Write Episode ${nextEpisodeNumber} following the structure above. Make it:
-- **TIGHT & PUNCHY** - Maximum 5 minutes (scale with data volume: ${newRounds.length} rounds = ${newRounds.length > 10 ? '5 min' : newRounds.length > 5 ? '3-4 min' : '2-3 min'})
+- **TIGHT & PUNCHY** - ${newRounds.length >= 4 ? '5 minutes' : newRounds.length === 3 ? '4 minutes' : newRounds.length === 2 ? '3 minutes' : '2 minutes'} (${newRounds.length} rounds)
 - **NEVER BORING** - Every sentence must be interesting or funny
 - **BRUTALLY HONEST** - Call out greatness AND mediocrity
 - **HILARIOUS** - Constant wit, zingers (but FAST)
 - **CONVERSATIONAL** - Interruptions, but keep it MOVING
 - **STORY-DRIVEN** - Not stat lists - what HAPPENED
 
-**WORD COUNT TARGET: ${newRounds.length > 10 ? '800-1000' : newRounds.length > 5 ? '600-750' : '450-600'} words MAX**
+**WORD COUNT TARGET: ${newRounds.length >= 4 ? '~1000' : newRounds.length === 3 ? '~800' : newRounds.length === 2 ? '~600' : '~400'} words**
 
 Start with the cold open:
 [HYZER]: "Welcome folks!"
