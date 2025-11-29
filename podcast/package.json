@@ -2,17 +2,12 @@
   "name": "parsaveables-podcast-generator",
   "version": "1.0.0",
   "description": "Chain Reactions - Automated disc golf tournament podcast generator",
-  "main": "generate-podcast.js",
+  "main": "generate-dialogue-podcast.js",
   "type": "module",
   "scripts": {
-    "generate": "node generate-podcast.js",
-    "generate:season": "node generate-podcast.js --type=season",
-    "generate:monthly": "node generate-podcast.js --type=monthly",
-    "generate:dialogue": "node generate-dialogue-podcast.js",
+    "generate": "node generate-dialogue-podcast.js",
     "generate:existing": "node generate-from-existing-script.js",
-    "test:script": "node test-script-generation.js",
-    "test:audio": "node test-audio-generation.js",
-    "test:data": "node test-data-fetcher.js"
+    "test:data": "node tests/test-data-fetcher.js"
   },
   "keywords": [
     "disc-golf",

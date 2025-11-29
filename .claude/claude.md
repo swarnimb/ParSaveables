@@ -2,9 +2,9 @@
 
 **Quick Start:** Read `docs/SESSION-HANDOFF.md` for complete current state
 
-**Last Updated:** 2025-11-25
+**Last Updated:** 2025-11-29
 
-**Status:** ✅ Production Ready - Landing Page + Mobile Dashboard Live
+**Status:** ✅ Production Ready - Landing Page + Mobile Dashboard + Podcast Automation
 
 ---
 
@@ -85,6 +85,7 @@ Before proposing file structure:
 - `docs/TESTING.md` - Testing procedures
 - `README.md` - Project overview
 
+<<<<<<< HEAD
 ## Recent Changes (Nov 25, 2025)
 
 **Landing Page with Animated Navigation:**
@@ -128,6 +129,29 @@ Before proposing file structure:
 - Built new mobile-first dashboard (`/public/dashboard/`) with 5 files
 - Forest background, podium, expandable stats, bottom navigation
 - Custom SVG logo, rotating jokes, emoji support
+=======
+## Recent Changes (Jan 22, 2025)
+
+**Stats Tab Implementation:**
+- Built 3 interactive swipeable charts on Stats page
+- Touch gesture handling for carousel navigation
+- Chart 1: Performance Breakdown (horizontal stacked bars - birdies/eagles/aces)
+- Chart 2: Rounds Analysis (horizontal stacked bars - wins/podiums/other)
+- Chart 3: Average Score Analysis (tier-based for seasons, round-based for tournaments)
+- Player dropdown on Chart 3 for individual analysis
+- Tier names: Easy, Moderate, Hard, Elite (instead of numbers)
+- Carousel position preserved when changing events/players
+- Refactored charts to use reusable helper (eliminated 50 lines of duplication)
+- Event-aware: all charts update based on selected event
+- Total: ~340 lines added (optimized, no over-engineering)
+
+**Previous (Nov 21, 2025):**
+- Built mobile-first dashboard with Home tab
+- Podium display, leaderboard, expandable stats
+- Compressed top section for better mobile viewability
+- Bottom navigation with 4 tabs
+- Player "Bird" displays as 🦅 emoji
+>>>>>>> 2fa610e (Restructure podcast folder: Remove single-host system, organize files)
 
 **Previous (Nov 19, 2025):**
 - Added manual trigger button
