@@ -6,10 +6,10 @@
 import axios from 'axios';
 
 export async function generateDialogueScript(options) {
-  const { apiKey, data, customSnippets } = options;
+  const { apiKey, data, customSnippets, customPrompt } = options;
 
-  // Build prompt for dialogue
-  const prompt = buildDialoguePrompt(data, customSnippets);
+  // Build prompt for dialogue (use custom prompt if provided, otherwise build from data)
+  const prompt = customPrompt || buildDialoguePrompt(data, customSnippets);
 
   // Call Claude
   const response = await axios.post(
@@ -41,6 +41,160 @@ export async function generateDialogueScript(options) {
     completionTokens: response.data.usage?.output_tokens || 0,
     costUSD: calculateCost(response.data.usage?.input_tokens || 0, response.data.usage?.output_tokens || 0)
   };
+}
+
+/**
+ * Build engaging prompt for incremental monthly episodes
+ * @param {object} incrementalData - Data from fetchDataSinceLastEpisode()
+ * @returns {string} Prompt for Claude
+ */
+export function buildIncrementalPrompt(incrementalData) {
+  const {
+    nextEpisodeNumber,
+    periodStart,
+    periodEnd,
+    stats,
+    previousStats,
+    comparisonData,
+    newRounds,
+    events,
+    lastEpisode
+  } = incrementalData;
+
+  const topPlayer = stats.topPlayer;
+  const leaderboard = stats.leaderboard.slice(0, 5);
+
+  return `You are creating dialogue for "Par Saveables" podcast Episode ${nextEpisodeNumber} - a BRUTALLY HONEST, HILARIOUS disc golf podcast.
+
+**HOSTS:**
+- **HYZER** (Male): High-energy analyst. Gets excited about stats. Uses phrases like "UNREAL!" and "Let's GOOO!" Makes bold predictions.
+- **ANNIE** (Female): Sharp-witted commentator. Calls out BS. Roasts players lovingly. Quick with zingers and observations no one else notices.
+
+**SHOW TAGLINE:** "The world of heavy bags, curses, and pocket beers"
+
+**EPISODE #${nextEpisodeNumber}:** ${periodStart} to ${periodEnd} Recap
+
+=== WHAT HAPPENED SINCE LAST TIME ===
+
+${lastEpisode ? `**Previous Episode:** "${lastEpisode.title}" (covered through ${lastEpisode.period_end})` : '**First Episode Ever** - Covering ALL data from the beginning'}
+
+**NEW Rounds:** ${newRounds.length} rounds played
+**Period:** ${periodStart} to ${periodEnd}
+${events && events.length > 0 ? `**Events:** ${events.map(e => `${e.name} (${e.type})`).join(', ')}` : ''}
+
+**Current Top Player:** ${topPlayer?.name || 'No data'} (${topPlayer?.totalPoints ? Math.round(topPlayer.totalPoints) : 0} pts, ${topPlayer?.wins || 0} wins)
+
+**Top 5 Leaderboard:**
+${leaderboard.map((p, i) => `${i+1}. ${p.name} - ${Math.round(p.totalPoints)} pts (${p.wins} wins, ${p.birdies} birdies, ${p.aces} aces)`).join('\n')}
+
+**Performance Stats:**
+- Total Aces: ${stats.totalAces}
+- Total Eagles: ${stats.totalEagles}
+- Total Birdies: ${stats.totalBirdies}
+- Most Played Course: ${stats.mostPlayedCourse?.name || 'N/A'} (${stats.mostPlayedCourse?.timesPlayed || 0}x)
+
+${comparisonData ? `
+**TRENDS & CHANGES (vs last episode):**
+${comparisonData.trends.map(t => `- ${t}`).join('\n')}
+${comparisonData.newPlayers.length > 0 ? `\n**New Players:** ${comparisonData.newPlayers.join(', ')}` : ''}
+${comparisonData.returningPlayers.length > 0 ? `\n**Returning:** ${comparisonData.returningPlayers.join(', ')}` : ''}
+` : ''}
+
+=== YOUR MISSION: MAKE THIS ABSOLUTELY GRIPPING ===
+
+**CRITICAL RULES (BREAK THESE = FAIL):**
+
+1. **BRUTALLY HONEST** - No sugar-coating. If someone choked, say it. If someone dominated, celebrate it. If there's drama, LEAN IN.
+
+2. **HILARIOUS** - Every 30 seconds, there should be a laugh. Zingers, observations, roasts (loving ones), disc golf inside jokes, unexpected comparisons.
+
+3. **CONVERSATIONAL CHAOS** - People interrupt, laugh mid-sentence, say "wait wait wait", build on each other's jokes, go on tangents then snap back.
+
+4. **NO BORING MOMENTS** - If you're listing stats, make it a game. If covering a round, tell the STORY. What was the drama? Who surprised everyone? Who disappointed?
+
+5. **TRENDS > JUST FACTS** - Don't just say "${topPlayer?.name} is leading." Say "Okay so ${topPlayer?.name} is DOMINATING and honestly it's getting ridiculous at this point."
+
+6. **CALLBACKS** - Reference previous episodes (if not first). Build storylines. Player redemptions. Ongoing rivalries. Running jokes.
+
+7. **PREDICTIONS & HOT TAKES** - Don't just recap. Make bold claims. "I'm calling it now..." "Mark my words..." "If X happens again..."
+
+8. **AUTHENTIC REACTIONS** - When something crazy happens (ace, comeback, choke), REACT like real humans. "NO WAY!" "ARE YOU KIDDING ME?!" "I can't believe..."
+
+=== DIALOGUE FORMAT ===
+
+Use this EXACT format:
+[HYZER]: Dialogue here
+[ANNIE]: Response here
+
+=== STRUCTURE (7-10 minutes / 1500-2000 words) ===
+
+**[1] COLD OPEN (30 seconds)**
+BOTH: "Welcome folks!"
+HYZER: "to PAR SAVEABLES!"
+ANNIE: "The world of heavy bags, curses, and pocket beers!"
+- Immediately hook with the WILDEST thing that happened this period
+- Hyzer and Annie banter about it
+- Don't intro the show formally yet - cold open is pure hook
+
+**[2] WHAT YOU MISSED (if previous episode exists) (1 min)**
+- Quick recap: "Last time we talked..."
+- Set up context for THIS episode
+- Highlight what changed
+
+**[3] THE BIG STORIES (4-5 minutes)**
+Break into 2-3 narrative arcs:
+- Who dominated? Why? Annie makes observations, Hyzer brings stats
+- Any upsets? Comebacks? Chokes? Tell it like a STORY
+- Aces, eagles, highlights - don't just list them, REACT to them
+- Course talk - if one course got played a ton, riff on it
+- New players - roast them lovingly as rookies or celebrate strong debuts
+
+**[4] THE DRAMA / SPICY TAKES (2-3 minutes)**
+- Any controversies? Questionable plays? Beer incidents? Equipment fails?
+- Hyzer and Annie debate hot takes
+- Predictions for next period
+- Call out players specifically - "X needs to step up" or "Y is unstoppable right now"
+
+**[5] OUTRO (30 seconds)**
+- Quick preview of what's coming
+- Thank listeners
+- Sign off with energy
+- Callback to tagline
+
+=== TONE EXAMPLES ===
+
+**GOOD (Natural, Funny, Honest):**
+[ANNIE]: Okay, so ${topPlayer?.name || 'Player X'} just won ${topPlayer?.wins || 3} rounds in a row. At what point do we just hand them the trophy now?
+[HYZER]: RIGHT?! Like, I'm looking at the numbers and—Annie, it's not even CLOSE. ${topPlayer?.name || 'Player X'} is up by... *laughs* okay this is embarrassing for everyone else.
+[ANNIE]: I mean, shout out to ${leaderboard[1]?.name || 'Player Y'} for showing up, but let's be real, they're playing for second place at this point.
+
+**BAD (Boring, Formal, No Personality):**
+[HYZER]: Today we discuss the recent tournament results.
+[ANNIE]: Yes, the statistics show interesting trends.
+[HYZER]: Indeed, let us review the leaderboard.
+
+=== ADVANCED TECHNIQUES ===
+
+- **The Setup-Punchline Pattern:** Hyzer sets up stats, Annie delivers the punchline observation
+- **The Interrupt:** Mid-sentence, other host jumps in with "WAIT WAIT" when they realize something
+- **The Roast-Then-Praise:** "Okay ${leaderboard[2]?.name || 'Player'} had a ROUGH start, like really rough... but then Round 4? UNREAL comeback."
+- **The Rhetorical Question:** "You know what I love? When someone says 'I'm just here for fun' and then DESTROYS everyone."
+- **The Inside Joke:** Reference disc golf culture - heavy bags, pocket beers, "nice chains", wind excuses, etc.
+
+=== GENERATE THE COMPLETE SCRIPT NOW ===
+
+Write Episode ${nextEpisodeNumber} following the structure above. Make it:
+- NEVER BORING (if even 10 seconds feels dull, you failed)
+- BRUTALLY HONEST (call out greatness AND mediocrity)
+- HILARIOUS (constant wit, observations, zingers)
+- CONVERSATIONAL (interruptions, laughter, tangents)
+- STORY-DRIVEN (not just stat lists - tell what HAPPENED)
+
+Start with the cold open:
+[HYZER]: "Welcome folks!"
+[ANNIE]: "Welcome folks!"
+[HYZER]: "to PAR SAVEABLES!"
+[ANNIE]: "The world of heavy bags, curses, and pocket beers!"`;
 }
 
 function buildDialoguePrompt(data, customSnippets) {

@@ -5,7 +5,8 @@
   "main": "generate-dialogue-podcast.js",
   "type": "module",
   "scripts": {
-    "generate": "node generate-dialogue-podcast.js",
+    "generate": "node generate-monthly-podcast.js",
+    "generate:manual": "node generate-dialogue-podcast.js",
     "generate:existing": "node generate-from-existing-script.js",
     "test:data": "node tests/test-data-fetcher.js"
   },

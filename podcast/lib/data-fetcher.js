@@ -472,6 +472,240 @@ function calculateMonthlyStats(rounds, playerRounds) {
 }
 
 /**
+ * Fetch incremental data since last published episode
+ * This is the KEY function for monthly podcasts - gets only NEW data
+ * @param {object} supabase - Supabase client
+ * @returns {Promise<object>} New rounds data since last episode
+ */
+export async function fetchDataSinceLastEpisode(supabase) {
+  console.log('🔍 Fetching data since last published episode...');
+
+  try {
+    // 1. Get the last published episode
+    const { data: lastEpisode, error: episodeError } = await supabase
+      .from('podcast_episodes')
+      .select('*')
+      .eq('is_published', true)
+      .order('episode_number', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (episodeError && episodeError.code !== 'PGRST116') { // PGRST116 = no rows
+      throw episodeError;
+    }
+
+    let startDate, lastEpisodeNumber, lastEpisodeData;
+
+    if (!lastEpisode) {
+      // First episode ever - get ALL data
+      console.log('📌 No previous episodes found - fetching ALL data');
+      startDate = '2024-01-01'; // Get everything from the beginning
+      lastEpisodeNumber = 0;
+      lastEpisodeData = null;
+    } else {
+      // Get data since last episode's end date
+      startDate = new Date(lastEpisode.period_end);
+      startDate.setDate(startDate.getDate() + 1); // Start day after last episode ended
+      startDate = startDate.toISOString().split('T')[0];
+      lastEpisodeNumber = lastEpisode.episode_number;
+      lastEpisodeData = lastEpisode;
+
+      console.log(`📌 Last episode: #${lastEpisodeNumber} (${lastEpisode.title})`);
+      console.log(`📅 Period: ${lastEpisode.period_start} to ${lastEpisode.period_end}`);
+      console.log(`🆕 Fetching rounds since ${startDate}`);
+    }
+
+    const endDate = new Date().toISOString().split('T')[0]; // Today
+
+    // 2. Get NEW rounds since last episode
+    const { data: newRounds, error: roundsError } = await supabase
+      .from('rounds')
+      .select('*')
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .order('date', { ascending: true });
+
+    if (roundsError) throw roundsError;
+
+    console.log(`✓ Found ${newRounds.length} NEW rounds since ${startDate}`);
+
+    if (newRounds.length === 0) {
+      return {
+        hasNewData: false,
+        message: `No new rounds since last episode (${startDate})`,
+        lastEpisode: lastEpisodeData,
+        nextEpisodeNumber: lastEpisodeNumber + 1,
+        periodStart: startDate,
+        periodEnd: endDate
+      };
+    }
+
+    const newRoundIds = newRounds.map(r => r.id);
+
+    // 3. Get player rounds for NEW rounds
+    const { data: newPlayerRounds, error: playerRoundsError } = await supabase
+      .from('player_rounds')
+      .select('*')
+      .in('round_id', newRoundIds);
+
+    if (playerRoundsError) throw playerRoundsError;
+
+    console.log(`✓ Found ${newPlayerRounds.length} player performances in new rounds`);
+
+    // 4. Get events covered in this period
+    const eventIds = [...new Set(newRounds.map(r => r.event_id).filter(Boolean))];
+    const { data: events, error: eventsError } = await supabase
+      .from('events')
+      .select('*')
+      .in('id', eventIds);
+
+    if (eventsError) throw eventsError;
+
+    // 5. Calculate stats for NEW data
+    const newStats = calculateIncrementalStats(newRounds, newPlayerRounds, events);
+
+    // 6. Get PREVIOUS episode's data snapshot for comparison
+    let previousStats = null;
+    if (lastEpisodeData) {
+      const { data: lastScript } = await supabase
+        .from('podcast_scripts')
+        .select('data_snapshot')
+        .eq('episode_id', lastEpisodeData.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      previousStats = lastScript?.data_snapshot?.stats || null;
+    }
+
+    return {
+      hasNewData: true,
+      lastEpisode: lastEpisodeData,
+      nextEpisodeNumber: lastEpisodeNumber + 1,
+      periodStart: startDate,
+      periodEnd: endDate,
+      newRounds,
+      newPlayerRounds,
+      events,
+      stats: newStats,
+      previousStats, // For comparison in script generation
+      totalNewRounds: newRounds.length,
+      comparisonData: previousStats ? generateComparisonInsights(previousStats, newStats) : null
+    };
+
+  } catch (error) {
+    console.error('Error fetching incremental data:', error);
+    throw error;
+  }
+}
+
+/**
+ * Calculate statistics for incremental data
+ * @param {Array} rounds - New rounds
+ * @param {Array} playerRounds - New player rounds
+ * @param {Array} events - Events in this period
+ * @returns {object} Statistics for new data
+ */
+function calculateIncrementalStats(rounds, playerRounds, events) {
+  const playerStats = {};
+
+  playerRounds.forEach(pr => {
+    if (!playerStats[pr.player_name]) {
+      playerStats[pr.player_name] = {
+        name: pr.player_name,
+        totalPoints: 0,
+        rounds: [],
+        wins: 0,
+        top3: 0,
+        aces: 0,
+        eagles: 0,
+        birdies: 0
+      };
+    }
+
+    const stats = playerStats[pr.player_name];
+    stats.rounds.push(pr);
+    stats.totalPoints += pr.final_total || 0;
+    stats.aces += pr.aces || 0;
+    stats.eagles += pr.eagles || 0;
+    stats.birdies += pr.birdies || 0;
+
+    if (pr.rank === 1) stats.wins++;
+    if (pr.rank <= 3) stats.top3++;
+  });
+
+  const players = Object.values(playerStats).sort((a, b) => b.totalPoints - a.totalPoints);
+
+  // Course breakdown
+  const courseStats = {};
+  rounds.forEach(round => {
+    if (!courseStats[round.course_name]) {
+      courseStats[round.course_name] = { name: round.course_name, timesPlayed: 0 };
+    }
+    courseStats[round.course_name].timesPlayed++;
+  });
+
+  const courses = Object.values(courseStats).sort((a, b) => b.timesPlayed - a.timesPlayed);
+
+  return {
+    players,
+    topPlayer: players[0],
+    leaderboard: players.slice(0, 10),
+    courses,
+    mostPlayedCourse: courses[0],
+    totalAces: players.reduce((sum, p) => sum + p.aces, 0),
+    totalEagles: players.reduce((sum, p) => sum + p.eagles, 0),
+    totalBirdies: players.reduce((sum, p) => sum + p.birdies, 0),
+    events: events.map(e => ({ name: e.name, type: e.type }))
+  };
+}
+
+/**
+ * Generate comparison insights between previous and current period
+ * @param {object} previousStats - Stats from last episode
+ * @param {object} currentStats - Stats from current period
+ * @returns {object} Comparison insights
+ */
+function generateComparisonInsights(previousStats, currentStats) {
+  const insights = {
+    trends: [],
+    newPlayers: [],
+    returningPlayers: [],
+    improvedPlayers: [],
+    declinedPlayers: []
+  };
+
+  // Identify new players
+  const previousPlayerNames = previousStats.players?.map(p => p.name) || [];
+  const currentPlayerNames = currentStats.players.map(p => p.name);
+
+  insights.newPlayers = currentPlayerNames.filter(name => !previousPlayerNames.includes(name));
+  insights.returningPlayers = currentPlayerNames.filter(name => previousPlayerNames.includes(name));
+
+  // Compare performance metrics
+  if (previousStats.totalAces && currentStats.totalAces > previousStats.totalAces) {
+    insights.trends.push(`Aces are UP - ${currentStats.totalAces} vs ${previousStats.totalAces} last time`);
+  } else if (previousStats.totalAces && currentStats.totalAces < previousStats.totalAces) {
+    insights.trends.push(`Aces are DOWN - ${currentStats.totalAces} vs ${previousStats.totalAces} last time`);
+  }
+
+  if (previousStats.totalBirdies && currentStats.totalBirdies > previousStats.totalBirdies) {
+    insights.trends.push(`More birdies - ${currentStats.totalBirdies} vs ${previousStats.totalBirdies}`);
+  }
+
+  // Top player comparison
+  if (previousStats.topPlayer && currentStats.topPlayer) {
+    if (currentStats.topPlayer.name === previousStats.topPlayer.name) {
+      insights.trends.push(`${currentStats.topPlayer.name} continues to dominate`);
+    } else {
+      insights.trends.push(`NEW leader: ${currentStats.topPlayer.name} (was ${previousStats.topPlayer.name})`);
+    }
+  }
+
+  return insights;
+}
+
+/**
  * Helper: Get all registered players
  * @param {object} supabase - Supabase client
  * @returns {Promise<Array>} List of registered players
@@ -492,5 +726,6 @@ export default {
   fetchSeasonData,
   fetchTournamentData,
   fetchMonthlyData,
+  fetchDataSinceLastEpisode,
   getRegisteredPlayers
 };

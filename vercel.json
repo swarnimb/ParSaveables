@@ -18,6 +18,13 @@
       "config": {
         "maxDuration": 30
       }
+    },
+    {
+      "src": "src/api/generatePodcast.js",
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 600
+      }
     }
   ],
   "routes": [
@@ -28,6 +35,10 @@
     {
       "src": "/api/chatbot",
       "dest": "src/api/chatbot.js"
+    },
+    {
+      "src": "/api/generatePodcast",
+      "dest": "src/api/generatePodcast.js"
     },
     {
       "src": "/",
@@ -46,7 +57,12 @@
       "dest": "public/$1"
     }
   ],
-  "crons": [],
+  "crons": [
+    {
+      "path": "/api/generatePodcast",
+      "schedule": "0 12 1 * *"
+    }
+  ],
   "env": {
     "NODE_ENV": "production"
   }
