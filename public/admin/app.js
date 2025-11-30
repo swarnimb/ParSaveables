@@ -192,8 +192,8 @@ function renderPlayers(players) {
                                 </span>
                             </td>
                             <td class="table-actions">
-                                <button class="btn-table-action" onclick="window.editPlayer(${player.id})">Edit</button>
-                                <button class="btn-table-action btn-delete" onclick="window.deletePlayerConfirm(${player.id})">Delete</button>
+                                <button class="btn-table-action" onclick="window.editPlayer(${player.id})" title="Edit">✏️</button>
+                                <button class="btn-table-action btn-delete" onclick="window.deletePlayerConfirm(${player.id})" title="Delete">🗑️</button>
                             </td>
                         </tr>
                     `).join('')}
