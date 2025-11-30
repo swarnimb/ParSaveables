@@ -658,7 +658,27 @@ function renderPointsSystems(systems) {
         return;
     }
 
-    grid.innerHTML = systems.map(system => `
+    grid.innerHTML = systems.map(system => {
+        // Extract rank points from config object
+        const rankPoints = system.config?.rank_points;
+        let rankPointsDisplay = 'N/A';
+        if (rankPoints && typeof rankPoints === 'object') {
+            const points = Object.entries(rankPoints)
+                .filter(([key]) => key !== 'default')
+                .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
+                .map(([_, value]) => value);
+            if (points.length > 0) {
+                rankPointsDisplay = points.join(', ');
+            }
+        }
+
+        // Extract performance points
+        const perf = system.config?.performance_points || {};
+        const ace = perf.ace || 0;
+        const eagle = perf.eagle || 0;
+        const birdie = perf.birdie || 0;
+
+        return `
         <div class="data-card">
             <div class="data-card-header">
                 <div class="data-card-title">${system.name}</div>
@@ -669,18 +689,16 @@ function renderPointsSystems(systems) {
             </div>
             <div class="data-card-field">
                 <span class="field-label">Rank Points</span>
-                <span class="field-value">${system.config?.rankPoints?.join(', ') || 'N/A'}</span>
+                <span class="field-value">${rankPointsDisplay}</span>
             </div>
             <div class="data-card-field">
                 <span class="field-label">Bonuses</span>
                 <span class="field-value">
-                    Ace: ${system.config?.aceBonus || 0},
-                    Eagle: ${system.config?.eagleBonus || 0},
-                    Birdie: ${system.config?.birdieBonus || 0}
+                    Ace: ${ace}, Eagle: ${eagle}, Birdie: ${birdie}
                 </span>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 function showPointsModal(system = null) {
