@@ -2,16 +2,17 @@
 
 **Quick Start for New Claude Code Sessions**
 
-Last Updated: 2025-11-25
+Last Updated: 2025-11-29
 
 ---
 
 ## TL;DR - Start Here
 
-**System Status:** ✅ **FULLY OPERATIONAL - LANDING PAGE + MOBILE DASHBOARD**
+**System Status:** ✅ **FULLY OPERATIONAL - PODCAST EPISODE 1 PUBLISHED**
 - Production deployment on Vercel
-- New landing page with animated navigation
+- Landing page with animated navigation
 - Mobile-first dashboard at `/dashboard/` with 4 tabs
+- **NEW:** Episode 1 published and live on Podcast tab
 - URL-based routing with hash navigation
 - Manual trigger via dashboard button
 - Event-based player filtering active
@@ -32,6 +33,7 @@ Last Updated: 2025-11-25
 - **Branch:** `main`
 - **Trigger:** Manual via dashboard button (cron disabled)
 - **URL:** https://par-saveables.vercel.app
+- **Podcast:** https://par-saveables.vercel.app/dashboard#podcast
 
 ### Core Workflow
 1. User clicks "Process Scorecards" button on dashboard
@@ -40,7 +42,48 @@ Last Updated: 2025-11-25
 4. 12-step workflow processes and stores data
 5. Dashboard auto-refreshes to show new data
 
-### Recent Changes (Nov 25, 2025)
+### Recent Changes (Nov 29, 2025)
+
+**Podcast Episode 1 Published (COMPLETED):**
+- ✅ Episode 1 "The Ruckus Until Now" published and live
+- ✅ ElevenLabs voice integration (Hyzer: male, Annie: female)
+- ✅ Custom intro/outro music with precise timing and fading
+- ✅ Supabase Storage for audio hosting (9.58 MB)
+- ✅ Inline podcast player with progress bar and time controls
+- ✅ Play button toggles play/pause (▶/⏸)
+- ✅ Auto-pause other episodes when playing new one
+- ✅ Removed download button
+- ✅ Reduced episode description text by 20%
+- ✅ Episodes sorted newest first (Episode 2 will appear above Episode 1)
+- ✅ Complete audio generation pipeline with FFmpeg
+- ⚠️ **Known Issue:** Line 8 has "*whistles*" spoken as word (ElevenLabs quota hit)
+
+**Podcast Scripts & Audio Generation:**
+- Created `podcast/generate-ep1-elevenlabs.js` for ElevenLabs audio
+- Created `podcast/mix-episode-1.js` for intro/outro mixing
+- Created `podcast/publish-episode-1.js` for Supabase upload
+- Updated FFmpeg paths in 3 files to `C:\\ffmpeg\\bin\\ffmpeg.exe`
+- Episode 1 context: Minneapolis 2024, Season 2025, Portlandia 2025, 2026 preview
+- Script: 1010 words, 60 dialogue segments, ~7 minutes total
+
+**Audio Specifications:**
+- **Intro:** 15s (100% volume 0-10s, fade 10-15s, dialogue starts at 13s)
+- **Dialogue:** ~6.7 minutes with ElevenLabs voices
+- **Outro:** Fade in during last 5s of dialogue, then 10s (100% for 3s, fade for 7s)
+- **Total Duration:** ~7 minutes 3 seconds (423s)
+
+**ElevenLabs Configuration:**
+```
+ELEVENLABS_API_KEY=sk_bea21bf387197581aebdb415642e0e5ffb61c8c2fe9ec152
+ELEVENLABS_HYZER_VOICE=50y2RdLRjpTShM4ZFm5D
+ELEVENLABS_ANNIE_VOICE=dfeOmy6Uay63tNhyO99j
+```
+
+**Supabase Storage:**
+- Bucket: `podcast-episodes` (public)
+- Episode 1 URL: https://bcovevbtcdsgzbrieiin.supabase.co/storage/v1/object/public/podcast-episodes/ParSaveables-EP01.mp3
+
+### Previous Changes (Nov 25, 2025)
 **Landing Page with Animated Navigation (COMPLETED):**
 - ✅ Created landing page at `/dashboard/` with funny description
 - ✅ 4 vertical tab cards: Leaderboard, Stats, Podcast, Rules
@@ -66,22 +109,6 @@ Last Updated: 2025-11-25
 - ✅ Extracted chart configuration to constants (CHART_CONFIG)
 - ✅ Converted CSS magic numbers to variables (transition timing)
 - ✅ Code review grade improved from A- to A
-
-**Podcast Feature - Phase 1 (COMPLETED):**
-- ✅ Built complete Podcast tab UI with episode list + audio player
-- ✅ Created podcastService.js with 13 reusable functions
-- ✅ Built /api/generatePodcast endpoint (metadata only, no audio yet)
-- ✅ Added podcast data fetching (getPodcastEpisodes, generatePodcast)
-- ✅ Migration 005: Verified podcast tables exist in production
-- ✅ Fixed "Failed to load episodes" error (RLS policy issue)
-- ✅ Fixed "Failed to generate podcast" error (import simplification)
-- ✅ Manual episode generation working (creates Episode #1 with 2025 data)
-- ✅ Episode cards with Play/Download buttons (when audio exists)
-- ✅ HTML5 audio player with speed control (1x-2x)
-- ✅ 220+ lines of podcast-specific CSS styling
-- ⏳ Audio generation pending (Phase 2 - integrate /podcast/ CLI)
-- ⏳ File upload pending (GitHub releases or Vercel Blob)
-- ⏳ Vercel cron job for monthly automation (Feb 1, 2026)
 
 **Landing Page Content:**
 > "Where amateur disc golfers take rules deadly serious and slow play even more seriously. Mulligans are negotiated like hostage situations, shotguns are mandatory, and curses can make or break your round.
@@ -157,20 +184,46 @@ Last Updated: 2025-11-25
 - `/api/processScorecard` - Main workflow orchestrator
 - `/api/chatbot` - AI chatbot for dashboard queries
 
+### Podcast Generation System
+**Location:** `/podcast/` directory
+
+**Scripts:**
+- `generate-dialogue-podcast.js` - Main CLI script for generating episodes
+- `generate-ep1-elevenlabs.js` - ElevenLabs audio generation for Episode 1
+- `mix-episode-1.js` - Custom audio mixer with intro/outro music
+- `publish-episode-1.js` - Upload to Supabase and create DB records
+
+**Libraries:**
+- `lib/dialogue-script-generator.js` - Claude AI script generation with Hyzer/Annie dialogue
+- `lib/elevenlabs-audio-generator.js` - ElevenLabs TTS with caching and progress tracking
+- `lib/dialogue-audio-generator.js` - Google TTS fallback
+- `lib/audio-mixer.js` - FFmpeg wrapper for mixing
+
+**Assets:**
+- `assets/intro-music.mp3` - Intro music (15s)
+- `assets/outro-music.mp3` - Outro music (10s)
+
+**Output:**
+- `output/Par-Saveables-EP01-Script.txt` - Final edited script
+- `output/ParSaveables-EP01-ElevenLabs.mp3` - Final mixed episode
+
+**Context Files:**
+- `episode-1-context.json` - Custom context for Episode 1 (Minneapolis 2024, Season 2025, Portlandia 2025)
+
 ### Frontend (Static HTML/CSS/JS)
 **Mobile Dashboard (Nov 2025):**
 - `public/dashboard/index.html` - Landing page + dashboard shell (~105 lines)
-- `public/dashboard/style.css` - Complete styling with CSS variables (~1404 lines)
-- `public/dashboard/app.js` - Main orchestrator, routing, state, charts (~1129 lines)
+- `public/dashboard/style.css` - Complete styling with CSS variables (~1600 lines)
+- `public/dashboard/app.js` - Main orchestrator, routing, state, charts, inline podcast player (~1200 lines)
 - `public/dashboard/components.js` - Reusable UI components (~284 lines)
-- `public/dashboard/data.js` - Supabase queries + chart data fetching (~242 lines)
+- `public/dashboard/data.js` - Supabase queries + chart data fetching (~450 lines)
 - `public/dashboard/forest-bg.jpg` - Background image
 
 **Features:**
 - Landing page: Funny description + 4 vertical tabs with morph animation
 - Leaderboard tab: Podium (top 3), leaderboard (all players), expandable stats
 - Stats tab: 3 swipeable charts with touch gestures, event-aware
-- Podcast tab: Placeholder for future podcast feature
+- Podcast tab: Episode list with inline audio players, progress bars, time controls
 - Rules tab: Points system info with top-10 rule for seasons
 
 **Legacy Dashboards:**
@@ -188,6 +241,11 @@ Last Updated: 2025-11-25
 **Data Tables:**
 - `rounds` - Round metadata (references canonical course names)
 - `player_rounds` - Player stats and points
+
+**Podcast Tables:**
+- `podcast_episodes` - Episode metadata, audio URLs, publishing info
+- `podcast_scripts` - Generated scripts with word count and review status
+- `podcast_generation_logs` - Generation attempts for debugging
 
 ---
 
@@ -224,6 +282,14 @@ Last Updated: 2025-11-25
 - **20 canonical courses** (clean table, no duplicates)
 - **17+ aliases** for scorecard variations
 - All historical rounds updated to reference canonical names
+
+### Podcast Audio Pipeline
+1. **Script Generation:** Claude AI generates Hyzer/Annie dialogue script
+2. **Audio Generation:** ElevenLabs TTS converts script to 60 audio segments
+3. **Concatenation:** FFmpeg combines segments into single dialogue track
+4. **Mixing:** Custom FFmpeg filter adds intro/outro with precise timing
+5. **Upload:** Supabase Storage hosts final MP3
+6. **Database:** Episode record with audio_url, metadata, and script
 
 ---
 
@@ -273,6 +339,22 @@ INSERT INTO courses (course_name, tier, multiplier)
 VALUES ('New Course Name', 2, 1.5);
 ```
 
+### Generate New Podcast Episode (Manual)
+```bash
+cd podcast
+node generate-dialogue-podcast.js
+# Follow prompts for episode number and title
+# Script generated, then audio, then uploaded
+```
+
+### Publish Podcast Episode to Dashboard
+```bash
+cd podcast
+node publish-episode-1.js
+# Uploads audio to Supabase Storage
+# Creates episode and script records in database
+```
+
 ### Trigger Scorecard Processing
 1. Visit https://par-saveables.vercel.app
 2. Click "📧 Process Scorecards" button (top center)
@@ -290,6 +372,13 @@ git push
 
 ## Known Issues & Quirks
 
+### Podcast Episode 1
+- ⚠️ **Line 8 has "*whistles*" spoken as word instead of removed**
+  - Cause: ElevenLabs character quota exceeded during regeneration
+  - Fix: Regenerate segment 8 when quota resets (monthly)
+  - File: `podcast/output/Par-Saveables-EP01-Script.txt` line 8
+  - Action item recorded in Pending Improvements section below
+
 ### Database Schema
 - `rounds.season` column exists but is inconsistent (NULL for most)
 - Use `event_id` instead - it's the source of truth
@@ -305,10 +394,36 @@ git push
 - Limited query types supported
 - See ROADMAP for improvement plan
 
-### Podcast Feature
-- Partially implemented
-- Works but needs refinement
-- See ROADMAP for enhancement plan
+---
+
+## Pending Improvements
+
+### High Priority
+1. **Fix Episode 1 "*whistles*" audio segment**
+   - When: ElevenLabs quota resets (monthly)
+   - File: `podcast/output/Par-Saveables-EP01-Script.txt` line 8
+   - Change "*whistles*" to "wow." (already updated in script file)
+   - Run: `cd podcast && node generate-ep1-elevenlabs.js`
+   - Then: `node mix-episode-1.js`
+   - Upload: `node publish-episode-1.js` (will overwrite existing)
+
+2. **Setup Monthly Podcast Automation**
+   - Add to `vercel.json`: `"schedule": "0 12 1 * *"` (12pm UTC on 1st of month)
+   - Create `/api/generatePodcast` endpoint
+   - Integrate podcast generation scripts
+   - Test automation before Feb 1, 2026
+
+### Medium Priority
+3. **Admin Panel Overhaul**
+   - Modularize `public/admin.html` (currently ~1500 lines)
+   - Add Registered Players CRUD interface
+   - Add Course Management UI
+   - Make mobile-responsive
+
+4. **Chatbot Enhancement**
+   - Better AI responses
+   - More query types
+   - Conversation history
 
 ---
 
@@ -316,17 +431,22 @@ git push
 
 See `docs/ROADMAP.md` for full details. Top priorities:
 
-1. **Chatbot Enhancement** (High)
+1. **Podcast Automation** (High)
+   - Fix Episode 1 whistles audio
+   - Setup monthly cron job
+   - Create API endpoint for automated generation
+
+2. **Chatbot Enhancement** (High)
    - Better AI responses
    - More query types
    - Conversation history
 
-2. **Dashboard & Admin UI Overhaul** (High)
+3. **Dashboard & Admin UI Overhaul** (High)
    - Modularize code (separate CSS/JS files)
    - Improve mobile responsiveness
    - Better visual design
 
-3. **Registered Players Management** (Medium)
+4. **Registered Players Management** (Medium)
    - Add CRUD interface to admin panel
    - Currently only manageable via SQL
 
@@ -348,15 +468,38 @@ ParSaveables/
 │   ├── historical/           # One-time imports
 │   └── fixes/                # Archived corrections
 ├── public/
-│   ├── index.html            # Dashboard (needs refactoring)
+│   ├── dashboard/            # Mobile dashboard (Nov 2025)
+│   │   ├── index.html        # Landing + shell
+│   │   ├── style.css         # Styling
+│   │   ├── app.js            # Main logic + routing + inline player
+│   │   ├── components.js     # Reusable UI
+│   │   ├── data.js           # Supabase queries
+│   │   └── forest-bg.jpg     # Background
+│   ├── index.html            # Old dashboard (deprecated)
 │   └── admin.html            # Admin panel
+├── podcast/                  # Podcast generation system
+│   ├── lib/                  # Core libraries
+│   │   ├── dialogue-script-generator.js
+│   │   ├── elevenlabs-audio-generator.js
+│   │   ├── dialogue-audio-generator.js
+│   │   └── audio-mixer.js
+│   ├── assets/               # Music files
+│   │   ├── intro-music.mp3
+│   │   └── outro-music.mp3
+│   ├── output/               # Generated episodes
+│   │   ├── Par-Saveables-EP01-Script.txt
+│   │   └── ParSaveables-EP01-ElevenLabs.mp3
+│   ├── episode-1-context.json
+│   ├── generate-dialogue-podcast.js
+│   ├── generate-ep1-elevenlabs.js
+│   ├── mix-episode-1.js
+│   └── publish-episode-1.js
 ├── src/
 │   ├── api/                  # Orchestrators
 │   ├── services/             # 8 microservices
 │   ├── config/               # Environment config
 │   ├── utils/                # Helpers (logger, etc)
 │   └── tests/                # Unit tests
-├── podcast/                  # Podcast generation system
 ├── .env                      # Environment variables (not in git)
 ├── package.json              # Dependencies
 ├── vercel.json               # Deployment config
@@ -393,12 +536,24 @@ ParSaveables/
 Required in `.env` (local) and Vercel dashboard (production):
 
 ```
+# Supabase
 SUPABASE_URL=https://bcovevbtcdsgzbrieiin.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=[secret]
+
+# Anthropic Claude
 ANTHROPIC_API_KEY=[secret]
+
+# Gmail API
 GMAIL_CLIENT_ID=[secret]
 GMAIL_CLIENT_SECRET=[secret]
 GMAIL_REFRESH_TOKEN=[secret]
+
+# ElevenLabs (Podcast)
+ELEVENLABS_API_KEY=sk_bea21bf387197581aebdb415642e0e5ffb61c8c2fe9ec152
+ELEVENLABS_HYZER_VOICE=50y2RdLRjpTShM4ZFm5D
+ELEVENLABS_ANNIE_VOICE=dfeOmy6Uay63tNhyO99j
+
+# Environment
 NODE_ENV=production
 ```
 
@@ -417,6 +572,13 @@ node src/tests/manual-test-full.js
 npm test  # Runs all service tests
 ```
 
+### Test Podcast Generation
+```bash
+cd podcast
+node generate-dialogue-podcast.js
+# Follow prompts
+```
+
 **Note:** Tests require valid .env credentials and database connection.
 
 ---
@@ -429,6 +591,12 @@ npm install
 
 # Test workflow with image
 npm run test:workflow path/to/scorecard.jpg
+
+# Generate podcast episode
+cd podcast && node generate-dialogue-podcast.js
+
+# Publish episode to dashboard
+cd podcast && node publish-episode-1.js
 
 # Deploy to Vercel
 vercel --prod
@@ -453,6 +621,12 @@ vercel env ls
 - Verify `events.players` column has data for selected event
 - Check browser console for loading errors
 - Verify event_id matches between events and player_rounds
+
+### Podcast not playing
+- Check browser console for audio errors
+- Verify audio_url is publicly accessible
+- Test URL directly in browser
+- Check Supabase Storage bucket is public
 
 ### Scorecard processing fails
 - Check email has image attachment
@@ -482,6 +656,7 @@ vercel env ls
 ## Key Contacts & Resources
 
 - **Production Dashboard:** https://par-saveables.vercel.app
+- **Podcast Page:** https://par-saveables.vercel.app/dashboard#podcast
 - **Supabase Dashboard:** https://supabase.com/dashboard
 - **Vercel Dashboard:** https://vercel.com/dashboard
 - **GitHub Repo:** https://github.com/swarnimb/ParSaveables
@@ -502,94 +677,6 @@ vercel env ls
 
 ---
 
-Last Updated: 2025-11-25
-Status: Production Ready - Podcast Phase 1 Complete
-Next Session: **Podcast Audio Generation (Phase 2)**
-
----
-
-## Next Session Goals
-
-### Priority 1: Podcast Audio Generation (Phase 2)
-**Current State:**
-- ✅ Podcast tab UI complete (episode list + player)
-- ✅ Episode metadata generation working (Episode #1 created)
-- ✅ Database tables exist (podcast_episodes, podcast_scripts, podcast_generation_logs)
-- ⏳ Audio generation not integrated yet
-- ⏳ Episode #1 shows "Audio pending..."
-
-**What Works:**
-- Manual "Generate New Episode" button creates episode metadata
-- Episode #1: "Chain Reactions #1 - 2025 Season Highlights"
-- Data range: Jan 1 - Dec 31, 2025 (all 3 historical events)
-- Player statistics calculated (birdies, eagles, aces, wins, etc.)
-
-**What's Missing:**
-1. **Script generation** - Integrate `/podcast/lib/script-generator.js`
-   - Uses Claude API to generate engaging podcast script
-   - Takes player stats, rounds data, fun facts
-   - Returns ~2000 word script (10 minutes audio)
-
-2. **Audio generation** - Integrate `/podcast/lib/audio-generator.js`
-   - Uses Google Cloud TTS (free tier: 1M chars/month)
-   - Converts script to MP3 audio
-   - Voice: en-US-Neural2-J (male, energetic)
-
-3. **File upload** - Store audio file
-   - Option A: GitHub Releases (free, unlimited)
-   - Option B: Vercel Blob Storage ($0.15/GB)
-   - Update episode.audio_url with public URL
-
-4. **Cron job** - Monthly automation (Feb 1, 2026)
-   - Add to vercel.json: `"schedule": "0 0 1 * *"`
-   - Triggers /api/generatePodcast automatically
-
-**Implementation Steps:**
-1. Update `/api/generatePodcast` to call script generator
-2. Add audio generation after script
-3. Upload audio to storage (recommend GitHub Releases)
-4. Update episode with audio_url
-5. Test Episode #1 end-to-end
-6. Add vercel.json cron configuration
-7. Deploy and verify
-
-**Files to Modify:**
-- `src/api/generatePodcast.js` - Add script + audio generation
-- `vercel.json` - Add cron schedule
-- Test with existing `/podcast/` CLI tools first
-
-**Environment Variables Needed:**
-- ANTHROPIC_API_KEY (already exists)
-- GOOGLE_APPLICATION_CREDENTIALS (if using Google TTS)
-- GITHUB_TOKEN (if using GitHub Releases for storage)
-
-### Priority 2: Admin Panel Overhaul
-**Current State:**
-- `public/admin.html` is monolithic (~1,500 lines)
-- Works but hard to maintain
-- Not mobile-responsive
-
-**Tasks:**
-1. Create new modular architecture:
-   - `public/admin/index.html`
-   - `public/admin/style.css`
-   - `public/admin/app.js`
-   - `public/admin/components.js`
-   - `public/admin/data.js`
-2. Port existing functionality to new structure
-3. Add new features:
-   - Registered Players CRUD interface
-   - Course Management (add/edit courses + aliases)
-   - Better event management UI
-   - Points System visual editor
-4. Make mobile-responsive
-
-**Files to Work On:**
-- Create new `/public/admin/` directory
-- Migrate logic from `public/admin.html`
-- Test all admin functionality
-
-### Optional: If Time Permits
-- Chatbot enhancement (conversation memory)
-- Performance optimizations (caching)
-- Automated testing suite
+Last Updated: 2025-11-29
+Status: Production Ready - Podcast Episode 1 Published
+Next Session: **Fix Episode 1 Whistles Audio + Monthly Automation Setup**
