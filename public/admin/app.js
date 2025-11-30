@@ -908,6 +908,17 @@ function initTieBreakerDragDrop() {
         console.log(`Item ${idx}: draggable=${item.getAttribute('draggable')}, data-id=${item.dataset.id}`);
     });
 
+    // Add dragover to the list itself to enable drop
+    list.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    });
+
+    list.addEventListener('drop', (e) => {
+        e.preventDefault();
+        console.log('📍 Drop event on list');
+    });
+
     items.forEach(item => {
         // Ensure draggable is set
         item.setAttribute('draggable', 'true');
@@ -916,7 +927,9 @@ function initTieBreakerDragDrop() {
             console.log('🚀 Drag started:', item.dataset.id);
             draggedElement = item;
             item.classList.add('dragging');
-            item.style.opacity = '0.4';
+            setTimeout(() => {
+                item.style.opacity = '0.4';
+            }, 0);
             e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('text/plain', item.dataset.id);
         });
@@ -925,16 +938,15 @@ function initTieBreakerDragDrop() {
             console.log('🏁 Drag ended:', item.dataset.id);
             item.style.opacity = '1';
             item.classList.remove('dragging');
-            draggedElement = null;
         });
 
         item.addEventListener('dragover', (e) => {
             e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
 
-            if (draggedElement && draggedElement !== item) {
+            if (draggedElement && draggedElement !== item && !item.classList.contains('dragging')) {
                 const rect = item.getBoundingClientRect();
                 const midpoint = rect.top + rect.height / 2;
+
                 if (e.clientY < midpoint) {
                     list.insertBefore(draggedElement, item);
                 } else {
@@ -945,12 +957,20 @@ function initTieBreakerDragDrop() {
 
         item.addEventListener('dragenter', (e) => {
             e.preventDefault();
+            if (draggedElement && draggedElement !== item) {
+                item.style.borderTop = '2px solid var(--color-primary)';
+            }
+        });
+
+        item.addEventListener('dragleave', (e) => {
+            item.style.borderTop = '';
         });
 
         item.addEventListener('drop', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('📍 Drop event on:', item.dataset.id);
+            item.style.borderTop = '';
+            console.log('📍 Drop event on item:', item.dataset.id);
         });
     });
 
