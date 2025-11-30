@@ -30,7 +30,7 @@ ParSaveables is a serverless disc golf scorecard processing system that automati
 │                    Gmail Inbox (OAuth2)                      │
 └────────────────────────┬────────────────────────────────────┘
                          │
-                         ▼ Polled every 30 min (Vercel Cron)
+                         ▼ Manual trigger via dashboard
 ┌─────────────────────────────────────────────────────────────┐
 │              Vercel Serverless Functions                     │
 ├─────────────────────────────────────────────────────────────┤

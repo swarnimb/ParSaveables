@@ -14,6 +14,7 @@ Enterprise-grade serverless disc golf scorecard processing system with automated
 - **Mobile Dashboard**: Touch-optimized leaderboards with podium display and expandable stats
 - **Interactive Stats**: 3 swipeable charts showing performance breakdowns, rounds analysis, and tier-based scores
 - **Admin Panel**: Full CRUD interface for managing points systems, courses, events, and data
+- **AI-Powered Podcast**: Automated weekly recap podcasts with personalized commentary and storytelling
 - **Serverless Architecture**: Vercel functions with manual trigger (no servers to maintain)
 
 ## Tech Stack
@@ -36,6 +37,8 @@ Vercel Serverless Function (Manual Trigger via Dashboard)
 8 Microservices → Supabase PostgreSQL
     ↓
 Mobile Dashboard (Static Site with Stats Charts)
+    ↓
+AI Podcast Generator (Weekly Recaps)
 ```
 
 ## Project Structure
@@ -65,8 +68,10 @@ ParSaveables/
 ├── podcast/                    # Automated podcast generator
 │   └── README.md               # Podcast system documentation
 ├── public/                     # Frontend static assets
-│   ├── index.html              # Main dashboard (leaderboard, chatbot)
-│   └── admin.html              # Admin panel (CRUD operations)
+│   ├── dashboard/              # Mobile dashboard (Home, Stats, Info tabs)
+│   │   └── [dashboard files]
+│   └── admin/                  # Admin panel (CRUD operations)
+│       └── [admin files]
 ├── src/                        # Backend serverless code
 │   ├── api/                    # API endpoints (orchestrators)
 │   │   ├── processScorecard.js # Main 12-step scorecard workflow
@@ -193,7 +198,7 @@ Test the entire scorecard processing workflow with a real UDisc image:
 npm run test:workflow path/to/scorecard.jpg    # Test complete workflow
 ```
 
-See [docs/TESTING.md](docs/TESTING.md) and [docs/NEXT-STEPS.md](docs/NEXT-STEPS.md) for detailed testing guide.
+See [docs/TESTING.md](docs/TESTING.md) for detailed testing guide.
 
 ### Unit Tests
 
@@ -208,7 +213,7 @@ npm test src/tests/emailService.test.js    # Test specific service
 
 ## Deployment
 
-Deploy to Vercel with automatic cron job execution:
+Deploy to Vercel with manual trigger via dashboard:
 
 ```bash
 vercel --prod
@@ -218,7 +223,7 @@ vercel --prod
 - ✅ Unlimited serverless executions
 - ✅ 60-second function timeout
 - ✅ 6,000 execution hours/month
-- ✅ Cron jobs included
+- ✅ Manual trigger button on dashboard
 
 See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for complete guide including Gmail API setup, environment variables, and troubleshooting.
 
@@ -236,12 +241,13 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for complete guide including Gmail 
 
 ## API Endpoints
 
-- `POST /api/processScorecard` - Process new scorecards from Gmail (manual trigger or cron)
-  - Cron: Daily at 12pm UTC
+- `POST /api/processScorecard` - Process new scorecards from Gmail (manual trigger via dashboard)
   - 12-step workflow: email → vision → scoring → database
 - `POST /api/chatbot` - AI chatbot queries about stats, leaderboards, and courses
   - Returns conversational answers using Claude Chat API
   - Auto-detects query type (leaderboard, player stats, course info, recent rounds)
+- `POST /api/generatePodcast` - Generate weekly recap podcast with AI commentary
+  - Creates personalized audio recap of league performance and storylines
 
 ## Performance
 

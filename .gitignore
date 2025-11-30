@@ -54,3 +54,7 @@ podcast/temp/
 podcast/assets/
 podcast/google-cloud-credentials.json
 nul
+
+# Temp files
+temp_*.js
+nul
