@@ -230,11 +230,38 @@ Pick 1-2 narrative arcs MAX (choose the most interesting):
 - Energy + tagline callback
 - Done
 
+=== CRITICAL: NO STAGE DIRECTIONS OR NON-VERBAL SOUNDS ===
+
+**ABSOLUTELY FORBIDDEN:**
+- NO stage directions: *laughs*, *whistles*, *rubs hands*, *takes deep breath*
+- NO non-verbal sounds: whistles, sighs, gasps, throat clearing
+- NO action descriptions: *chuckles nervously*, *pauses dramatically*
+
+**Why:** TTS engines can't produce these sounds and will read them as literal words.
+
+**Instead of:**
+❌ [ANNIE]: This is wild... *whistles*
+✅ [ANNIE]: This is wild... wow.
+
+❌ [HYZER]: *rubs hands together excitedly* Oh, I've been waiting for this!
+✅ [HYZER]: Oh man, I've been waiting for this!
+
+❌ [ANNIE]: *laughing* The audacity!
+✅ [ANNIE]: Ha! The audacity!
+
+**Use spoken alternatives:**
+- Instead of *laughs*: "Ha!" or "Haha!" or just natural laughter in dialogue
+- Instead of *whistles*: "wow" or "whoa" or "oh man"
+- Instead of *sighs*: "Ugh" or "Man" or just skip it
+- Instead of *pauses*: Use ellipsis (...) naturally in speech
+
+Keep ALL dialogue 100% speakable. Every word MUST be something a TTS engine can pronounce correctly.
+
 === TONE EXAMPLES ===
 
 **GOOD (Natural, Funny, Honest):**
 [ANNIE]: Okay, so ${topPlayer?.name || 'Player X'} just won ${topPlayer?.wins || 3} rounds in a row. At what point do we just hand them the trophy now?
-[HYZER]: RIGHT?! Like, I'm looking at the numbers and—Annie, it's not even CLOSE. ${topPlayer?.name || 'Player X'} is up by... *laughs* okay this is embarrassing for everyone else.
+[HYZER]: RIGHT?! Like, I'm looking at the numbers and—Annie, it's not even CLOSE. ${topPlayer?.name || 'Player X'} is up by... ha, okay this is embarrassing for everyone else.
 [ANNIE]: I mean, shout out to ${leaderboard[1]?.name || 'Player Y'} for showing up, but let's be real, they're playing for second place at this point.
 
 **BAD (Boring, Formal, No Personality):**
