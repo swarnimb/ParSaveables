@@ -133,7 +133,7 @@ function setupEventListeners() {
     // Admin button
     const adminBtn = document.getElementById('adminBtn');
     adminBtn.addEventListener('click', () => {
-        window.location.href = '/admin.html';
+        window.location.href = '/admin/';
     });
 
     // Make title clickable to return to landing page

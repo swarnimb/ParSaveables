@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParSaveables Admin</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen">
+        <div class="login-container">
+            <h1>ParSaveables Admin</h1>
+            <div class="login-form">
+                <input type="password" id="passwordInput" placeholder="Enter admin password" autocomplete="current-password">
+                <button id="loginBtn">Login</button>
+                <div id="loginError" class="error"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Admin Panel -->
+    <div id="adminPanel" class="screen hidden">
+        <!-- Header -->
+        <header class="admin-header">
+            <a href="/dashboard/" class="btn-back-arrow" aria-label="Back to Dashboard">←</a>
+            <h1 class="admin-title">
+                <span class="title-line-1">ParSaveables</span>
+                <span class="title-line-2">Admin</span>
+            </h1>
+            <button id="logoutBtn" class="btn-logout">Logout</button>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="admin-nav">
+            <button class="nav-tab active" data-section="players">Players</button>
+            <button class="nav-tab" data-section="courses">Courses</button>
+            <button class="nav-tab" data-section="events">Events</button>
+            <button class="nav-tab" data-section="points">Points Systems</button>
+        </nav>
+
+        <!-- Content Sections -->
+        <main class="admin-content">
+            <!-- Players Section -->
+            <section id="players-section" class="content-section active">
+                <div class="section-header">
+                    <h2>Registered Players</h2>
+                    <button class="btn-primary" id="addPlayerBtn">+ Add Player</button>
+                </div>
+                <div id="playersGrid" class="data-grid"></div>
+            </section>
+
+            <!-- Courses Section -->
+            <section id="courses-section" class="content-section">
+                <div class="section-header">
+                    <h2>Courses</h2>
+                    <button class="btn-primary" id="addCourseBtn">+ Add Course</button>
+                </div>
+                <div id="coursesGrid" class="data-grid"></div>
+            </section>
+
+            <!-- Events Section -->
+            <section id="events-section" class="content-section">
+                <div class="section-header">
+                    <h2>Events (Seasons & Tournaments)</h2>
+                    <button class="btn-primary" id="addEventBtn">+ Add Event</button>
+                </div>
+                <div id="eventsGrid" class="data-grid"></div>
+            </section>
+
+            <!-- Points Systems Section -->
+            <section id="points-section" class="content-section">
+                <div class="section-header">
+                    <h2>Points Systems</h2>
+                    <button class="btn-primary" id="addPointsBtn">+ Add Points System</button>
+                </div>
+                <div id="pointsGrid" class="data-grid"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal Container -->
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
