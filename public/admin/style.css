@@ -103,7 +103,7 @@ body::before {
     background: var(--color-bg-card);
     padding: var(--spacing-md);
     display: grid;
-    grid-template-columns: 40px 1fr 60px;
+    grid-template-columns: 40px 1fr auto;
     align-items: center;
     border-bottom: 2px solid var(--color-primary);
     gap: var(--spacing-sm);
@@ -247,6 +247,31 @@ button {
 
 .btn-danger:hover {
     background: #cc0000;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.btn-info {
+    background: transparent;
+    color: #2196f3;
+    border: 1px solid #2196f3;
+    padding: 6px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-info:hover {
+    background: rgba(33, 150, 243, 0.1);
+    transform: scale(1.05);
 }
 
 .btn-logout {

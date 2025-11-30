@@ -139,6 +139,37 @@ function closeModal() {
     document.getElementById('modal').classList.add('hidden');
 }
 
+function showInfoModal() {
+    const content = `
+        <div class="info-modal-content">
+            <p style="font-size: 14px; margin-bottom: 16px; color: #ff9800;">
+                ⚠️ <strong>All changes are saved directly to the production database and affect live data.</strong>
+            </p>
+
+            <h3 style="font-size: 13px; margin-bottom: 8px; color: #fff;">Key Warnings:</h3>
+            <ul style="font-size: 12px; line-height: 1.6; margin-bottom: 16px; padding-left: 20px;">
+                <li>No undo/audit trail - changes cannot be easily reverted</li>
+                <li>Editing courses affects historical round calculations</li>
+                <li>Modifying points systems retroactively changes all event scores</li>
+                <li>Player edits may affect scorecard name matching</li>
+                <li>Event changes impact round assignments</li>
+            </ul>
+
+            <h3 style="font-size: 13px; margin-bottom: 8px; color: #4caf50;">Recommended:</h3>
+            <ul style="font-size: 12px; line-height: 1.6; padding-left: 20px; list-style: none;">
+                <li>✓ Double-check all changes before saving</li>
+                <li>✓ Avoid deleting active courses or players</li>
+                <li>✓ Be cautious when editing points system configurations</li>
+                <li>✓ Test changes in off-hours if possible</li>
+            </ul>
+        </div>
+    `;
+    showModal('Admin Panel Usage Guidelines', content);
+}
+
+// Expose to window for onclick handler
+window.showInfoModal = showInfoModal;
+
 // ===================
 // PLAYERS MANAGEMENT
 // ===================
