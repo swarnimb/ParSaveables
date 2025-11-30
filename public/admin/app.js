@@ -691,11 +691,23 @@ function renderPointsSystems(systems) {
             }
         }
 
-        // Extract performance points
+        // Extract performance points and filter only allocated bonuses
         const perf = system.config?.performance_points || {};
-        const ace = perf.ace || 0;
-        const eagle = perf.eagle || 0;
-        const birdie = perf.birdie || 0;
+        const bonuses = [];
+        if (perf.ace && perf.ace > 0) bonuses.push(`Ace: ${perf.ace}`);
+        if (perf.eagle && perf.eagle > 0) bonuses.push(`Eagle: ${perf.eagle}`);
+        if (perf.birdie && perf.birdie > 0) bonuses.push(`Birdie: ${perf.birdie}`);
+        if (perf.most_birdies && perf.most_birdies > 0) bonuses.push(`Most Birdies: ${perf.most_birdies}`);
+        const bonusesDisplay = bonuses.length > 0 ? bonuses.join(', ') : 'None';
+
+        // Tie breaker order (from scoringService.js)
+        const tieBreakers = [
+            'Lower total score',
+            'More birdies',
+            'More pars',
+            'Earlier first birdie'
+        ];
+        const tieBreakerDisplay = tieBreakers.join(' → ');
 
         return `
         <div class="data-card">
@@ -712,9 +724,11 @@ function renderPointsSystems(systems) {
             </div>
             <div class="data-card-field">
                 <span class="field-label">Bonuses</span>
-                <span class="field-value">
-                    Ace: ${ace}, Eagle: ${eagle}, Birdie: ${birdie}
-                </span>
+                <span class="field-value">${bonusesDisplay}</span>
+            </div>
+            <div class="data-card-field">
+                <span class="field-label">Tie Breaker</span>
+                <span class="field-value" style="font-size: 12px;">${tieBreakerDisplay}</span>
             </div>
         </div>
     `}).join('');
