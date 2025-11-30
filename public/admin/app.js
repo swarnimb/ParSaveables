@@ -193,7 +193,6 @@ function renderPlayers(players) {
                             </td>
                             <td class="table-actions">
                                 <button class="btn-table-action" onclick="window.editPlayer(${player.id})" title="Edit">✏️</button>
-                                <button class="btn-table-action btn-delete" onclick="window.deletePlayerConfirm(${player.id})" title="Delete">🗑️</button>
                             </td>
                         </tr>
                     `).join('')}
@@ -348,7 +347,6 @@ function renderCourses(courses) {
                                     <td class="tier-course-name">${course.course_name}</td>
                                     <td class="tier-course-actions">
                                         <button class="btn-table-action" onclick="window.editCourse(${course.id})" title="Edit">✏️</button>
-                                        <button class="btn-table-action btn-delete" onclick="window.deleteCourseConfirm(${course.id})" title="Delete">🗑️</button>
                                     </td>
                                 </tr>
                             `).join('')}
@@ -511,7 +509,6 @@ function renderEvents(events) {
                 <div class="data-card-title">${event.name}</div>
                 <div class="data-card-actions">
                     <button class="btn-icon" onclick="window.editEvent(${event.id})" title="Edit">✏️</button>
-                    <button class="btn-icon" onclick="window.deleteEventConfirm(${event.id})" title="Delete">🗑️</button>
                 </div>
             </div>
             <div class="data-card-field">
@@ -723,7 +720,6 @@ function renderPointsSystems(systems) {
                 <div class="data-card-title">${system.name}</div>
                 <div class="data-card-actions">
                     <button class="btn-icon" onclick="window.editPointsSystem(${system.id})" title="Edit">✏️</button>
-                    <button class="btn-icon" onclick="window.deletePointsSystemConfirm(${system.id})" title="Delete">🗑️</button>
                 </div>
             </div>
             <div class="data-card-field">
