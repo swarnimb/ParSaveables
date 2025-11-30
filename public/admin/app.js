@@ -701,8 +701,8 @@ function renderPointsSystems(systems) {
         const bonusesDisplay = bonuses.length > 0 ? bonuses.join(', ') : 'None';
 
         // Tie breaker order (from scoringService.js)
+        // Only show actual tie-breaking criteria (score already tied)
         const tieBreakers = [
-            'Lower total score',
             'More birdies',
             'More pars',
             'Earlier first birdie'
