@@ -894,25 +894,35 @@ function showPointsModal(system = null) {
 function initTieBreakerDragDrop() {
     const list = document.getElementById('tieBreakerList');
     if (!list) {
-        console.error('Tie breaker list not found');
+        console.error('❌ Tie breaker list not found');
         return;
     }
 
     let draggedElement = null;
 
     const items = list.querySelectorAll('.tie-breaker-item');
-    console.log('Initializing drag-drop for', items.length, 'items');
+    console.log('🎯 Initializing drag-drop for', items.length, 'items');
+
+    // Check if items have draggable attribute
+    items.forEach((item, idx) => {
+        console.log(`Item ${idx}: draggable=${item.getAttribute('draggable')}, data-id=${item.dataset.id}`);
+    });
 
     items.forEach(item => {
+        // Ensure draggable is set
+        item.setAttribute('draggable', 'true');
+
         item.addEventListener('dragstart', (e) => {
+            console.log('🚀 Drag started:', item.dataset.id);
             draggedElement = item;
             item.classList.add('dragging');
             item.style.opacity = '0.4';
             e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/html', item.innerHTML);
+            e.dataTransfer.setData('text/plain', item.dataset.id);
         });
 
         item.addEventListener('dragend', (e) => {
+            console.log('🏁 Drag ended:', item.dataset.id);
             item.style.opacity = '1';
             item.classList.remove('dragging');
             draggedElement = null;
@@ -940,10 +950,11 @@ function initTieBreakerDragDrop() {
         item.addEventListener('drop', (e) => {
             e.preventDefault();
             e.stopPropagation();
+            console.log('📍 Drop event on:', item.dataset.id);
         });
     });
 
-    console.log('Drag-drop initialized successfully');
+    console.log('✅ Drag-drop initialized successfully');
 }
 
 async function savePointsSystem(id) {

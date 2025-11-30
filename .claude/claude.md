@@ -2,9 +2,9 @@
 
 **Quick Start:** Read `docs/SESSION-HANDOFF.md` for complete current state
 
-**Last Updated:** 2025-11-29
+**Last Updated:** 2025-01-30
 
-**Status:** ✅ Production Ready - Landing Page + Mobile Dashboard + Podcast Automation
+**Status:** ✅ Production Ready - Landing Page + Mobile Dashboard + Podcast Automation + Admin Panel
 
 ---
 
@@ -85,9 +85,22 @@ Before proposing file structure:
 - `docs/TESTING.md` - Testing procedures
 - `README.md` - Project overview
 
-## Recent Changes (Nov 29, 2025)
+## Recent Changes (Jan 30, 2025)
 
-**Automated Monthly Podcast System:**
+**Admin Panel Enhancements:**
+- Added info icon (ℹ️) next to logout button with safety guidelines modal
+- Info modal displays warnings about direct database changes, no undo, and best practices
+- Enhanced tie breaker drag-drop with debugging console logs and improved event handling
+- Added CSS properties for better drag support: `-webkit-user-drag`, `touch-action`
+- Fixed all 5 tie breaker options now showing (birdies, pars, eagles, aces, fastest birdie)
+- Migration 006: Added `most_birdies` bonus to Minneapolis 2024 points system
+- Player selection for events: Multi-select checkboxes for associating players with events
+- Removed all delete buttons from admin panel to prevent accidental data loss
+- Points system UI: Shows bonuses, tie breaker order, drag-to-reorder functionality
+- Course tier grouping: Collapsible sections (Easy, Moderate, Hard, Elite) with alignment fixes
+- Mobile-optimized: Compact spacing, icon-based actions, touch-friendly
+
+**Previous (Nov 29, 2025) - Automated Monthly Podcast System:**
 - Built complete automated podcast generation system for Feb 1, 2026 launch
 - Restructured podcast folder: Removed single-host (Dave), kept dialogue (Hyzer & Annie)
 - Created incremental data fetching: `fetchDataSinceLastEpisode()` - only NEW rounds

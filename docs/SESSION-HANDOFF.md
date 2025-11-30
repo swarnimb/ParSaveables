@@ -2,7 +2,7 @@
 
 **Quick Start for New Claude Code Sessions**
 
-Last Updated: 2025-11-30
+Last Updated: 2025-01-30
 
 ---
 
@@ -43,9 +43,27 @@ Last Updated: 2025-11-30
 4. 12-step workflow processes and stores data
 5. Dashboard auto-refreshes to show new data
 
-### Recent Changes (Nov 30, 2025)
+### Recent Changes (Jan 30, 2025)
 
-**Admin Panel - Complete Rebuild (COMPLETED):**
+**Admin Panel - Latest Enhancements (COMPLETED):**
+- ✅ Added info icon (ℹ️) next to logout button with safety guidelines modal
+- ✅ Info modal warns about: direct DB changes, no undo, retroactive effects
+- ✅ Enhanced tie breaker drag-drop with debug console logs
+- ✅ Added CSS for better drag: `-webkit-user-drag: element`, `touch-action: none`
+- ✅ Fixed all 5 tie breaker options showing (birdies, pars, eagles, aces, fastest birdie)
+- ✅ Migration 006: Added `most_birdies` bonus to Minneapolis 2024 points system
+- ✅ Player selection for events: Multi-select checkboxes
+- ✅ Removed ALL delete buttons to prevent accidental data loss
+- ✅ Points system displays: Bonuses (filtering zeros), tie breaker order
+- ✅ Course tier grouping: Collapsible sections with proper alignment
+- ✅ Icon buttons for edit actions (✏️) across all tabs
+
+**Latest Commits:**
+- Commit: `a198e78` - Info icon with safety guidelines
+- Commit: `5083ea8` - Drag-drop enhancements & player selection
+- Live at: https://par-saveables.vercel.app/admin/
+
+**Previous (Nov 30, 2025) - Admin Panel - Complete Rebuild:**
 - ✅ Built from scratch at `/public/admin/`
 - ✅ Modular architecture: 4 files (HTML/CSS/JS/Data)
 - ✅ Mobile-responsive with forest background theme matching dashboard
@@ -60,39 +78,34 @@ Last Updated: 2025-11-30
 - ✅ RLS policies enabled and 10 players populated
 
 **Admin Panel Features:**
-- **Players:** Compact table with #, Name, Status, ✏️ 🗑️ icons
-- **Courses:** Tier, multiplier, aliases display with card spacing
-- **Events:** Type (season/tournament), dates, points system selector
-- **Points Systems:** Rank points, bonuses (ace/eagle/birdie)
-- **Navigation:** Click ⚙️ on dashboard → Admin, ← arrow → Dashboard
+- **Players:** Compact table with #, Name, Status, ✏️ icons (no delete)
+- **Courses:** Tier grouping (Easy/Moderate/Hard/Elite), multiplier, aliases
+- **Events:** Type (season/tournament), dates, points system, player selection
+- **Points Systems:** Rank points, bonuses (ace/eagle/birdie/most birdies/fastest birdie), tie breaker order (drag-to-reorder)
+- **Navigation:** Click ⚙️ on dashboard → Admin, ← arrow → Dashboard, ℹ️ for guidelines
 
 **Mobile Optimizations:**
 - Reduced header/nav font sizes (15px/11px title, 12px tabs)
 - Compact table spacing (8px padding vs 16px)
-- Icon buttons (✏️ 🗑️) instead of "Edit"/"Delete" text
-- 70px actions column to fit both icons on mobile
+- Icon buttons (✏️) instead of "Edit" text
+- 80px actions column for info + logout buttons
 - 16px margin between card blocks
 - No horizontal scrolling on any screen size
 
 **Admin Panel Files:**
 ```
 /public/admin/
-├── index.html (95 lines) - Structure with login + 4 sections
-├── style.css (470+ lines) - Dark theme with forest background
+├── index.html (99 lines) - Structure with login + 4 sections + info icon
+├── style.css (775 lines) - Dark theme, tier tables, drag-drop styles
 ├── data.js (279 lines) - Supabase CRUD operations
-└── app.js (764 lines) - All application logic
+└── app.js (1014 lines) - All application logic + info modal + drag-drop
 ```
 
 **Database Setup Completed:**
 - ✅ RLS policies enabled on `registered_players` table (public CRUD access)
 - ✅ 10 players populated: Ace Brook, BigBirdie, Bird, Butter Cookie, Cobra, Fireball, Food Zaddy, Intern Line Cook, Jabba the Putt, Jaguar, Shogun
 - ✅ All CRUD operations tested and working
-
-**Deployment:**
-- Commit 1: `1839fcb` - Initial admin panel
-- Commit 2: `8d716fd` - Mobile UX fixes
-- Both pushed to `main` and auto-deployed to Vercel
-- Live at: https://par-saveables.vercel.app/admin/
+- ✅ Migration 006 applied: `most_birdies` bonus added to Minneapolis 2024
 
 ### Previous Changes (Nov 29, 2025)
 

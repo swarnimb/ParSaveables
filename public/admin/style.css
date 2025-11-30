@@ -738,6 +738,8 @@ input:focus, select:focus, textarea:focus {
     cursor: move;
     transition: var(--transition);
     user-select: none;
+    -webkit-user-drag: element;
+    touch-action: none;
 }
 
 .tie-breaker-item:last-child {
