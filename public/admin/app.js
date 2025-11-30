@@ -341,12 +341,12 @@ function renderCourses(courses) {
                     <span class="tier-toggle">▼</span>
                 </div>
                 <div class="tier-content">
-                    <table class="data-table">
+                    <table class="data-table tier-table">
                         <tbody>
                             ${tierGroup.courses.map(course => `
                                 <tr>
-                                    <td class="table-name">${course.course_name}</td>
-                                    <td class="table-actions">
+                                    <td class="tier-course-name">${course.course_name}</td>
+                                    <td class="tier-course-actions">
                                         <button class="btn-table-action" onclick="window.editCourse(${course.id})" title="Edit">✏️</button>
                                         <button class="btn-table-action btn-delete" onclick="window.deleteCourseConfirm(${course.id})" title="Delete">🗑️</button>
                                     </td>
@@ -510,8 +510,8 @@ function renderEvents(events) {
             <div class="data-card-header">
                 <div class="data-card-title">${event.name}</div>
                 <div class="data-card-actions">
-                    <button class="btn-icon" onclick="window.editEvent(${event.id})">Edit</button>
-                    <button class="btn-icon" onclick="window.deleteEventConfirm(${event.id})">Delete</button>
+                    <button class="btn-icon" onclick="window.editEvent(${event.id})" title="Edit">✏️</button>
+                    <button class="btn-icon" onclick="window.deleteEventConfirm(${event.id})" title="Delete">🗑️</button>
                 </div>
             </div>
             <div class="data-card-field">
@@ -722,8 +722,8 @@ function renderPointsSystems(systems) {
             <div class="data-card-header">
                 <div class="data-card-title">${system.name}</div>
                 <div class="data-card-actions">
-                    <button class="btn-icon" onclick="window.editPointsSystem(${system.id})">Edit</button>
-                    <button class="btn-icon" onclick="window.deletePointsSystemConfirm(${system.id})">Delete</button>
+                    <button class="btn-icon" onclick="window.editPointsSystem(${system.id})" title="Edit">✏️</button>
+                    <button class="btn-icon" onclick="window.deletePointsSystemConfirm(${system.id})" title="Delete">🗑️</button>
                 </div>
             </div>
             <div class="data-card-field">

@@ -652,6 +652,23 @@ input:focus, select:focus, textarea:focus {
     padding-bottom: var(--spacing-sm);
 }
 
+/* Tier table specific styles for proper alignment */
+.tier-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.tier-course-name {
+    width: calc(100% - 80px);
+    padding-left: var(--spacing-md) !important;
+}
+
+.tier-course-actions {
+    width: 80px;
+    text-align: right;
+    padding-right: var(--spacing-md) !important;
+}
+
 /* Empty State */
 .empty-state {
     text-align: center;
