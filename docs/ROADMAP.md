@@ -9,8 +9,8 @@ This document tracks upcoming features and improvements for the ParSaveables sys
 Major features to be built that will add new functionality to the system.
 
 ### 1. Chatbot Enhancement
-**Priority:** High
-**Status:** Needs Work
+**Priority:** Low
+**Status:** Deferred
 **Description:** Improve the chatbot component with better AI responses, more comprehensive queries, and enhanced UI/UX.
 
 **Current Issues:**
@@ -25,11 +25,13 @@ Major features to be built that will add new functionality to the system.
 - Add visualization support (charts in responses)
 - Better error handling and fallback responses
 
+**Note:** User decided to defer this feature to focus on admin panel and other priorities.
+
 ---
 
 ### 2. Dashboard & Admin UI Overhaul
 **Priority:** High
-**Status:** ✅ Mobile Dashboard Complete (Nov 25, 2025) | Admin Panel TODO
+**Status:** ✅ Complete (Nov 21, 2025 - Jan 30, 2025)
 **Description:** Completely redesign dashboard and admin panel for better UX, modularity, and maintainability.
 
 **✅ Completed - Mobile Dashboard (Nov 21-25, 2025):**
@@ -57,16 +59,21 @@ Major features to be built that will add new functionality to the system.
   - ⏳ Podcast: TODO (placeholder exists)
 - Total: ~2,500+ lines across 5 files
 
-**TODO - Podcast Tab:**
-- Currently shows placeholder UI
-- Needs integration with podcast generation system
-- Episode list, player, show notes
-- See "Podcast Feature Refinement" section
+**✅ Completed - Admin Panel (Nov 30, 2025 - Jan 30, 2025):**
+- Built new admin panel at `/public/admin/`
+- 4 modular files: index.html, style.css, app.js, data.js
+- Mobile-responsive with forest background theme
+- Password authentication and safety guidelines
+- Players, Courses, Events, Points Systems tabs
+- No delete buttons for safety
+- ~1,200 lines total (cleaner than old 1,500-line monolith)
+- See section 4 for complete details
 
-**TODO - Admin Panel:**
-- Admin panel still uses old monolithic structure (~1,500 lines)
-- Apply same modular architecture as new dashboard
-- Improve mobile responsiveness for admin functions
+**✅ Completed - Podcast Tab (Jan 30, 2025):**
+- Episode 1 published and live on dashboard
+- ElevenLabs voice integration
+- Full audio playback controls
+- See section 3 for complete details
 
 ---
 
@@ -96,8 +103,8 @@ Major features to be built that will add new functionality to the system.
 ---
 
 ### 3. Podcast Feature Refinement
-**Priority:** High (Next Up - Phase 2)
-**Status:** ✅ Phase 1 Complete (Nov 25, 2025) | Phase 2 TODO
+**Priority:** High
+**Status:** ✅ Phase 1 & 2 Complete (Jan 30, 2025) | Phase 3 TODO
 **Description:** Automated podcast generation system with mobile dashboard integration.
 
 **✅ Completed - Phase 1 (Dashboard UI + Infrastructure):**
@@ -115,60 +122,69 @@ Major features to be built that will add new functionality to the system.
 - 220+ lines of podcast-specific CSS styling
 - Fixed RLS policy issues and API import errors
 
-**⏳ TODO - Phase 2 (Audio Generation):**
-- Integrate `/podcast/lib/script-generator.js` (Claude AI)
-- Integrate `/podcast/lib/audio-generator.js` (Google TTS)
-- Upload audio files (GitHub Releases or Vercel Blob)
-- Update episode.audio_url with public URL
-- Add Vercel cron job for monthly automation (Feb 1, 2026)
-- Test end-to-end Episode #1 with audio playback
+**✅ Completed - Phase 2 (Audio Generation & Publishing):**
+- **Episode 1 Published:** "The Ruckus Until Now" (23:59 duration)
+- Integrated ElevenLabs voices (George and Chris from UK library)
+- Custom intro/outro music ("Forest Frolic")
+- Supabase Storage hosting for audio files
+- Inline player with full playback controls on dashboard
+- Podcast tab now displays published episodes
+- Full end-to-end workflow validated
 
 **⏳ TODO - Phase 3 (Enhancements):**
 - RSS feed for podcast apps
 - Better episode metadata (show notes, timestamps)
 - Archive old episodes (auto-delete after 1 year)
 - Event-specific episode generation (tournament specials)
+- Automated monthly generation (cron job for Feb 1, 2026)
 
 ---
 
 ### 4. Admin Panel Overhaul
-**Priority:** High (Next Up After Podcast)
-**Status:** Not Started
+**Priority:** High
+**Status:** ✅ Complete (Nov 30, 2025 - Jan 30, 2025)
 **Description:** Modernize admin panel with modular architecture and improved UX.
 
-**Current State:**
-- `public/admin.html` (~1,500 lines monolithic file)
-- Basic functionality works but hard to maintain
-- Not mobile-responsive
-
-**TODO - Architecture:**
-- Split into modular files (like mobile dashboard)
-- admin/index.html, admin/style.css, admin/app.js, admin/components.js
+**✅ Completed - Architecture:**
+- Built new admin panel at `/public/admin/`
+- 4 modular files: index.html, style.css, app.js, data.js
 - ES6 modules for better organization
-- Mobile-responsive design
+- Mobile-responsive design with forest background theme
+- Password authentication system
+- Info icon (ℹ️) with safety guidelines
 
-**TODO - Features:**
-- **Registered Players Management:**
-  - Add "Registered Players" tab
-  - Create, read, update, delete player records
-  - Mark players as active/inactive
-  - Bulk import from CSV
-- **Event Management Improvements:**
-  - Better player selection UI for events
-  - Copy event functionality (duplicate season/tournament)
-  - Bulk edit capabilities
-- **Course Management:**
-  - Add/edit courses with tier/multiplier
-  - Add course aliases
-  - View course usage statistics
-- **Points System Editor:**
-  - Visual editor for JSONB config
-  - Template library for common configurations
-  - Preview points calculation
+**✅ Completed - Features:**
+- **Players Tab:**
+  - View all registered players
+  - Add new players (with safety confirmation)
+  - Player name validation
+  - No delete buttons (safety feature)
+- **Courses Tab:**
+  - View all courses with tier grouping (Easy/Moderate/Hard/Elite)
+  - Add new courses with tier selection (1.0x, 1.5x, 2.0x, 2.5x)
+  - Course name validation
+  - No delete buttons (safety feature)
+- **Events Tab:**
+  - View seasons and tournaments separately
+  - Add new events (Season or Tournament type)
+  - Player selection with multi-select checkboxes
+  - Event name, type, start/end dates
+  - No delete buttons (safety feature)
+- **Points Systems Tab:**
+  - View existing point systems
+  - Add new points system configuration
+  - JSONB config editor for points allocation, tie breakers, multipliers
+  - Arrow buttons for tie breaker reordering (↑↓ replaced drag-drop)
+  - Bonus types: most_birdies (added in migration 006)
 
-**Database:**
-- Table: `registered_players`
-- Columns: `id`, `player_name`, `active`, `created_at`
+**✅ Database Changes:**
+- Migration 006: Added `most_birdies` bonus type to points_systems table
+
+**✅ Code Quality:**
+- Removed all delete buttons for safety
+- Added safety confirmation dialogs for all modifications
+- Clean separation of concerns (data.js handles all DB operations)
+- ~1,200 lines total (much cleaner than old 1,500-line monolith)
 
 ---
 
@@ -287,6 +303,22 @@ When you identify a new feature or improvement:
 
 ## Completed Features
 
+### Code Quality Improvements (Jan 30, 2025)
+**Description:** Major codebase cleanup and documentation updates.
+- Removed 112,000+ lines of temporary files and build artifacts
+- Cleaned up debug logs and console statements
+- Updated all documentation to reflect current state
+- Removed outdated files (old admin.html, old index.html)
+- Improved SESSION-HANDOFF.md with complete system context
+- **Result:** Cleaner repository, better maintainability
+
+### Old File Cleanup (Jan 30, 2025)
+**Description:** Removed deprecated admin and dashboard files.
+- Deleted `/public/admin.html` (old monolithic admin, replaced by `/public/admin/`)
+- Deleted `/public/index.html` (old dashboard, replaced by `/public/dashboard/`)
+- Updated documentation references to point to new locations
+- **Result:** Eliminated confusion between old and new implementations
+
 ### Code Cleanup & Optimization (Nov 25, 2025)
 **Description:** Comprehensive code review and cleanup following architecture principles.
 - **High Priority Fixes:**
@@ -351,4 +383,4 @@ When you identify a new feature or improvement:
 
 ---
 
-**Last Updated:** 2025-11-25
+**Last Updated:** 2025-01-30
