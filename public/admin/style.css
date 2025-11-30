@@ -645,11 +645,11 @@ input:focus, select:focus, textarea:focus {
 }
 
 .tier-content .data-table tbody tr:first-child td {
-    padding-top: var(--spacing-md);
+    padding-top: var(--spacing-sm);
 }
 
 .tier-content .data-table tbody tr:last-child td {
-    padding-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
 }
 
 /* Empty State */
