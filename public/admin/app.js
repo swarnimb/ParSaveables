@@ -378,18 +378,28 @@ function showCourseModal(course = null) {
     const isEdit = !!course;
     const title = isEdit ? 'Edit Course' : 'Add Course';
 
+    // Determine current difficulty based on tier/multiplier
+    let currentDifficulty = '2'; // Default to Moderate
+    if (course) {
+        if (course.tier === 1 || course.multiplier === 1.0) currentDifficulty = '1';
+        else if (course.tier === 2 || course.multiplier === 1.5) currentDifficulty = '2';
+        else if (course.tier === 3 || course.multiplier === 2.0) currentDifficulty = '3';
+        else if (course.tier === 4 || course.multiplier === 2.5) currentDifficulty = '4';
+    }
+
     const content = `
         <div class="form-group">
             <label>Course Name</label>
             <input type="text" id="courseName" value="${course?.course_name || ''}" placeholder="Enter course name">
         </div>
         <div class="form-group">
-            <label>Tier (1-4)</label>
-            <input type="number" id="courseTier" value="${course?.tier || 2}" min="1" max="4">
-        </div>
-        <div class="form-group">
-            <label>Multiplier</label>
-            <input type="number" id="courseMultiplier" value="${course?.multiplier || 1.0}" step="0.5" min="0.5">
+            <label>Difficulty</label>
+            <select id="courseDifficulty">
+                <option value="1" ${currentDifficulty === '1' ? 'selected' : ''}>Easy (1x)</option>
+                <option value="2" ${currentDifficulty === '2' ? 'selected' : ''}>Moderate (1.5x)</option>
+                <option value="3" ${currentDifficulty === '3' ? 'selected' : ''}>Hard (2x)</option>
+                <option value="4" ${currentDifficulty === '4' ? 'selected' : ''}>Elite (2.5x)</option>
+            </select>
         </div>
         <div class="form-actions">
             <button class="btn-secondary" onclick="window.closeModal()">Cancel</button>
@@ -402,8 +412,17 @@ function showCourseModal(course = null) {
 
 async function saveCourse(id) {
     const name = document.getElementById('courseName').value.trim();
-    const tier = parseInt(document.getElementById('courseTier').value);
-    const multiplier = parseFloat(document.getElementById('courseMultiplier').value);
+    const difficulty = parseInt(document.getElementById('courseDifficulty').value);
+
+    // Map difficulty to tier and multiplier
+    const difficultyMap = {
+        1: { tier: 1, multiplier: 1.0 },   // Easy
+        2: { tier: 2, multiplier: 1.5 },   // Moderate
+        3: { tier: 3, multiplier: 2.0 },   // Hard
+        4: { tier: 4, multiplier: 2.5 }    // Elite
+    };
+
+    const { tier, multiplier } = difficultyMap[difficulty];
 
     if (!name) {
         Data.showError('Course name is required');
