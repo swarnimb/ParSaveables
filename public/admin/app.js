@@ -6,7 +6,7 @@
 import * as Data from './data.js';
 
 // Simple auth (password check)
-const ADMIN_PASSWORD = 'parsaveables2025';
+const ADMIN_PASSWORD = 'admin';
 let isAuthenticated = false;
 
 // ===================
