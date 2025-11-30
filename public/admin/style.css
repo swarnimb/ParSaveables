@@ -669,6 +669,15 @@ input:focus, select:focus, textarea:focus {
     padding-right: var(--spacing-md) !important;
 }
 
+.tier-course-actions .btn-table-action {
+    display: inline-flex;
+    margin-left: var(--spacing-xs);
+}
+
+.tier-course-actions .btn-table-action:first-child {
+    margin-left: 0;
+}
+
 /* Empty State */
 .empty-state {
     text-align: center;

@@ -839,23 +839,35 @@ function showPointsModal(system = null) {
 
 function initTieBreakerDragDrop() {
     const list = document.getElementById('tieBreakerList');
-    if (!list) return;
+    if (!list) {
+        console.error('Tie breaker list not found');
+        return;
+    }
 
     let draggedElement = null;
 
-    list.querySelectorAll('.tie-breaker-item').forEach(item => {
+    const items = list.querySelectorAll('.tie-breaker-item');
+    console.log('Initializing drag-drop for', items.length, 'items');
+
+    items.forEach(item => {
         item.addEventListener('dragstart', (e) => {
             draggedElement = item;
+            item.classList.add('dragging');
             item.style.opacity = '0.4';
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', item.innerHTML);
         });
 
         item.addEventListener('dragend', (e) => {
             item.style.opacity = '1';
+            item.classList.remove('dragging');
             draggedElement = null;
         });
 
         item.addEventListener('dragover', (e) => {
             e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+
             if (draggedElement && draggedElement !== item) {
                 const rect = item.getBoundingClientRect();
                 const midpoint = rect.top + rect.height / 2;
@@ -866,7 +878,18 @@ function initTieBreakerDragDrop() {
                 }
             }
         });
+
+        item.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+        });
+
+        item.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
     });
+
+    console.log('Drag-drop initialized successfully');
 }
 
 async function savePointsSystem(id) {
