@@ -698,16 +698,24 @@ function renderPointsSystems(systems) {
         if (perf.eagle && perf.eagle > 0) bonuses.push(`Eagle: ${perf.eagle}`);
         if (perf.birdie && perf.birdie > 0) bonuses.push(`Birdie: ${perf.birdie}`);
         if (perf.most_birdies && perf.most_birdies > 0) bonuses.push(`Most Birdies: ${perf.most_birdies}`);
+        if (perf.fastest_birdie && perf.fastest_birdie > 0) bonuses.push(`Fastest Birdie: ${perf.fastest_birdie}`);
         const bonusesDisplay = bonuses.length > 0 ? bonuses.join(', ') : 'None';
 
-        // Tie breaker order (from scoringService.js)
-        // Only show actual tie-breaking criteria (score already tied)
-        const tieBreakers = [
-            'More birdies',
-            'More pars',
-            'Earlier first birdie'
-        ];
-        const tieBreakerDisplay = tieBreakers.join(' → ');
+        // Tie breaker order from config or use default
+        const tieBreaking = system.config?.tie_breaking || {};
+        const tieBreakerOrder = tieBreaking.order || ['birdies', 'pars', 'fastest_birdie'];
+
+        const tieBreakerLabels = {
+            'birdies': 'More birdies',
+            'pars': 'More pars',
+            'eagles': 'More eagles',
+            'aces': 'More aces',
+            'fastest_birdie': 'Fastest birdie'
+        };
+
+        const tieBreakerDisplay = tieBreakerOrder
+            .map(id => tieBreakerLabels[id] || id)
+            .join(' → ');
 
         return `
         <div class="data-card">
@@ -738,12 +746,33 @@ function showPointsModal(system = null) {
     const isEdit = !!system;
     const title = isEdit ? 'Edit Points System' : 'Add Points System';
 
-    const config = system?.config || {
-        rankPoints: [10, 8, 6, 4, 2, 1],
-        aceBonus: 5,
-        eagleBonus: 3,
-        birdieBonus: 1
-    };
+    // Extract config from database structure
+    const perf = system?.config?.performance_points || {};
+    const rankPointsObj = system?.config?.rank_points || {};
+    const tieBreaking = system?.config?.tie_breaking || {};
+
+    // Convert rank_points object to array for display
+    let rankPointsArray = [10, 8, 6, 4, 2, 1]; // Default
+    if (Object.keys(rankPointsObj).length > 0) {
+        rankPointsArray = Object.entries(rankPointsObj)
+            .filter(([key]) => key !== 'default')
+            .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
+            .map(([_, value]) => value);
+    }
+
+    // Get tie breaker order or use default
+    const defaultTieBreakers = [
+        { id: 'birdies', label: 'More birdies' },
+        { id: 'pars', label: 'More pars' },
+        { id: 'eagles', label: 'More eagles' },
+        { id: 'aces', label: 'More aces' },
+        { id: 'fastest_birdie', label: 'Fastest birdie' }
+    ];
+
+    const tieBreakerOrder = tieBreaking.order || ['birdies', 'pars', 'fastest_birdie'];
+    const orderedTieBreakers = tieBreakerOrder.map(id =>
+        defaultTieBreakers.find(tb => tb.id === id) || { id, label: id }
+    );
 
     const content = `
         <div class="form-group">
@@ -752,19 +781,38 @@ function showPointsModal(system = null) {
         </div>
         <div class="form-group">
             <label>Rank Points (comma-separated)</label>
-            <input type="text" id="pointsRankPoints" value="${config.rankPoints.join(', ')}" placeholder="10, 8, 6, 4, 2, 1">
+            <input type="text" id="pointsRankPoints" value="${rankPointsArray.join(', ')}" placeholder="10, 8, 6, 4, 2, 1">
         </div>
         <div class="form-group">
             <label>Ace Bonus</label>
-            <input type="number" id="pointsAceBonus" value="${config.aceBonus}" min="0">
+            <input type="number" id="pointsAceBonus" value="${perf.ace || 0}" min="0">
         </div>
         <div class="form-group">
             <label>Eagle Bonus</label>
-            <input type="number" id="pointsEagleBonus" value="${config.eagleBonus}" min="0">
+            <input type="number" id="pointsEagleBonus" value="${perf.eagle || 0}" min="0">
         </div>
         <div class="form-group">
             <label>Birdie Bonus</label>
-            <input type="number" id="pointsBirdieBonus" value="${config.birdieBonus}" min="0">
+            <input type="number" id="pointsBirdieBonus" value="${perf.birdie || 0}" min="0">
+        </div>
+        <div class="form-group">
+            <label>Most Birdies Bonus</label>
+            <input type="number" id="pointsMostBirdies" value="${perf.most_birdies || 0}" min="0">
+        </div>
+        <div class="form-group">
+            <label>Fastest Birdie Bonus</label>
+            <input type="number" id="pointsFastestBirdie" value="${perf.fastest_birdie || 0}" min="0">
+        </div>
+        <div class="form-group">
+            <label>Tie Breaker Order <span style="font-size: 11px; color: var(--color-text-secondary);">(drag to reorder)</span></label>
+            <ul id="tieBreakerList" class="tie-breaker-list">
+                ${orderedTieBreakers.map((tb, index) => `
+                    <li class="tie-breaker-item" draggable="true" data-id="${tb.id}">
+                        <span class="tie-breaker-handle">☰</span>
+                        <span class="tie-breaker-label">${tb.label}</span>
+                    </li>
+                `).join('')}
+            </ul>
         </div>
         <div class="form-actions">
             <button class="btn-secondary" onclick="window.closeModal()">Cancel</button>
@@ -773,27 +821,86 @@ function showPointsModal(system = null) {
     `;
 
     showModal(title, content);
+
+    // Initialize drag and drop after modal is shown
+    setTimeout(() => initTieBreakerDragDrop(), 100);
+}
+
+function initTieBreakerDragDrop() {
+    const list = document.getElementById('tieBreakerList');
+    if (!list) return;
+
+    let draggedElement = null;
+
+    list.querySelectorAll('.tie-breaker-item').forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+            draggedElement = item;
+            item.style.opacity = '0.4';
+        });
+
+        item.addEventListener('dragend', (e) => {
+            item.style.opacity = '1';
+            draggedElement = null;
+        });
+
+        item.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            if (draggedElement && draggedElement !== item) {
+                const rect = item.getBoundingClientRect();
+                const midpoint = rect.top + rect.height / 2;
+                if (e.clientY < midpoint) {
+                    list.insertBefore(draggedElement, item);
+                } else {
+                    list.insertBefore(draggedElement, item.nextSibling);
+                }
+            }
+        });
+    });
 }
 
 async function savePointsSystem(id) {
     const name = document.getElementById('pointsName').value.trim();
     const rankPointsStr = document.getElementById('pointsRankPoints').value;
-    const aceBonus = parseInt(document.getElementById('pointsAceBonus').value);
-    const eagleBonus = parseInt(document.getElementById('pointsEagleBonus').value);
-    const birdieBonus = parseInt(document.getElementById('pointsBirdieBonus').value);
+    const aceBonus = parseInt(document.getElementById('pointsAceBonus').value) || 0;
+    const eagleBonus = parseInt(document.getElementById('pointsEagleBonus').value) || 0;
+    const birdieBonus = parseInt(document.getElementById('pointsBirdieBonus').value) || 0;
+    const mostBirdies = parseInt(document.getElementById('pointsMostBirdies').value) || 0;
+    const fastestBirdie = parseInt(document.getElementById('pointsFastestBirdie').value) || 0;
 
     if (!name) {
         Data.showError('System name is required');
         return;
     }
 
-    const rankPoints = rankPointsStr.split(',').map(p => parseInt(p.trim())).filter(p => !isNaN(p));
+    // Parse rank points
+    const rankPointsArray = rankPointsStr.split(',').map(p => parseInt(p.trim())).filter(p => !isNaN(p));
+    const rankPoints = {};
+    rankPointsArray.forEach((points, index) => {
+        rankPoints[index + 1] = points;
+    });
+    rankPoints.default = 0;
 
+    // Get tie breaker order from drag-drop list
+    const tieBreakerItems = document.querySelectorAll('.tie-breaker-item');
+    const tieBreakerOrder = Array.from(tieBreakerItems).map(item => item.dataset.id);
+
+    // Build config object matching database structure
     const config = {
-        rankPoints,
-        aceBonus,
-        eagleBonus,
-        birdieBonus
+        rank_points: rankPoints,
+        performance_points: {
+            ace: aceBonus,
+            eagle: eagleBonus,
+            birdie: birdieBonus,
+            most_birdies: mostBirdies,
+            fastest_birdie: fastestBirdie
+        },
+        tie_breaking: {
+            enabled: true,
+            order: tieBreakerOrder
+        },
+        course_multiplier: {
+            enabled: true
+        }
     };
 
     try {
