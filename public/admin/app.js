@@ -529,10 +529,16 @@ function renderEvents(events) {
     `).join('');
 }
 
-function showEventModal(event = null) {
-    Data.getPointsSystems().then(pointsSystems => {
+async function showEventModal(event = null) {
+    try {
+        const [pointsSystems, players] = await Promise.all([
+            Data.getPointsSystems(),
+            Data.getPlayers()
+        ]);
+
         const isEdit = !!event;
         const title = isEdit ? 'Edit Event' : 'Add Event';
+        const selectedPlayers = event?.players || [];
 
         const content = `
             <div class="form-group">
@@ -566,6 +572,21 @@ function showEventModal(event = null) {
                     <option value="CREATE_NEW" style="color: var(--color-primary); font-weight: bold;">+ Create New Points System</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label>Players <span style="font-size: 11px; color: var(--color-text-secondary);">(select multiple)</span></label>
+                <div id="eventPlayers" class="player-checkboxes">
+                    ${players.map(player => `
+                        <label class="player-checkbox-item">
+                            <input
+                                type="checkbox"
+                                value="${player.id}"
+                                ${selectedPlayers.includes(player.id) ? 'checked' : ''}
+                            >
+                            <span>${player.player_name}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            </div>
             <div class="form-actions">
                 <button class="btn-secondary" onclick="window.closeModal()">Cancel</button>
                 <button class="btn-primary" onclick="window.saveEvent(${event?.id || null})">Save</button>
@@ -573,7 +594,9 @@ function showEventModal(event = null) {
         `;
 
         showModal(title, content);
-    });
+    } catch (error) {
+        Data.showError('Failed to load event data: ' + error.message);
+    }
 }
 
 function handlePointsSystemChange(value) {
@@ -591,14 +614,18 @@ async function saveEvent(id) {
     const end_date = document.getElementById('eventEndDate').value;
     const points_system_id = parseInt(document.getElementById('eventPointsSystem').value);
 
+    // Get selected players from checkboxes
+    const playerCheckboxes = document.querySelectorAll('#eventPlayers input[type="checkbox"]:checked');
+    const players = Array.from(playerCheckboxes).map(cb => parseInt(cb.value));
+
     if (!name || !start_date || !end_date || !points_system_id) {
-        Data.showError('All fields are required');
+        Data.showError('Event name, dates, and points system are required');
         return;
     }
 
     try {
         Data.showLoading();
-        const eventData = { name, type, start_date, end_date, points_system_id };
+        const eventData = { name, type, start_date, end_date, points_system_id, players };
 
         if (id) {
             await Data.updateEvent(id, eventData);
