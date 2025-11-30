@@ -769,10 +769,16 @@ function showPointsModal(system = null) {
         { id: 'fastest_birdie', label: 'Fastest birdie' }
     ];
 
-    const tieBreakerOrder = tieBreaking.order || ['birdies', 'pars', 'fastest_birdie'];
-    const orderedTieBreakers = tieBreakerOrder.map(id =>
-        defaultTieBreakers.find(tb => tb.id === id) || { id, label: id }
-    );
+    // If there's a saved order, use it; otherwise show all options
+    let orderedTieBreakers;
+    if (tieBreaking.order && tieBreaking.order.length > 0) {
+        orderedTieBreakers = tieBreaking.order.map(id =>
+            defaultTieBreakers.find(tb => tb.id === id) || { id, label: id }
+        );
+    } else {
+        // Show all options in default order for new systems
+        orderedTieBreakers = defaultTieBreakers;
+    }
 
     const content = `
         <div class="form-group">
@@ -823,7 +829,12 @@ function showPointsModal(system = null) {
     showModal(title, content);
 
     // Initialize drag and drop after modal is shown
-    setTimeout(() => initTieBreakerDragDrop(), 100);
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            initTieBreakerDragDrop();
+        });
+    });
 }
 
 function initTieBreakerDragDrop() {
