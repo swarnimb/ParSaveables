@@ -56,14 +56,23 @@ Last Updated: 2025-11-30
 - ✅ Complete CRUD operations for all entities
 - ✅ Navigation: Dashboard ↔ Admin with back arrow
 - ✅ "Create New Points System" option in Events modal
-- ⚠️ **IMPORTANT:** RLS policies on `registered_players` table need to be enabled
+- ✅ Mobile UX optimizations (compact spacing, icon buttons)
+- ✅ RLS policies enabled and 10 players populated
 
 **Admin Panel Features:**
-- **Players:** Table view with #, Name, Status, Edit, Delete
-- **Courses:** Tier, multiplier, aliases display
+- **Players:** Compact table with #, Name, Status, ✏️ 🗑️ icons
+- **Courses:** Tier, multiplier, aliases display with card spacing
 - **Events:** Type (season/tournament), dates, points system selector
 - **Points Systems:** Rank points, bonuses (ace/eagle/birdie)
 - **Navigation:** Click ⚙️ on dashboard → Admin, ← arrow → Dashboard
+
+**Mobile Optimizations:**
+- Reduced header/nav font sizes (15px/11px title, 12px tabs)
+- Compact table spacing (8px padding vs 16px)
+- Icon buttons (✏️ 🗑️) instead of "Edit"/"Delete" text
+- 70px actions column to fit both icons on mobile
+- 16px margin between card blocks
+- No horizontal scrolling on any screen size
 
 **Admin Panel Files:**
 ```
@@ -74,34 +83,16 @@ Last Updated: 2025-11-30
 └── app.js (764 lines) - All application logic
 ```
 
-**Supabase Configuration Issue:**
-- `registered_players` table has RLS policies blocking public access
-- Table is empty (needs to be populated from events data)
-- 10 unique players found in events: Ace Brook, BigBirdie, Bird, Butter Cookie, Cobra, Fireball, Intern Line Cook, Jabba the Putt, Jaguar, Shogun
+**Database Setup Completed:**
+- ✅ RLS policies enabled on `registered_players` table (public CRUD access)
+- ✅ 10 players populated: Ace Brook, BigBirdie, Bird, Butter Cookie, Cobra, Fireball, Food Zaddy, Intern Line Cook, Jabba the Putt, Jaguar, Shogun
+- ✅ All CRUD operations tested and working
 
-**Next Session Action Items:**
-1. Fix RLS policies on `registered_players` table (see SQL below)
-2. Populate registered_players from events data
-3. Test all CRUD operations end-to-end
-
-**SQL to Fix RLS (run in Supabase SQL Editor):**
-```sql
--- Allow public read access
-CREATE POLICY "Allow public read access" ON registered_players
-FOR SELECT USING (true);
-
--- Allow public insert access
-CREATE POLICY "Allow public insert access" ON registered_players
-FOR INSERT WITH CHECK (true);
-
--- Allow public update access
-CREATE POLICY "Allow public update access" ON registered_players
-FOR UPDATE USING (true);
-
--- Allow public delete access
-CREATE POLICY "Allow public delete access" ON registered_players
-FOR DELETE USING (true);
-```
+**Deployment:**
+- Commit 1: `1839fcb` - Initial admin panel
+- Commit 2: `8d716fd` - Mobile UX fixes
+- Both pushed to `main` and auto-deployed to Vercel
+- Live at: https://par-saveables.vercel.app/admin/
 
 ### Previous Changes (Nov 29, 2025)
 
