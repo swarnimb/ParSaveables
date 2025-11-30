@@ -864,12 +864,15 @@ function showPointsModal(system = null) {
             <input type="number" id="pointsFastestBirdie" value="${perf.fastest_birdie || 0}" min="0">
         </div>
         <div class="form-group">
-            <label>Tie Breaker Order <span style="font-size: 11px; color: var(--color-text-secondary);">(drag to reorder)</span></label>
+            <label>Tie Breaker Order <span style="font-size: 11px; color: var(--color-text-secondary);">(use arrows to reorder)</span></label>
             <ul id="tieBreakerList" class="tie-breaker-list">
                 ${orderedTieBreakers.map((tb, index) => `
-                    <li class="tie-breaker-item" draggable="true" data-id="${tb.id}">
-                        <span class="tie-breaker-handle">☰</span>
+                    <li class="tie-breaker-item" data-id="${tb.id}">
                         <span class="tie-breaker-label">${tb.label}</span>
+                        <div class="tie-breaker-arrows">
+                            <button type="button" class="arrow-btn arrow-up" onclick="window.moveTieBreakerUp(this)" ${index === 0 ? 'disabled' : ''}>▲</button>
+                            <button type="button" class="arrow-btn arrow-down" onclick="window.moveTieBreakerDown(this)" ${index === orderedTieBreakers.length - 1 ? 'disabled' : ''}>▼</button>
+                        </div>
                     </li>
                 `).join('')}
             </ul>
@@ -881,17 +884,47 @@ function showPointsModal(system = null) {
     `;
 
     showModal(title, content);
+}
 
-    // Initialize drag and drop after modal is shown
-    // Use requestAnimationFrame to ensure DOM is ready
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            initTieBreakerDragDrop();
-        });
+function moveTieBreakerUp(button) {
+    const item = button.closest('.tie-breaker-item');
+    const prev = item.previousElementSibling;
+
+    if (prev) {
+        item.parentNode.insertBefore(item, prev);
+        updateTieBreakerArrows();
+    }
+}
+
+function moveTieBreakerDown(button) {
+    const item = button.closest('.tie-breaker-item');
+    const next = item.nextElementSibling;
+
+    if (next) {
+        item.parentNode.insertBefore(next, item);
+        updateTieBreakerArrows();
+    }
+}
+
+function updateTieBreakerArrows() {
+    const items = document.querySelectorAll('.tie-breaker-item');
+    items.forEach((item, index) => {
+        const upBtn = item.querySelector('.arrow-up');
+        const downBtn = item.querySelector('.arrow-down');
+
+        // Disable up arrow on first item
+        upBtn.disabled = (index === 0);
+
+        // Disable down arrow on last item
+        downBtn.disabled = (index === items.length - 1);
     });
 }
 
-function initTieBreakerDragDrop() {
+// Expose functions to window for onclick handlers
+window.moveTieBreakerUp = moveTieBreakerUp;
+window.moveTieBreakerDown = moveTieBreakerDown;
+
+function initTieBreakerDragDrop_OLD() {
     const list = document.getElementById('tieBreakerList');
     if (!list) {
         console.error('❌ Tie breaker list not found');
