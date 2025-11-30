@@ -305,39 +305,73 @@ function renderCourses(courses) {
 
     if (courses.length === 0) {
         grid.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">⛳</div>
-                <div class="empty-state-text">No courses yet. Add your first course!</div>
+            <div class="data-table-container">
+                <div class="empty-state">
+                    <div class="empty-state-icon">⛳</div>
+                    <div class="empty-state-text">No courses yet. Add your first course!</div>
+                </div>
             </div>
         `;
         return;
     }
 
-    grid.innerHTML = courses.map(course => `
-        <div class="data-card">
-            <div class="data-card-header">
-                <div class="data-card-title">${course.course_name}</div>
-                <div class="data-card-actions">
-                    <button class="btn-icon" onclick="window.editCourse(${course.id})">Edit</button>
-                    <button class="btn-icon" onclick="window.deleteCourseConfirm(${course.id})">Delete</button>
+    // Group courses by tier/multiplier
+    const tiers = [
+        { name: 'Elite', multiplier: 2.5, tier: 4, courses: [] },
+        { name: 'Hard', multiplier: 2.0, tier: 3, courses: [] },
+        { name: 'Moderate', multiplier: 1.5, tier: 2, courses: [] },
+        { name: 'Easy', multiplier: 1.0, tier: 1, courses: [] }
+    ];
+
+    courses.forEach(course => {
+        const tierGroup = tiers.find(t => t.tier === course.tier);
+        if (tierGroup) {
+            tierGroup.courses.push(course);
+        }
+    });
+
+    grid.innerHTML = tiers.map(tierGroup => {
+        if (tierGroup.courses.length === 0) return '';
+
+        return `
+            <div class="tier-section">
+                <div class="tier-header" onclick="window.toggleTier(this)">
+                    <span class="tier-title">${tierGroup.name} (${tierGroup.multiplier}x)</span>
+                    <span class="tier-count">${tierGroup.courses.length} courses</span>
+                    <span class="tier-toggle">▼</span>
+                </div>
+                <div class="tier-content">
+                    <table class="data-table">
+                        <tbody>
+                            ${tierGroup.courses.map(course => `
+                                <tr>
+                                    <td class="table-name">${course.course_name}</td>
+                                    <td class="table-actions">
+                                        <button class="btn-table-action" onclick="window.editCourse(${course.id})" title="Edit">✏️</button>
+                                        <button class="btn-table-action btn-delete" onclick="window.deleteCourseConfirm(${course.id})" title="Delete">🗑️</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div class="data-card-field">
-                <span class="field-label">Tier</span>
-                <span class="field-value">${course.tier}</span>
-            </div>
-            <div class="data-card-field">
-                <span class="field-label">Multiplier</span>
-                <span class="field-value">${course.multiplier}x</span>
-            </div>
-            ${course.aliases && course.aliases.length > 0 ? `
-            <div class="data-card-field">
-                <span class="field-label">Aliases</span>
-                <span class="field-value">${course.aliases.map(a => a.alias).join(', ')}</span>
-            </div>
-            ` : ''}
-        </div>
-    `).join('');
+        `;
+    }).filter(Boolean).join('');
+}
+
+function toggleTier(header) {
+    const section = header.parentElement;
+    const content = section.querySelector('.tier-content');
+    const toggle = section.querySelector('.tier-toggle');
+
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        toggle.textContent = '▼';
+    } else {
+        content.style.display = 'none';
+        toggle.textContent = '▶';
+    }
 }
 
 function showCourseModal(course = null) {
@@ -766,6 +800,7 @@ window.closeModal = closeModal;
 window.savePlayer = savePlayer;
 window.editPlayer = editPlayer;
 window.deletePlayerConfirm = deletePlayerConfirm;
+window.toggleTier = toggleTier;
 window.saveCourse = saveCourse;
 window.editCourse = editCourse;
 window.deleteCourseConfirm = deleteCourseConfirm;
