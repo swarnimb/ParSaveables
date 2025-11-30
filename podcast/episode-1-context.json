@@ -2,45 +2,64 @@
   "episodeNumber": 1,
   "title": "The Ruckus Until Now",
   "customContext": {
-    "minneapolis": {
+    "intro": {
+      "whatIsParSaveables": "A disc golf league where friends compete in tournaments and seasons, tracking stats, drama, and everything in between. Heavy bags, curses, and pocket beers define this world.",
+      "tone": "Hyzer and Annie should briefly explain what ParSaveables is since this is the foundation episode"
+    },
+    "minneapolis2024": {
       "highlights": [
-        "Pocket beer controversy between Butter Cookie and Jaguar",
-        "Borrowed beer controversy between Jaguar and Jabba the Putt",
+        "Beer bag controversy: Stolen beers from the communal beer bag (later classified under the 'pocket beer' rule)",
+        "Beer transactions controversy in the doubles round - the round that doesn't count for points but counts for much more",
         "The ironic situation: Bird won 3 rounds but Intern Line Cook won the tournament due to the scoring format",
         "Biggest highlight: Cobra's ace in round 5"
       ],
       "funFacts": [
         "5 rounds of absolute chaos",
         "Everyone brought their A-game... and their beer collections",
-        "The tournament that started it all"
-      ]
+        "The tournament that got everyone SO excited, it sparked the creation of a full season format"
+      ],
+      "significance": "This single tournament was so epic, it birthed the entire 2025 ParSaveables season"
     },
     "season2025": {
       "highlights": [
         "The winner complained about not getting any prize for winning",
-        "Others made fun saying he actually got the highest bed in the house during Portlandia tournament",
-        "Sadly, NO aces in the entire season (a historic drought)",
-        "Two new entrants for 2026 season: Food Zaddy and Scarlet Speedster"
+        "Others claim he 'apparently' got the highest bed in the Portlandia Airbnb - which some say is prize enough, but other factions insist that's an absurdity",
+        "The prize debate became legendary and divisive",
+        "Sadly, NO aces in the entire season (a historic drought)"
       ],
       "funFacts": [
+        "The first full season of ParSaveables disc golf",
         "An entire season without a single ace - unprecedented!",
-        "The prize debate became legendary",
-        "New blood coming in 2026 - watch out"
-      ]
+        "The bed debate split the community into factions"
+      ],
+      "significance": "The inaugural season that established ParSaveables as a real thing"
     },
-    "portlandia": {
+    "portlandia2025": {
       "highlights": [
         "Tournament marred by controversies after controversies, making for an intense and dramatic ending",
         "Beer trading controversy that could set a bad precedent for the future",
+        "Trophy logistics crisis: Do we even HAVE a winner if they haven't received the trophy yet?",
         "THE BIGGEST CONTROVERSY the sport has ever seen - but one that shall not be talked about (tease it but don't reveal what it is)"
       ],
       "funFacts": [
         "The tournament everyone will remember for decades",
         "What happens in Portlandia... actually makes it to the podcast",
-        "The forbidden topic that sparked a thousand arguments"
-      ]
+        "The forbidden topic that sparked a thousand arguments",
+        "Trophy still MIA - winner in limbo"
+      ],
+      "significance": "The controversial season finale that left more questions than answers"
     },
-    "overallNarrative": "Episode 1 covers the COMPLETE 2025 season journey - from the Minneapolis kickoff through the regular season grind to the controversial Portlandia finale. This is the origin story of Par Saveables disc golf, setting the stage for the 2026 season ahead."
+    "lookAhead2026": {
+      "highlights": [
+        "Two new entrants joining: Food Zaddy and Scarlet Speedster",
+        "Fresh blood, new rivalries brewing",
+        "Will the trophy finally be delivered?",
+        "Can anyone break the ace drought?"
+      ],
+      "tone": "Excited, hopeful, setting up storylines for the future"
+    },
+    "timeline": "Minneapolis 2024 (the spark) → Season 2025 (the first full season) → Portlandia 2025 (the controversial finale) → 2026 (new beginnings)",
+    "overallNarrative": "Episode 1 covers the COMPLETE journey: How one chaotic tournament (Minneapolis 2024) ignited a movement, leading to the first full ParSaveables season (2025), culminating in the drama-filled Portlandia finale, and setting the stage for an exciting 2026 with new players entering the fray."
   },
-  "scriptInstructions": "This is Episode 1 - the FOUNDATION episode. Listeners need context on what Par Saveables is, who the key players are, and why they should care. Make it welcoming for new listeners while being entertaining for those who lived through it. Set up the storylines that will continue into 2026."
+  "scriptInstructions": "This is Episode 1 - the FOUNDATION episode. Target length: 6-8 minutes if needed (no strict limit). START with Hyzer and Annie explaining what ParSaveables is. Follow the timeline strictly: Minneapolis 2024 → Season 2025 → Portlandia 2025 → 2026 look-ahead. Make it welcoming for new listeners while being entertaining for those who lived through it. End with excitement about 2026 and the two new players (Food Zaddy and Scarlet Speedster). Remember: Minneapolis is ONE tournament, not a season. For beer controversies, don't name specific players - keep it about the incidents."
 }

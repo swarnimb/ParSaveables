@@ -333,40 +333,50 @@ Use this exact format for dialogue:
 6. React to dramatic moments with genuine excitement
 7. Conversational language - contractions, "you know", "I mean", casual speech
 
-=== STRUCTURE (5 minutes MAX / ~1000 words) ===
+=== STRUCTURE (6-8 minutes / ~1200-1600 words - NO STRICT LIMIT for Episode 1) ===
 
-**[1] COLD OPEN & INTRO (20 seconds)**
+**[1] COLD OPEN & INTRO (30-45 seconds)**
 - Start with BOTH hosts together saying: "Welcome folks!"
 - Then Hyzer continues: "to PAR SAVEABLES!"
 - Annie: "The world of heavy bags, curses, and pocket beers!"
+- IMPORTANT: Hyzer and Annie MUST briefly explain what ParSaveables is - a disc golf league where friends compete in tournaments and seasons, tracking stats, drama, and everything in between
 - Quick tease of the controversies and drama ahead
-- Introduce themselves and what's coming
+- Introduce themselves
 
-**[2] MINNEAPOLIS 2024 RECAP (1 minute)**
+**[2] MINNEAPOLIS 2024 RECAP (1.5-2 minutes)**
 - Cover the tournament stats
-- MUST discuss: pocket beer controversies (Butter Cookie/Jaguar, Jaguar/Jabba)
+- MUST discuss: Beer bag controversy - stolen beers from the communal beer bag (later classified under 'pocket beer' rule)
+- MUST discuss: Beer transactions controversy in the doubles round (the round that doesn't count for points but counts for much more)
+- DO NOT name specific players in beer controversies - keep it about the incidents
 - MUST discuss: Bird won 3 rounds but Intern Line Cook won overall (format irony)
 - MUST discuss: Cobra's ace in round 5 as the highlight
 - Hyzer handles stats, Annie tells the stories
 
-**[3] SEASON 2025 OVERVIEW (2 minutes)**
+**[3] SEASON 2025 OVERVIEW (2-2.5 minutes)**
 - Overall standings and winner
-- MUST discuss: Winner complained about no prize, others joked about "highest bed at Portlandia"
-- MUST discuss: Sadly no aces all season
-- MUST discuss: Two new entrants for 2026 (Food Zaddy and Scarlet Speedster)
+- MUST discuss: Winner complained about no prize, but APPARENTLY got the highest bed in the Portlandia Airbnb (some say prize enough, other factions say it's absurdity)
+- MUST discuss: Sadly no aces all season (historic drought)
+- DO NOT mention new 2026 players here - save for later
 - Analyze top 5, talk about battles
 - Most birdies, most wins stats
 
-**[4] PORTLANDIA 2025 DRAMA (1 minute)**
+**[4] PORTLANDIA 2025 DRAMA (1.5 minutes)**
 - Tournament results and winner
 - MUST discuss: "Marred by controversies after controversies"
 - MUST discuss: Beer trading controversy and bad precedent
+- MUST discuss: Trophy logistics crisis - Do we even HAVE a winner if they haven't received the trophy yet?
 - MUST tease: "The biggest controversy the sport has ever seen" but DON'T say what it is
 - Build dramatic tension, Annie and Hyzer go back and forth on the drama
 - End on the mystery - "one that shall not be talked about"
 
-**[5] WRAP-UP & OUTRO (30 seconds)**
-- Quick 2026 preview mention
+**[5] 2026 LOOK AHEAD (45 seconds)**
+- MUST mention: Two new entrants joining - Food Zaddy and Scarlet Speedster
+- Fresh blood, new rivalries brewing
+- Will the trophy finally be delivered?
+- Can anyone break the ace drought?
+- Excited, hopeful tone
+
+**[6] WRAP-UP & OUTRO (30 seconds)**
 - Thank listeners
 - Sign off with energy and personality
 - Both hosts close together
@@ -374,8 +384,9 @@ Use this exact format for dialogue:
 === TONE EXAMPLES ===
 
 Good:
-[ANNIE]: "Okay, so let me get this straight - Butter Cookie and Jaguar had a whole thing about pocket beers?"
-[HYZER]: "Oh yeah! And that's just the beginning, Annie. Wait till you hear about the borrowed beers!"
+[ANNIE]: "Okay, so there were beers disappearing from the communal beer bag?"
+[HYZER]: "Yep! And that actually led to the creation of the 'pocket beer' rule!"
+[ANNIE]: "Wait till we get to the doubles round controversy... oh man."
 
 Bad:
 [HYZER]: Hello listeners, today we will discuss statistics.
@@ -383,15 +394,17 @@ Bad:
 
 === GENERATE THE COMPLETE SCRIPT NOW ===
 
-Write the entire 5-minute MAX dialogue following the structure above. Make it:
-- **TIGHT & PUNCHY** - Maximum 5 minutes (~1000 words)
+Write the entire 6-8 minute dialogue following the structure above. Make it:
+- **ENGAGING & COMPREHENSIVE** - 6-8 minutes (~1200-1600 words)
 - **NO FLUFF** - Every sentence must be interesting or funny
 - Natural and conversational
-- Include ALL custom highlights
+- Include ALL custom highlights exactly as specified
 - Funny and engaging
 - Use both hosts' personalities
 - Build drama and excitement
 - Include disc golf terminology naturally
+- DO NOT name players in beer controversies
+- Explain what ParSaveables is in the intro
 
 IMPORTANT: Start with BOTH hosts saying "Welcome folks!" together:
 [HYZER]: "Welcome folks!"

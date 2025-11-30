@@ -689,21 +689,23 @@ async function renderPodcastPage(container) {
 
         container.innerHTML = '';
 
-        // Banner section
-        const banner = document.createElement('div');
-        banner.className = 'podcast-banner';
-        banner.innerHTML = `
-            <h1 class="podcast-title">Chain Reactions Podcast</h1>
-            <p class="podcast-tagline">The world of heavy bags, curses, and pocket beers</p>
+        // Header with generate button
+        const header = document.createElement('div');
+        header.className = 'podcast-header';
+        header.innerHTML = `
+            <h2 class="podcast-title">🎙️ Chain Reactions Podcast</h2>
+            <button class="btn-generate-podcast" id="generatePodcastBtn">
+                ✨ Generate New Episode
+            </button>
         `;
-        container.appendChild(banner);
+        container.appendChild(header);
 
         // Episodes list
         if (episodes.length === 0) {
             const empty = document.createElement('div');
             empty.className = 'podcast-empty';
             empty.innerHTML = `
-                <p>No episodes yet. Check back soon for the latest disc golf action!</p>
+                <p>No episodes yet. Click "Generate New Episode" to create the first one!</p>
             `;
             container.appendChild(empty);
         } else {
@@ -762,22 +764,13 @@ function createPodcastEpisodeCard(episode) {
             <span class="episode-duration">${duration}</span>
         </div>
         ${episode.description ? `<div class="episode-description">${episode.description}</div>` : ''}
-        ${episode.audio_url
-            ? `<div class="episode-player-container">
-                   <button class="btn-play-episode" data-url="${episode.audio_url}" data-title="${episode.title}" data-episode-id="${episode.id}">▶</button>
-                   <audio class="episode-audio" id="audio-${episode.id}" data-episode-id="${episode.id}" preload="metadata">
-                       <source src="${episode.audio_url}" type="audio/mpeg">
-                   </audio>
-                   <div class="episode-player-controls" style="display: none;">
-                       <div class="player-time">
-                           <span class="current-time">0:00</span>
-                           <input type="range" class="player-progress" value="0" min="0" max="100" step="0.1">
-                           <span class="total-time">${duration}</span>
-                       </div>
-                   </div>
-               </div>`
-            : '<span class="episode-status">Audio pending...</span>'
-        }
+        <div class="episode-actions">
+            ${episode.audio_url
+                ? `<button class="btn-play-episode" data-url="${episode.audio_url}" data-title="${episode.title}">▶ Play</button>
+                   <a href="${episode.audio_url}" download class="btn-download-episode">⬇ Download</a>`
+                : '<span class="episode-status">Audio pending...</span>'
+            }
+        </div>
     `;
 
     return card;
@@ -812,76 +805,58 @@ function createAudioPlayer() {
  * Attach podcast event listeners
  */
 function attachPodcastEventListeners() {
+    // Generate podcast button
+    const generateBtn = document.getElementById('generatePodcastBtn');
+    if (generateBtn) {
+        generateBtn.addEventListener('click', handleGeneratePodcast);
+    }
+
     // Play buttons
     const playButtons = document.querySelectorAll('.btn-play-episode');
     playButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const episodeId = e.target.dataset.episodeId;
-            const audio = document.getElementById(`audio-${episodeId}`);
-            const controls = e.target.parentElement.querySelector('.episode-player-controls');
-
-            if (!audio) return;
-
-            // Pause all other episodes
-            document.querySelectorAll('.episode-audio').forEach(a => {
-                if (a.id !== `audio-${episodeId}`) {
-                    a.pause();
-                    const otherBtn = document.querySelector(`[data-episode-id="${a.dataset.episodeId}"]`);
-                    if (otherBtn && otherBtn.classList.contains('btn-play-episode')) {
-                        otherBtn.textContent = '▶';
-                    }
-                    const otherControls = a.parentElement.querySelector('.episode-player-controls');
-                    if (otherControls) {
-                        otherControls.style.display = 'none';
-                    }
-                }
-            });
-
-            // Toggle play/pause
-            if (audio.paused) {
-                audio.play();
-                e.target.textContent = '⏸';
-                if (controls) {
-                    controls.style.display = 'block';
-                }
-            } else {
-                audio.pause();
-                e.target.textContent = '▶';
-            }
+            const url = e.target.dataset.url;
+            const title = e.target.dataset.title;
+            playEpisode(url, title);
         });
     });
 
-    // Audio progress and time updates
-    document.querySelectorAll('.episode-audio').forEach(audio => {
-        const episodeId = audio.dataset.episodeId;
-        const container = audio.parentElement;
-        const progressBar = container.querySelector('.player-progress');
-        const currentTime = container.querySelector('.current-time');
+    // Player controls
+    const playerClose = document.getElementById('playerClose');
+    if (playerClose) {
+        playerClose.addEventListener('click', closePlayer);
+    }
 
-        audio.addEventListener('timeupdate', () => {
-            if (!audio.duration) return;
+    const playerSpeed = document.getElementById('playerSpeed');
+    if (playerSpeed) {
+        playerSpeed.addEventListener('click', togglePlaybackSpeed);
+    }
+}
 
-            const progress = (audio.currentTime / audio.duration) * 100;
-            if (progressBar) progressBar.value = progress;
-            if (currentTime) currentTime.textContent = formatDuration(Math.floor(audio.currentTime));
-        });
+/**
+ * Handle generate podcast button
+ */
+async function handleGeneratePodcast() {
+    const btn = document.getElementById('generatePodcastBtn');
+    if (!btn) return;
 
-        audio.addEventListener('ended', () => {
-            const btn = document.querySelector(`[data-episode-id="${episodeId}"]`);
-            if (btn && btn.classList.contains('btn-play-episode')) {
-                btn.textContent = '▶';
-            }
-            if (progressBar) progressBar.value = 0;
-        });
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '⏳ Generating...';
 
-        // Seek functionality
-        if (progressBar) {
-            progressBar.addEventListener('input', (e) => {
-                const time = (e.target.value / 100) * audio.duration;
-                audio.currentTime = time;
-            });
-        }
-    });
+    try {
+        const result = await generatePodcast();
+        alert(`Episode ${result.episode.episode_number} generated successfully!\n\nTitle: ${result.episode.title}\nNote: Audio generation may take a few minutes.`);
+
+        // Reload page to show new episode
+        await renderPodcastPage(document.getElementById('content'));
+    } catch (error) {
+        console.error('Failed to generate podcast:', error);
+        alert(`Failed to generate podcast: ${error.message}`);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+    }
 }
 
 /**

@@ -9,8 +9,8 @@ import path from 'path';
 
 // Set FFmpeg path for Windows
 if (process.platform === 'win32') {
-  ffmpeg.setFfmpegPath('C:\\ffmpeg\\ffmpeg-8.0-essentials_build\\bin\\ffmpeg.exe');
-  ffmpeg.setFfprobePath('C:\\ffmpeg\\ffmpeg-8.0-essentials_build\\bin\\ffprobe.exe');
+  ffmpeg.setFfmpegPath('C:\\ffmpeg\\bin\\ffmpeg.exe');
+  ffmpeg.setFfprobePath('C:\\ffmpeg\\bin\\ffprobe.exe');
 }
 
 export class AudioMixer {

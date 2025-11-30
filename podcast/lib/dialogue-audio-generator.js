@@ -200,7 +200,7 @@ async function concatenateAudioSegments(segmentPaths, outputPath) {
 
     // Find FFmpeg
     const ffmpegPath = process.platform === 'win32'
-      ? 'C:\\ffmpeg\\ffmpeg-8.0-essentials_build\\bin\\ffmpeg.exe'
+      ? 'C:\\ffmpeg\\bin\\ffmpeg.exe'
       : 'ffmpeg';
 
     // Concatenate using FFmpeg

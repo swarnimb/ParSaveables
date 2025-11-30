@@ -1494,39 +1494,94 @@ body:not(.dashboard-active) #content {
 }
 
 .episode-description {
-    font-size: var(--font-size-sm);
+    font-size: calc(var(--font-size-sm) * 0.8); /* Reduced by 20% */
     color: var(--color-text-secondary);
     margin-bottom: var(--spacing-md);
     line-height: var(--line-height-base);
 }
 
-.episode-actions {
+/* Inline Episode Player */
+.episode-player-container {
     display: flex;
-    gap: var(--spacing-sm);
     align-items: center;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
 }
 
-.btn-play-episode,
-.btn-download-episode {
+.episode-audio {
+    display: none; /* Hidden audio element */
+}
+
+.btn-play-episode {
     background: var(--color-accent);
     color: #000;
     border: none;
-    padding: var(--spacing-xs) var(--spacing-md);
-    border-radius: var(--border-radius-sm);
-    font-size: var(--font-size-sm);
+    padding: var(--spacing-sm);
+    border-radius: 50%;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
     transition: all var(--transition-fast);
 }
 
-.btn-play-episode:hover,
-.btn-download-episode:hover {
+.btn-play-episode:hover {
     background: var(--color-accent-dark);
-    transform: translateY(-1px);
+    transform: scale(1.05);
+}
+
+.episode-player-controls {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.player-time {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    width: 100%;
+}
+
+.current-time,
+.total-time {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    min-width: 40px;
+    text-align: center;
+}
+
+.player-progress {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--color-bg-secondary);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.player-progress::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    cursor: pointer;
+}
+
+.player-progress::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    border: none;
+    cursor: pointer;
 }
 
 .episode-status {

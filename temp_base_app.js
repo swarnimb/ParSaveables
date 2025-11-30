@@ -2,7 +2,7 @@
  * Main Application - Orchestrates the dashboard
  */
 
-import { initSupabase, getEvents, getEventsByType, getLeaderboard, getActiveEvent, processScorecard, getRoundProgression, getPlayerScoresByTier, getPointsSystem, getPodcastEpisodes, generatePodcast } from '/dashboard/data.js';
+import { initSupabase, getEvents, getEventsByType, getLeaderboard, getActiveEvent, processScorecard, getRoundProgression, getPlayerScoresByTier, getPointsSystem } from '/dashboard/data.js';
 import { createEventSelector, createPodium, createPlayerList, createLoadingState, createEmptyState } from '/dashboard/components.js';
 
 // Supabase configuration
@@ -11,7 +11,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 // App state
 const state = {
-    currentPage: 'leaderboard',
+    currentPage: 'home',
     eventType: 'season',
     selectedEventId: null,
     allEvents: [],
@@ -21,31 +21,7 @@ const state = {
     roundProgression: null,
     selectedChartPlayers: new Set(),
     selectedPlayerForScores: null, // For average score chart
-    currentCarouselIndex: 0, // Track current chart position
-    carouselCleanup: null, // Store cleanup function for touch listeners
-    isLandingPage: true // Track if we're on landing page
-};
-
-// Chart configuration constants
-const CHART_CONFIG = {
-    MAX_PLAYERS_DISPLAYED: 8,
-    STAT_CARDS: [
-        { title: 'Performance Breakdown', type: 'performance-bars' },
-        { title: 'Rounds Analysis', type: 'rounds-stacked' },
-        { title: 'Average Score Analysis', type: 'score-bars' }
-    ],
-    LEGENDS: {
-        PERFORMANCE: [
-            { color: '#4ade80', label: 'Birdies' },
-            { color: '#fbbf24', label: 'Eagles' },
-            { color: '#f87171', label: 'Aces' }
-        ],
-        ROUNDS: [
-            { color: '#fbbf24', label: 'Wins' },
-            { color: '#60a5fa', label: 'Top 3' },
-            { color: '#94a3b8', label: 'Other' }
-        ]
-    }
+    currentCarouselIndex: 0 // Track current chart position
 };
 
 // Disc golf jokes/puns
@@ -84,15 +60,8 @@ async function init() {
     // Load initial data
     await loadInitialData();
 
-    // Check URL hash to determine initial state
-    const hash = window.location.hash.slice(1); // Remove #
-    if (hash && ['leaderboard', 'stats', 'podcast', 'rules'].includes(hash)) {
-        // Direct link to a page - skip landing page
-        enterDashboard(hash);
-    } else {
-        // Show landing page
-        showLandingPage();
-    }
+    // Render home page
+    renderCurrentPage();
 }
 
 /**
@@ -108,15 +77,6 @@ function showRandomJoke() {
  * Setup event listeners
  */
 function setupEventListeners() {
-    // Landing page tabs
-    const landingTabs = document.querySelectorAll('.landing-tab');
-    landingTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const page = tab.dataset.page;
-            enterDashboard(page);
-        });
-    });
-
     // Bottom navigation tabs
     const tabs = document.querySelectorAll('.tab');
     tabs.forEach(tab => {
@@ -135,16 +95,6 @@ function setupEventListeners() {
     adminBtn.addEventListener('click', () => {
         window.location.href = '/admin.html';
     });
-
-    // Make title clickable to return to landing page
-    const mainTitle = document.getElementById('mainTitle');
-    mainTitle.addEventListener('click', () => {
-        if (state.isLandingPage) return; // Already on landing page
-        returnToLanding();
-    });
-
-    // Handle browser back/forward
-    window.addEventListener('hashchange', handleHashChange);
 }
 
 /**
@@ -190,99 +140,12 @@ async function loadInitialData() {
 }
 
 /**
- * Show landing page
+ * Switch page
  */
-function showLandingPage() {
-    state.isLandingPage = true;
-    document.body.classList.remove('dashboard-active');
-    window.location.hash = '';
-}
-
-/**
- * Enter dashboard with animation
- */
-async function enterDashboard(page) {
-    if (!state.isLandingPage) {
-        // Already in dashboard, just switch page
-        switchPage(page);
-        return;
-    }
-
-    // Trigger morph animation
-    const landingPage = document.getElementById('landingPage');
-    const landingTabs = document.querySelectorAll('.landing-tab');
-
-    // Add morphing class to all tabs
-    landingTabs.forEach(tab => tab.classList.add('morphing'));
-
-    // Fade out landing description
-    landingPage.classList.add('fade-out');
-
-    // Wait for animation to complete
-    await new Promise(resolve => setTimeout(resolve, 600));
-
-    // Switch to dashboard
-    state.isLandingPage = false;
-    document.body.classList.add('dashboard-active');
-
-    // Update state and render
+function switchPage(page) {
     state.currentPage = page;
-    window.location.hash = `#${page}`;
 
     // Update active tab
-    updateActiveTab(page);
-
-    // Render the page
-    renderCurrentPage();
-}
-
-/**
- * Return to landing page
- */
-function returnToLanding() {
-    // Clean up any active listeners
-    if (state.carouselCleanup) {
-        state.carouselCleanup();
-        state.carouselCleanup = null;
-    }
-
-    // Reset morphing classes
-    const landingTabs = document.querySelectorAll('.landing-tab');
-    landingTabs.forEach(tab => tab.classList.remove('morphing'));
-
-    const landingPage = document.getElementById('landingPage');
-    landingPage.classList.remove('fade-out');
-
-    // Show landing page
-    showLandingPage();
-}
-
-/**
- * Handle hash change (browser back/forward)
- */
-function handleHashChange() {
-    const hash = window.location.hash.slice(1);
-
-    if (!hash) {
-        // No hash = landing page
-        if (!state.isLandingPage) {
-            returnToLanding();
-        }
-    } else if (['leaderboard', 'stats', 'podcast', 'rules'].includes(hash)) {
-        // Valid page hash
-        if (state.isLandingPage) {
-            enterDashboard(hash);
-        } else if (state.currentPage !== hash) {
-            // Only switch if we're not already on this page
-            switchPage(hash);
-        }
-    }
-}
-
-/**
- * Update active tab highlight
- */
-function updateActiveTab(page) {
     const tabs = document.querySelectorAll('.tab');
     tabs.forEach(tab => {
         if (tab.dataset.page === page) {
@@ -291,23 +154,6 @@ function updateActiveTab(page) {
             tab.classList.remove('active');
         }
     });
-}
-
-/**
- * Switch page (within dashboard)
- */
-function switchPage(page) {
-    // Clean up any existing event listeners from previous page
-    if (state.carouselCleanup) {
-        state.carouselCleanup();
-        state.carouselCleanup = null;
-    }
-
-    state.currentPage = page;
-    window.location.hash = `#${page}`;
-
-    // Update active tab
-    updateActiveTab(page);
 
     renderCurrentPage();
 }
@@ -319,8 +165,8 @@ async function renderCurrentPage() {
     const content = document.getElementById('content');
 
     switch (state.currentPage) {
-        case 'leaderboard':
-            renderLeaderboardPage(content);
+        case 'home':
+            renderHomePage(content);
             break;
         case 'stats':
             await renderStatsPage(content);
@@ -328,20 +174,17 @@ async function renderCurrentPage() {
         case 'podcast':
             renderPodcastPage(content);
             break;
-        case 'rules':
-            await renderRulesPage(content);
+        case 'about':
+            await renderAboutPage(content);
             break;
-        default:
-            content.innerHTML = '<div class="error">Page not found</div>';
     }
 }
 
 /**
- * Render leaderboard page
+ * Render home page (leaderboard)
  */
-function renderLeaderboardPage(container) {
+function renderHomePage(container) {
     container.innerHTML = '';
-    container.className = ''; // Reset any previous page classes
 
     // Event selector
     const eventSelector = createEventSelector(
@@ -389,8 +232,12 @@ async function renderStatsPage(container) {
     );
     container.appendChild(eventSelector);
 
-    // Stat cards data - use configuration
-    const statCards = CHART_CONFIG.STAT_CARDS;
+    // Stat cards data - 3 visual charts
+    const statCards = [
+        { title: 'Performance Breakdown', type: 'performance-bars' },
+        { title: 'Rounds Analysis', type: 'rounds-stacked' },
+        { title: 'Average Score Analysis', type: 'score-bars' }
+    ];
 
     // Add position indicators (dots) - create first
     const indicators = document.createElement('div');
@@ -512,12 +359,16 @@ function createPerformanceBarsChart() {
     const sortedPlayers = [...state.leaderboard]
         .map(p => ({ ...p, totalPerf: p.birdies + p.eagles + p.aces }))
         .sort((a, b) => b.totalPerf - a.totalPerf)
-        .slice(0, CHART_CONFIG.MAX_PLAYERS_DISPLAYED);
+        .slice(0, 8);
 
     const maxValue = Math.max(...sortedPlayers.map(p => p.totalPerf));
 
     return createStackedBarChart({
-        legend: CHART_CONFIG.LEGENDS.PERFORMANCE,
+        legend: [
+            { color: '#4ade80', label: 'Birdies' },
+            { color: '#fbbf24', label: 'Eagles' },
+            { color: '#f87171', label: 'Aces' }
+        ],
         data: sortedPlayers.map(p => ({
             name: p.name,
             segments: [
@@ -535,12 +386,16 @@ function createPerformanceBarsChart() {
 function createRoundsStackedChart() {
     const sortedPlayers = [...state.leaderboard]
         .sort((a, b) => b.rounds - a.rounds)
-        .slice(0, CHART_CONFIG.MAX_PLAYERS_DISPLAYED);
+        .slice(0, 8);
 
     const maxRounds = Math.max(...sortedPlayers.map(p => p.rounds));
 
     return createStackedBarChart({
-        legend: CHART_CONFIG.LEGENDS.ROUNDS,
+        legend: [
+            { color: '#fbbf24', label: 'Wins' },
+            { color: '#60a5fa', label: 'Top 3' },
+            { color: '#94a3b8', label: 'Other' }
+        ],
         data: sortedPlayers.map(p => {
             const podiumsWithoutWins = p.topThreeFinishes - p.wins;
             const otherRounds = p.rounds - p.topThreeFinishes;
@@ -557,9 +412,16 @@ function createRoundsStackedChart() {
 }
 
 /**
- * Create player dropdown selector for score chart
+ * Create points progression line chart
  */
-function createPlayerDropdown(onPlayerChange) {
+/**
+ * Create average score by tier/round chart
+ */
+async function createScoreBarsChart() {
+    const container = document.createElement('div');
+    container.className = 'chart-visual';
+
+    // Player dropdown selector
     const playerSelector = document.createElement('div');
     playerSelector.className = 'player-selector';
 
@@ -580,71 +442,12 @@ function createPlayerDropdown(onPlayerChange) {
         dropdown.appendChild(option);
     });
 
-    dropdown.addEventListener('change', onPlayerChange);
-    playerSelector.appendChild(dropdown);
-
-    return playerSelector;
-}
-
-/**
- * Create horizontal bar chart for score data
- */
-function createScoreBars(scoreData) {
-    const container = document.createElement('div');
-    container.className = 'score-bars-wrapper';
-
-    // Chart title based on type
-    const chartTitle = document.createElement('div');
-    chartTitle.className = 'chart-subtitle';
-    chartTitle.textContent = scoreData.type === 'tier'
-        ? 'Average Score by Course Tier'
-        : 'Score by Round';
-    container.appendChild(chartTitle);
-
-    // Horizontal bars
-    const barsContainer = document.createElement('div');
-    barsContainer.className = 'score-bars-container';
-
-    const maxValue = Math.max(...scoreData.data.map(d => d.value));
-
-    scoreData.data.forEach(item => {
-        const barRow = document.createElement('div');
-        barRow.className = 'player-bar-row';
-
-        const label = document.createElement('div');
-        label.className = 'player-bar-name';
-        label.textContent = item.label;
-
-        const barContainer = document.createElement('div');
-        barContainer.className = 'bar-container';
-
-        const bar = document.createElement('div');
-        bar.className = 'bar-segment score-bar';
-        bar.style.width = `${(item.value / maxValue) * 100}%`;
-        bar.textContent = item.value;
-
-        barContainer.appendChild(bar);
-        barRow.appendChild(label);
-        barRow.appendChild(barContainer);
-        barsContainer.appendChild(barRow);
-    });
-
-    container.appendChild(barsContainer);
-    return container;
-}
-
-/**
- * Create average score by tier/round chart
- */
-async function createScoreBarsChart() {
-    const container = document.createElement('div');
-    container.className = 'chart-visual';
-
-    // Player dropdown selector
-    const playerSelector = createPlayerDropdown(async (e) => {
+    dropdown.addEventListener('change', async (e) => {
         state.selectedPlayerForScores = e.target.value;
         await renderStatsPage(document.getElementById('content'));
     });
+
+    playerSelector.appendChild(dropdown);
     container.appendChild(playerSelector);
 
     if (!state.selectedPlayerForScores) {
@@ -661,9 +464,44 @@ async function createScoreBarsChart() {
             return container;
         }
 
-        // Create and append score bars
-        const scoreBars = createScoreBars(scoreData);
-        container.appendChild(scoreBars);
+        // Chart title based on type
+        const chartTitle = document.createElement('div');
+        chartTitle.className = 'chart-subtitle';
+        chartTitle.textContent = scoreData.type === 'tier'
+            ? 'Average Score by Course Tier'
+            : 'Score by Round';
+        container.appendChild(chartTitle);
+
+        // Horizontal bars
+        const barsContainer = document.createElement('div');
+        barsContainer.className = 'score-bars-container';
+
+        const maxValue = Math.max(...scoreData.data.map(d => d.value));
+
+        scoreData.data.forEach(item => {
+            const barRow = document.createElement('div');
+            barRow.className = 'player-bar-row';
+
+            const label = document.createElement('div');
+            label.className = 'player-bar-name';
+            label.textContent = item.label;
+
+            const barContainer = document.createElement('div');
+            barContainer.className = 'bar-container';
+
+            const bar = document.createElement('div');
+            bar.className = 'bar-segment score-bar';
+            bar.style.width = `${(item.value / maxValue) * 100}%`;
+            bar.textContent = item.value;
+
+            barContainer.appendChild(bar);
+
+            barRow.appendChild(label);
+            barRow.appendChild(barContainer);
+            barsContainer.appendChild(barRow);
+        });
+
+        container.appendChild(barsContainer);
 
     } catch (error) {
         console.error('Failed to load score data:', error);
@@ -676,283 +514,34 @@ async function createScoreBarsChart() {
 /**
  * Render podcast page
  */
-async function renderPodcastPage(container) {
+function renderPodcastPage(container) {
     container.innerHTML = '';
-    container.className = 'podcast-page';
 
-    // Show loading state
-    container.appendChild(createLoadingState());
-
-    try {
-        // Fetch episodes
-        const episodes = await getPodcastEpisodes(10);
-
-        container.innerHTML = '';
-
-        // Banner section
-        const banner = document.createElement('div');
-        banner.className = 'podcast-banner';
-        banner.innerHTML = `
-            <h1 class="podcast-title">Chain Reactions Podcast</h1>
-            <p class="podcast-tagline">The world of heavy bags, curses, and pocket beers</p>
-        `;
-        container.appendChild(banner);
-
-        // Episodes list
-        if (episodes.length === 0) {
-            const empty = document.createElement('div');
-            empty.className = 'podcast-empty';
-            empty.innerHTML = `
-                <p>No episodes yet. Check back soon for the latest disc golf action!</p>
-            `;
-            container.appendChild(empty);
-        } else {
-            const episodesList = document.createElement('div');
-            episodesList.className = 'podcast-episodes';
-
-            episodes.forEach(episode => {
-                const card = createPodcastEpisodeCard(episode);
-                episodesList.appendChild(card);
-            });
-
-            container.appendChild(episodesList);
-        }
-
-        // Audio player (shared, hidden by default)
-        const player = createAudioPlayer();
-        container.appendChild(player);
-
-        // Attach event listeners
-        attachPodcastEventListeners();
-
-    } catch (error) {
-        console.error('Failed to load podcast page:', error);
-        container.innerHTML = '';
-        const errorMsg = document.createElement('div');
-        errorMsg.className = 'error-message';
-        errorMsg.textContent = 'Failed to load podcast episodes. Please try again.';
-        container.appendChild(errorMsg);
-    }
-}
-
-/**
- * Create podcast episode card
- */
-function createPodcastEpisodeCard(episode) {
-    const card = document.createElement('div');
-    card.className = 'podcast-episode-card';
-    card.dataset.episodeId = episode.id;
-
-    const date = new Date(episode.published_at || episode.created_at);
-    const formattedDate = date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-    });
-
-    const duration = episode.duration_seconds
-        ? formatDuration(episode.duration_seconds)
-        : 'TBD';
-
-    card.innerHTML = `
-        <div class="episode-number">Episode ${episode.episode_number}</div>
-        <div class="episode-title">${episode.title}</div>
-        <div class="episode-meta">
-            <span class="episode-date">${formattedDate}</span>
-            <span class="episode-duration">${duration}</span>
-        </div>
-        ${episode.description ? `<div class="episode-description">${episode.description}</div>` : ''}
-        ${episode.audio_url
-            ? `<div class="episode-player-container">
-                   <button class="btn-play-episode" data-url="${episode.audio_url}" data-title="${episode.title}" data-episode-id="${episode.id}">▶</button>
-                   <audio class="episode-audio" id="audio-${episode.id}" data-episode-id="${episode.id}" preload="metadata">
-                       <source src="${episode.audio_url}" type="audio/mpeg">
-                   </audio>
-                   <div class="episode-player-controls" style="display: none;">
-                       <div class="player-time">
-                           <span class="current-time">0:00</span>
-                           <input type="range" class="player-progress" value="0" min="0" max="100" step="0.1">
-                           <span class="total-time">${duration}</span>
-                       </div>
-                   </div>
-               </div>`
-            : '<span class="episode-status">Audio pending...</span>'
-        }
-    `;
-
-    return card;
-}
-
-/**
- * Create audio player component
- */
-function createAudioPlayer() {
-    const player = document.createElement('div');
-    player.className = 'audio-player';
-    player.id = 'audioPlayer';
-    player.style.display = 'none';
-
-    player.innerHTML = `
-        <div class="player-header">
-            <div class="player-title" id="playerTitle">No episode loaded</div>
-            <button class="player-close" id="playerClose">✕</button>
-        </div>
-        <audio controls id="audioElement" preload="metadata">
-            Your browser does not support audio playback.
-        </audio>
-        <div class="player-controls">
-            <button class="player-speed" id="playerSpeed">1x</button>
+    const section = document.createElement('div');
+    section.className = 'about-section';
+    section.innerHTML = `
+        <div class="about-title">🎙️ Season Podcast</div>
+        <div class="about-content">
+            <p>Automated podcast generation coming soon!</p>
+            <br>
+            <p>Listen to AI-generated recaps of the season highlights, player performances, and memorable moments.</p>
         </div>
     `;
-
-    return player;
+    container.appendChild(section);
 }
 
 /**
- * Attach podcast event listeners
+ * Render about/info page
  */
-function attachPodcastEventListeners() {
-    // Play buttons
-    const playButtons = document.querySelectorAll('.btn-play-episode');
-    playButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const episodeId = e.target.dataset.episodeId;
-            const audio = document.getElementById(`audio-${episodeId}`);
-            const controls = e.target.parentElement.querySelector('.episode-player-controls');
-
-            if (!audio) return;
-
-            // Pause all other episodes
-            document.querySelectorAll('.episode-audio').forEach(a => {
-                if (a.id !== `audio-${episodeId}`) {
-                    a.pause();
-                    const otherBtn = document.querySelector(`[data-episode-id="${a.dataset.episodeId}"]`);
-                    if (otherBtn && otherBtn.classList.contains('btn-play-episode')) {
-                        otherBtn.textContent = '▶';
-                    }
-                    const otherControls = a.parentElement.querySelector('.episode-player-controls');
-                    if (otherControls) {
-                        otherControls.style.display = 'none';
-                    }
-                }
-            });
-
-            // Toggle play/pause
-            if (audio.paused) {
-                audio.play();
-                e.target.textContent = '⏸';
-                if (controls) {
-                    controls.style.display = 'block';
-                }
-            } else {
-                audio.pause();
-                e.target.textContent = '▶';
-            }
-        });
-    });
-
-    // Audio progress and time updates
-    document.querySelectorAll('.episode-audio').forEach(audio => {
-        const episodeId = audio.dataset.episodeId;
-        const container = audio.parentElement;
-        const progressBar = container.querySelector('.player-progress');
-        const currentTime = container.querySelector('.current-time');
-
-        audio.addEventListener('timeupdate', () => {
-            if (!audio.duration) return;
-
-            const progress = (audio.currentTime / audio.duration) * 100;
-            if (progressBar) progressBar.value = progress;
-            if (currentTime) currentTime.textContent = formatDuration(Math.floor(audio.currentTime));
-        });
-
-        audio.addEventListener('ended', () => {
-            const btn = document.querySelector(`[data-episode-id="${episodeId}"]`);
-            if (btn && btn.classList.contains('btn-play-episode')) {
-                btn.textContent = '▶';
-            }
-            if (progressBar) progressBar.value = 0;
-        });
-
-        // Seek functionality
-        if (progressBar) {
-            progressBar.addEventListener('input', (e) => {
-                const time = (e.target.value / 100) * audio.duration;
-                audio.currentTime = time;
-            });
-        }
-    });
-}
-
-/**
- * Play episode in audio player
- */
-function playEpisode(url, title) {
-    const player = document.getElementById('audioPlayer');
-    const audio = document.getElementById('audioElement');
-    const playerTitle = document.getElementById('playerTitle');
-
-    if (!player || !audio || !playerTitle) return;
-
-    audio.src = url;
-    playerTitle.textContent = title;
-    player.style.display = 'block';
-    audio.play();
-}
-
-/**
- * Close audio player
- */
-function closePlayer() {
-    const player = document.getElementById('audioPlayer');
-    const audio = document.getElementById('audioElement');
-
-    if (!player || !audio) return;
-
-    audio.pause();
-    audio.src = '';
-    player.style.display = 'none';
-}
-
-/**
- * Toggle playback speed
- */
-function togglePlaybackSpeed() {
-    const audio = document.getElementById('audioElement');
-    const speedBtn = document.getElementById('playerSpeed');
-
-    if (!audio || !speedBtn) return;
-
-    const speeds = [1, 1.25, 1.5, 1.75, 2];
-    const currentIndex = speeds.indexOf(audio.playbackRate);
-    const nextIndex = (currentIndex + 1) % speeds.length;
-
-    audio.playbackRate = speeds[nextIndex];
-    speedBtn.textContent = `${speeds[nextIndex]}x`;
-}
-
-/**
- * Format duration seconds to mm:ss
- */
-function formatDuration(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
-
-/**
- * Render rules/info page
- */
-async function renderRulesPage(container) {
+async function renderAboutPage(container) {
     container.innerHTML = '';
-    container.className = ''; // Reset any previous page classes
 
     // Event selector
     const eventSelector = createEventSelector(
         state.currentEvents,
         state.eventType,
         state.selectedEventId,
-        handleRulesEventChange
+        handleInfoEventChange
     );
     container.appendChild(eventSelector);
 
@@ -1040,25 +629,22 @@ function generateFunnyDescription(config, eventType) {
     const multiplierEnabled = config.course_multiplier?.enabled;
     const first = rankPoints['1'];
     const hasPerf = perfPoints.birdie > 0 || perfPoints.eagle > 0 || perfPoints.ace > 0;
-    const isSeason = eventType === 'season';
 
     // Generate unique hash from config to pick consistent description
     const configHash = (first + (perfPoints.birdie || 0) + (perfPoints.eagle || 0) * 3 + (multiplierEnabled ? 100 : 0)) % 4;
 
-    const top10Note = isSeason ? ` <em>Only your top 10 rounds count for points.</em>` : '';
-
     const variants = [
         // Variant 0: Simple and punny
-        `Win = <strong>${first} pts</strong>. ${hasPerf ? `Birdies, eagles, aces? Bonus points!` : ''} ${multiplierEnabled ? `Harder courses = bigger multipliers.` : `All courses equal.`}${top10Note}`,
+        `Win = <strong>${first} pts</strong>. ${hasPerf ? `Birdies, eagles, aces? Bonus points!` : ''} ${multiplierEnabled ? `Harder courses = bigger multipliers.` : `All courses equal.`}`,
 
         // Variant 1: Competitive
-        `Top spot gets <strong>${first} points</strong>. ${multiplierEnabled ? `Elite courses multiply your glory (or your shame).` : `No course handicaps here.`} ${hasPerf ? `Aces and eagles sweeten the deal.` : ''}${top10Note}`,
+        `Top spot gets <strong>${first} points</strong>. ${multiplierEnabled ? `Elite courses multiply your glory (or your shame).` : `No course handicaps here.`} ${hasPerf ? `Aces and eagles sweeten the deal.` : ''}`,
 
         // Variant 2: Casual humor
-        `First place? <strong>${first} sweet points</strong>. ${hasPerf ? `Add bonuses for fancy shots.` : ''} ${multiplierEnabled ? `Tougher courses = more points (no pressure).` : `Every course counts the same.`}${top10Note}`,
+        `First place? <strong>${first} sweet points</strong>. ${hasPerf ? `Add bonuses for fancy shots.` : ''} ${multiplierEnabled ? `Tougher courses = more points (no pressure).` : `Every course counts the same.`}`,
 
         // Variant 3: Direct
-        `Win rounds for <strong>${first} pts</strong>. ${multiplierEnabled ? `Course difficulty multiplies your score (1x-2.5x).` : `Flat scoring across all courses.`} ${hasPerf ? `Performance bonuses apply.` : ''}${top10Note}`
+        `Win rounds for <strong>${first} pts</strong>. ${multiplierEnabled ? `Course difficulty multiplies your score (1x-2.5x).` : `Flat scoring across all courses.`} ${hasPerf ? `Performance bonuses apply.` : ''}`
     ];
 
     return '<p>' + variants[configHash] + '</p>';
@@ -1139,12 +725,80 @@ function ordinal(n) {
 }
 
 /**
- * Core event change logic shared by all event handlers
- * @param {string} type - Event type (season/tournament)
- * @param {number} eventId - Specific event ID (optional)
- * @param {boolean} clearExpanded - Whether to clear expanded players state
+ * Handle event change for Info page
  */
-async function handleEventChangeCore(type, eventId, clearExpanded = false) {
+async function handleInfoEventChange(type, eventId) {
+    const content = document.getElementById('content');
+    content.innerHTML = '';
+    content.appendChild(createLoadingState());
+
+    try {
+        if (type !== state.eventType) {
+            state.eventType = type;
+            state.currentEvents = await getEventsByType(type);
+            if (state.currentEvents.length > 0) {
+                state.selectedEventId = state.currentEvents[0].id;
+            }
+        } else if (eventId) {
+            state.selectedEventId = eventId;
+        }
+
+        // Load leaderboard and progression for consistency
+        if (state.selectedEventId) {
+            state.leaderboard = await getLeaderboard(state.selectedEventId);
+            state.roundProgression = await getRoundProgression(state.selectedEventId);
+        }
+
+        await renderAboutPage(content);
+    } catch (error) {
+        console.error('Failed to change event:', error);
+        showError('Failed to load event data');
+    }
+}
+
+/**
+ * Handle event type/selection change
+ */
+async function handleEventChange(type, eventId) {
+    // Show loading
+    const content = document.getElementById('content');
+    content.innerHTML = '';
+    content.appendChild(createLoadingState());
+
+    try {
+        // Update type if changed
+        if (type !== state.eventType) {
+            state.eventType = type;
+            state.currentEvents = await getEventsByType(type);
+
+            // Select first event of new type
+            if (state.currentEvents.length > 0) {
+                state.selectedEventId = state.currentEvents[0].id;
+            }
+        } else if (eventId) {
+            // Just update selected event
+            state.selectedEventId = eventId;
+        }
+
+        // Load leaderboard and round progression for new event
+        if (state.selectedEventId) {
+            state.leaderboard = await getLeaderboard(state.selectedEventId);
+            state.roundProgression = await getRoundProgression(state.selectedEventId);
+            state.expandedPlayers.clear(); // Reset expanded state
+        }
+
+        renderHomePage(content);
+    } catch (error) {
+        console.error('Failed to change event:', error);
+        showError('Failed to load event data');
+    }
+}
+
+/**
+ * Handle event type/selection change for stats page
+ */
+async function handleStatsEventChange(type, eventId) {
+    // Show loading
     const content = document.getElementById('content');
     content.innerHTML = '';
     content.appendChild(createLoadingState());
@@ -1168,51 +822,12 @@ async function handleEventChangeCore(type, eventId, clearExpanded = false) {
         if (state.selectedEventId) {
             state.leaderboard = await getLeaderboard(state.selectedEventId);
             state.roundProgression = await getRoundProgression(state.selectedEventId);
-
-            if (clearExpanded) {
-                state.expandedPlayers.clear(); // Reset expanded state
-            }
         }
+
+        await renderStatsPage(content);
     } catch (error) {
         console.error('Failed to change event:', error);
         showError('Failed to load event data');
-        throw error; // Re-throw to let caller handle
-    }
-}
-
-/**
- * Handle event change for Rules page
- */
-async function handleRulesEventChange(type, eventId) {
-    try {
-        await handleEventChangeCore(type, eventId, false);
-        await renderRulesPage(document.getElementById('content'));
-    } catch (error) {
-        // Error already logged in core function
-    }
-}
-
-/**
- * Handle event type/selection change for Leaderboard page
- */
-async function handleEventChange(type, eventId) {
-    try {
-        await handleEventChangeCore(type, eventId, true);
-        renderLeaderboardPage(document.getElementById('content'));
-    } catch (error) {
-        // Error already logged in core function
-    }
-}
-
-/**
- * Handle event type/selection change for Stats page
- */
-async function handleStatsEventChange(type, eventId) {
-    try {
-        await handleEventChangeCore(type, eventId, false);
-        await renderStatsPage(document.getElementById('content'));
-    } catch (error) {
-        // Error already logged in core function
     }
 }
 
@@ -1225,7 +840,7 @@ function handlePlayerClick(player) {
     } else {
         state.expandedPlayers.add(player.name);
     }
-    renderLeaderboardPage(document.getElementById('content'));
+    renderHomePage(document.getElementById('content'));
 }
 
 /**
@@ -1263,12 +878,6 @@ function showError(message) {
  * Initialize stats carousel with swipe handling
  */
 function initStatsCarousel(carousel, totalCards) {
-    // Clean up any existing carousel listeners first (prevents memory leaks)
-    if (state.carouselCleanup) {
-        state.carouselCleanup();
-        state.carouselCleanup = null;
-    }
-
     let currentIndex = state.currentCarouselIndex || 0;
     let startX = 0;
     let currentX = 0;
@@ -1345,27 +954,14 @@ function initStatsCarousel(carousel, totalCards) {
     carousel.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     // Click on indicator dots
-    const indicatorClickHandlers = [];
     document.querySelectorAll('.indicator-dot').forEach(dot => {
-        const handler = () => {
+        dot.addEventListener('click', () => {
             updateCarousel(parseInt(dot.dataset.index));
-        };
-        dot.addEventListener('click', handler);
-        indicatorClickHandlers.push({ element: dot, handler });
+        });
     });
 
     // Initialize position (restore from state or start at 0)
     updateCarousel(currentIndex, false);
-
-    // Store cleanup function in state to remove listeners when switching pages
-    state.carouselCleanup = () => {
-        carousel.removeEventListener('touchstart', handleTouchStart);
-        carousel.removeEventListener('touchmove', handleTouchMove);
-        carousel.removeEventListener('touchend', handleTouchEnd);
-        indicatorClickHandlers.forEach(({ element, handler }) => {
-            element.removeEventListener('click', handler);
-        });
-    };
 }
 
 // Start app when DOM is ready
