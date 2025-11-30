@@ -1,3 +1,5 @@
+![ParSaveables Header](git_header.jpg)
+
 # ParSaveables - Disc Golf Season Tracker
 
 Enterprise-grade serverless disc golf scorecard processing system with automated scoring, AI-powered insights, and real-time leaderboards.
